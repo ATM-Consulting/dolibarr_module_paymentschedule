@@ -1,0 +1,48 @@
+Module104077Name = timetableSEPA
+Module104077Desc = timetableSEPA Description
+
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+timetableSEPASetup = Configuration du module timetableSEPA
+timetableSEPAAbout = A propos du module timetableSEPA
+
+timetableSEPA=timetableSEPA
+AbricotNeedUpdate=Le module abricot doit être mis à jour
+
+# SETUP
+ParamLabel=Nom du paramètre
+ParamDesc=Une description si besoin
+ParamHelp=Le contenu de l'aide
+
+# MENU
+TopMenutimetableSEPA=timetableSEPA
+
+# STATUS
+timetableSEPAStatusCanceled=Abandonnée (fermée)
+timetableSEPAStatusDraft=Brouillon (à valider)
+timetableSEPAStatusValidated=Validée (à accepter)
+timetableSEPAStatusRefused=Refusée (fermée)
+timetableSEPAStatusAccepted=Acceptée (fermée)
+
+timetableSEPAStatusCanceledShort=Abandonnée
+timetableSEPAStatusDraftShort=Brouillon
+timetableSEPAStatusValidatedShort=Validée
+timetableSEPAStatusRefusedShort=Refusée
+timetableSEPAStatusAcceptedShort=Acceptée
+
+# LIST
+timetableSEPAList=Liste timetableSEPA
+NotimetableSEPA=(vide)
+
+# CARD
+NewtimetableSEPA=Création timetableSEPA
+timetableSEPACard=Fiche timetableSEPA
+
+timetableSEPAModify=Modifier
+timetableSEPAClone=Cloner
+timetableSEPAValid=Valider
+timetableSEPAAccept=Accepter
+timetableSEPARefuse=Refuser
+timetableSEPAReopen=Rouvrir
+timetableSEPACancel=Abandonner
+timetableSEPADelete=Supprimer
