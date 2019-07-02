@@ -92,4 +92,40 @@ class ActionstimetableSEPA
 		}*/
 
 	}
+
+	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs;
+
+		$TContext = explode(':',$parameters['context']);
+
+		if (in_array('invoicecard', $TContext))
+		{
+			if (empty($object->array_options))
+			{
+				$object->fetch_optionals();
+			}
+
+			// vérifier qu'on a bien l'extrafield isecheancier à true
+			if (empty($object->array_options['options_isecheancier']))
+			{
+				return 0; // on affiche pas le bouton
+			}
+			else
+			{
+				dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+				list($isOK, $mesgs) = timetableSEPA::checkFacture($object);
+
+				if ($isOK)
+				{
+					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createTimetable">'.$langs->trans('timetableSEPACreate').'</a></div>';
+				}
+				else
+				{
+					print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.implode('<br />', $mesgs).'">'.$langs->trans('timetableSEPACreate').'</a></div>';
+				}
+			}
+
+		}
+	}
 }

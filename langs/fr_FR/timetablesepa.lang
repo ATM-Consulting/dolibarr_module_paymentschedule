@@ -46,3 +46,10 @@ timetableSEPARefuse=Refuser
 timetableSEPAReopen=Rouvrir
 timetableSEPACancel=Abandonner
 timetableSEPADelete=Supprimer
+timetableSEPACreate=Créer échéancier
+
+# ERRORS
+CheckErrorIsNotTimetible=Cette facture n'est pas un échéancier
+CheckErrorIsNotLinkedToContract=Cette facture n'est pas liée à un contrat
+CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active
+

@@ -350,7 +350,7 @@ class modtimetableSEPA extends DolibarrModules
 
 		dol_include_once("/core/class/extrafields.class.php");
 		$e = new ExtraFields($db);
-		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'invoice',0,0,'','',1,'',0,0,'',0);
+		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
 
 
 		return $this->_init($sql, $options);

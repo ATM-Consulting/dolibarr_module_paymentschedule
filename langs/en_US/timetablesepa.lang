@@ -5,3 +5,10 @@ ATMAbout = This module has been developed by <a href="http://www.atm-consulting.
 
 timetableSEPASetup = timetableSEPA module setup
 timetableSEPAAbout = About timetableSEPA
+
+# ERRORS
+CheckErrorIsNotTimetible=This invoice is not a timetable
+CheckErrorIsNotLinkedToContract=This invoice is not linked to a contract
+CheckErrorNoActiveLineOnContract=The linked contract has no active line
+
+timetableSEPACreate=Create timetables

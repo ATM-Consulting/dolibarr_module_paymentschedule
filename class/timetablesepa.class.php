@@ -365,11 +365,83 @@ class timetableSEPA extends SeedObject
 	 */
     public static function checkFacture(Facture &$facture)
 	{
+		global $langs;
+		$langs->load('timetablesepa@timetablesepa');
+
+		$ret = true;
+		$msgs = array();
+
+		if (empty($facture->array_options))
+		{
+			$facture->fetch_optionals();
+		}
+
+		if (empty($facture->linkedObjects))
+		{
+			$facture->fetchObjectLinked();
+		}
+
 		// vérifier qu'on a bien l'extrafield isecheancier à true
+		if (empty($facture->array_options['options_isecheancier']))
+		{
+			$ret = false;
+			$msgs[] = $langs->trans('CheckErrorIsNotTimetible');
+		}
 
 		// vérifier qu'on a bien un contrat lié à cette facture avec au moins une ligne active
+		if (array_key_exists('contrat', $facture->linkedObjects))
+		{
+			// si y a un contrat, on valide qu'il y a une ligne active sur ce contrat
+			// je prend le premier qui vient pour test
+			$keys = array_keys($facture->linkedObjects['contrat']);
+			$contrat = &$facture->linkedObjects['contrat'][$keys[0]];
+			if ($contrat->nbofservicesopened == 0)
+			{
+				$ret = false;
+				$msgs[] = $langs->trans('CheckErrorNoActiveLineOnContract');
+			}
+		}
+		else
+		{
+			$ret = false;
+			$msgs[] = $langs->trans('CheckErrorIsNotLinkedToContract');
+		}
 
-		return array(true, '');
+		return array($ret, $msgs);
+	}
+
+	/**
+	 * Crée l'objet échéancier depuis la facture en récupérant les infos du contrat lié
+	 *
+	 * @param Facture $facture
+	 *
+	 */
+	public function createFromFacture(Facture &$facture)
+	{
+		// check la facture
+		list($isOK, $errors) = $this->checkFacture($facture);
+		if (!$isOK)
+		{
+			setEventMessages('Impossible de créer l\'échéancier',$errors, 'errors');
+			return -1;
+		}
+		else
+		{
+
+		}
+		// récupérer le contrat lié à la facture
+		// récupérer la périodicité du contrat + date début + date fin
+
+		// calculer le nombre d'échéances
+
+		// si la facture est en brouillon et qu'aucune ligne n'est liée à un prélèvement SEPA, initDetailEcheancier($rest = false)
+	}
+
+	public function initDetailEcheancier($reset = false)
+	{
+		// si reset à true on supprime toutes les lignes avant de les recréer
+
+		// on crée les ligne d'échéance SEPA
 	}
 }
 
