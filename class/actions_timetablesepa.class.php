@@ -67,29 +67,24 @@ class ActionstimetableSEPA
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		/*$error = 0; // Error counter
-		$myvalue = 'test'; // A result value
+		global $db;
 
-		print_r($parameters);
-		echo "action: " . $action;
-		print_r($object);
+		$TContext = explode(':',$parameters['context']);
 
-		if (in_array('somecontext', explode(':', $parameters['context'])))
+		if (in_array('invoicecard', $TContext))
 		{
-		  // do something only for the context 'somecontext'
+			if ($action == 'createTimetable')
+			{
+				dol_include_once('timetablesepa/class/timetablesepa.class.php');
+
+				$Echeancier = new timetableSEPA($db);
+				$ret = $Echeancier->createFromFacture($object);
+				if ($ret < 0)
+				{
+					setEventMessage("error during creation", "errors");
+				}
+			}
 		}
-
-		if (! $error)
-		{
-			$this->results = array('myreturn' => $myvalue);
-			$this->resprints = 'A text to show';
-			return 0; // or return 1 to replace standard code
-		}
-		else
-		{
-			$this->errors[] = 'Error message';
-			return -1;
-		}*/
 
 	}
 

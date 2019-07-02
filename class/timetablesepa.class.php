@@ -57,6 +57,16 @@ class timetableSEPA extends SeedObject
 //		,self::STATUS_ACCEPTED => 'timetableSEPAStatusAcceptedShort'
 	);
 
+	const PERIODE_DAYS = 1;
+	const PERIODE_MONTH = 2;
+	const PERIODE_YEAR = 3;
+
+	public $TPeriodicite = array(
+		self::PERIODE_DAYS => 'days'
+		,self::PERIODE_MONTH=>'month'
+		,self::PERIODE_YEAR=>'year'
+	);
+
 	/** @var string $table_element Table name in SQL */
 	public $table_element = 'timetablesepa';
 
@@ -75,7 +85,11 @@ class timetableSEPA extends SeedObject
 	    'entity'        =>array('type'=>'integer',      'label'=>'Entity',           'enabled'=>1, 'visible'=>0,  'default'=>1, 'notnull'=>1,  'index'=>1, 'position'=>20),
 	    'status'        =>array('type'=>'integer',      'label'=>'Status',           'enabled'=>1, 'visible'=>0,  'notnull'=>1, 'default'=>0, 'index'=>1,  'position'=>30, 'arrayofkeyval'=>array(0=>'Draft', 1=>'Active', -1=>'Canceled')),
 	    'label'         =>array('type'=>'varchar(255)', 'label'=>'Label',            'enabled'=>1, 'visible'=>1,  'position'=>40,  'searchall'=>1, 'css'=>'minwidth200', 'help'=>'Help text', 'showoncombobox'=>1),
-		'fk_soc' 		=>array('type'=>'integer:Societe:societe/class/societe.class.php', 'label'=>'ThirdParty', 'visible'=>1, 'enabled'=>1, 'position'=>50, 'index'=>1, 'help'=>'LinkToThirparty'),
+		'fk_facture' 	=>array('type'=>'integer:Facture:compta/facture/class/facture.class.php', 'label'=>'Invoice', 'visible'=>1, 'enabled'=>1, 'position'=>50, 'index'=>1, 'help'=>'LinkToInvoice'),
+		'date_start' 	=>array('type'=>'date'),
+		'date_end' 		=>array('type'=>'date'),
+		'fk_periodicite'=>array('type'=>'integer', 		'label'=>'Periodicite'),
+		'nb_periodes'	=>array('type'=>'integer'),
 		'description'   =>array('type'=>'text',			'label'=>'Description',		 'enabled'=>1, 'visible'=>0,  'position'=>60),
 		//'fk_user_valid' =>array('type'=>'integer',      'label'=>'UserValidation',        'enabled'=>1, 'visible'=>-1, 'position'=>512),
 		'import_key'    =>array('type'=>'varchar(14)',  'label'=>'ImportId',         'enabled'=>1, 'visible'=>-2, 'notnull'=>-1, 'index'=>0,  'position'=>1000),
@@ -92,6 +106,17 @@ class timetableSEPA extends SeedObject
 
     /** @var string $label Object label */
     public $label;
+
+    /** @var int $fk_facture Object link to invoice */
+    public $fk_facture;
+
+    /** @var integer timetable periodicite */
+    public $fk_periodicite;
+
+    public $nb_periodes;
+
+    /** @var integer nombre d'échéances (calculé) */
+    public $nb_echeances;
 
 
 
@@ -122,7 +147,7 @@ class timetableSEPA extends SeedObject
             // TODO determinate if auto generate
             $this->ref = '(PROV'.$this->id.')';
         }
-
+		$this->ref = '(PROV'.$this->id.')';
         return $this->create($user);
     }
 
@@ -395,6 +420,7 @@ class timetableSEPA extends SeedObject
 			// je prend le premier qui vient pour test
 			$keys = array_keys($facture->linkedObjects['contrat']);
 			$contrat = &$facture->linkedObjects['contrat'][$keys[0]];
+
 			if ($contrat->nbofservicesopened == 0)
 			{
 				$ret = false;
@@ -415,9 +441,12 @@ class timetableSEPA extends SeedObject
 	 *
 	 * @param Facture $facture
 	 *
+	 * @return int <0 if KO, > 0 if OK
 	 */
 	public function createFromFacture(Facture &$facture)
 	{
+		global $user;
+
 		// check la facture
 		list($isOK, $errors) = $this->checkFacture($facture);
 		if (!$isOK)
@@ -427,12 +456,58 @@ class timetableSEPA extends SeedObject
 		}
 		else
 		{
+			$this->fk_facture = $facture->id;
+
+			// récupérer le contrat lié à la facture
+			if (empty($facture->linkedObjects))
+			{
+				$facture->fetchObjectLinked();
+			}
+
+			$keys = array_keys($facture->linkedObjects['contrat']);
+			$contrat = &$facture->linkedObjects['contrat'][$keys[0]];
+
+			// TODO on cherche une ligne active pour le moment, je ne connais pas la structure finale de cette partie
+			foreach($contrat->lines as $line)
+			{
+				// récupérer la périodicité du contrat + date début + date fin
+				if ($line->statut == 4){
+					$this->date_start = $line->date_start;
+					$this->date_end = $line->date_end;
+					$this->fk_periodicite = $line->array_options['options_periodicite'];
+					$this->nb_periodes = $line->array_options['options_nb_periodes'];
+
+					// TODO remove ajouté en dure pour les tests
+					$this->date_start = 1561932000;
+					$this->date_end = 1593511200;
+					$this->fk_periodicite = 2;
+					$this->nb_periodes = 3;
+
+					break;
+				}
+			}
+
+			// calculer le nombre d'échéances
+			$start = $this->date_start;
+			$end = $this->date_end;
+
+			$this->nb_echeances = 1;
+			$cpt = 0;
+			while ($start < $end && $cpt < 50)
+			{
+				$start = strtotime('+ '.$this->nb_periodes.' '.$this->TPeriodicite[$this->fk_periodicite], $start);
+
+				if ($start < $end) $this->nb_echeances++;
+
+				$cpt++;
+			}
+
+			$ret = $this->save($user);
+			var_dump($ret, $cpt, $this->nb_echeances, $start, $end, $this->TPeriodicite); exit;
 
 		}
-		// récupérer le contrat lié à la facture
-		// récupérer la périodicité du contrat + date début + date fin
 
-		// calculer le nombre d'échéances
+
 
 		// si la facture est en brouillon et qu'aucune ligne n'est liée à un prélèvement SEPA, initDetailEcheancier($rest = false)
 	}
