@@ -88,7 +88,11 @@ class modtimetableSEPA extends DolibarrModules
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
 		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@timetablesepa')) // Set here all workflow context managed by module
 		//                        );
-		$this->module_parts = array();
+		$this->module_parts = array(
+			'hooks' => array(
+				'invoicecard'
+			)
+		);
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/timetablesepa/temp");
@@ -334,6 +338,8 @@ class modtimetableSEPA extends DolibarrModules
 	 */
 	public function init($options = '')
 	{
+		global $db;
+
 		$sql = array();
 		
 		define('INC_FROM_DOLIBARR', true);
@@ -341,6 +347,11 @@ class modtimetableSEPA extends DolibarrModules
 		require dol_buildpath('/timetablesepa/script/create-maj-base.php');
 
 		$result=$this->_load_tables('/timetablesepa/sql/');
+
+		dol_include_once("/core/class/extrafields.class.php");
+		$e = new ExtraFields($db);
+		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'invoice',0,0,'','',1,'',0,0,'',0);
+
 
 		return $this->_init($sql, $options);
 	}

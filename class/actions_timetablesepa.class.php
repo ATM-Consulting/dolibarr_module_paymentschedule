@@ -67,7 +67,7 @@ class ActionstimetableSEPA
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		$error = 0; // Error counter
+		/*$error = 0; // Error counter
 		$myvalue = 'test'; // A result value
 
 		print_r($parameters);
@@ -89,6 +89,7 @@ class ActionstimetableSEPA
 		{
 			$this->errors[] = 'Error message';
 			return -1;
-		}
+		}*/
+
 	}
 }

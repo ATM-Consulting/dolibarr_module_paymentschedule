@@ -357,6 +357,20 @@ class timetableSEPA extends SeedObject
         
         return $res;
     }
+
+	/**
+	 * @param Facture $facture
+	 *
+	 * @return array array(bool, array(msgs))
+	 */
+    public static function checkFacture(Facture &$facture)
+	{
+		// vérifier qu'on a bien l'extrafield isecheancier à true
+
+		// vérifier qu'on a bien un contrat lié à cette facture avec au moins une ligne active
+
+		return array(true, '');
+	}
 }
 
 
