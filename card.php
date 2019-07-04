@@ -266,7 +266,7 @@ else
             $morehtmlref.='</div>';
 
 
-            $morehtmlstatus.=$object->getLibStatut(2);
+            //$morehtmlstatus.=$object->getLibStatut(2);
             dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
 
             print '<div class="fichecenter">';

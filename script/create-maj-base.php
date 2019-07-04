@@ -32,3 +32,6 @@ dol_include_once('/timetablesepa/class/timetablesepa.class.php');
 $o=new timetableSEPA($db);
 $o->init_db_by_vars();
 
+$o=new timetableSEPADet($db);
+$o->init_db_by_vars();
+

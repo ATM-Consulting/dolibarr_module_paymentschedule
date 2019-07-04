@@ -10,5 +10,7 @@ timetableSEPAAbout = About timetableSEPA
 CheckErrorIsNotTimetible=This invoice is not a timetable
 CheckErrorIsNotLinkedToContract=This invoice is not linked to a contract
 CheckErrorNoActiveLineOnContract=The linked contract has no active line
+CanNotRetrieveInvoice=Can't retrieve linked invoice
 
 timetableSEPACreate=Create timetables
+bankWithdrawal=Bank withdrawal due %s
