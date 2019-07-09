@@ -141,7 +141,9 @@ class modtimetableSEPA extends DolibarrModules
 		// 'stock'            to add a tab in stock view
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
-        $this->tabs = array();
+        $this->tabs = array(
+            'invoice:+timetablesepacard:timetableSEPA:timetablesepa@timetablesepa:$user->rights->timetablesepa->read:/timetablesepa/card.php?facid=__ID__'
+        );
 
         // Dictionaries
 	    if (! isset($conf->timetablesepa->enabled))
@@ -243,12 +245,12 @@ class modtimetableSEPA extends DolibarrModules
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
 		
-/*
+
 		$this->menu[$r]=array(
 			'fk_menu'=>0,			                // Put 0 if this is a top menu
 			'type'=>'top',			                // This is a Top menu entry
 			'titre'=>$langs->trans('TopMenutimetableSEPA'),
-			'mainmenu'=>'timetablesepa',
+			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'',
 			'url'=>'/timetablesepa/list.php',
 			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -264,7 +266,7 @@ class modtimetableSEPA extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=timetablesepa',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
 			'titre'=>$langs->trans('TopMenutimetableSEPA'),
-			'mainmenu'=>'timetablesepa',
+			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left',
 			'url'=>'/timetablesepa/list.php',
 			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -280,7 +282,7 @@ class modtimetableSEPA extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenutimetableSEPACreate'),
-			'mainmenu'=>'timetablesepa',
+			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left_create',
 			'url'=>'/timetablesepa/card.php?action=create',
 			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -297,7 +299,7 @@ class modtimetableSEPA extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenutimetableSEPAList'),
-			'mainmenu'=>'timetablesepa',
+			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left_list',
 			'url'=>'/timetablesepa/list.php',
 			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -308,7 +310,7 @@ class modtimetableSEPA extends DolibarrModules
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
-*/
+
 		
 		// Exports
 		$r=1;

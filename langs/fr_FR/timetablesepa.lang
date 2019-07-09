@@ -14,21 +14,17 @@ ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
 
+TIMETABLESEPA_MODE_REGLEMENT_TO_USE=Mode de règlement à prendre en compte pour autoriser la création d'un échéancier depuis une facture
+
 # MENU
 TopMenutimetableSEPA=Echéancier SEPA
 
 # STATUS
-timetableSEPAStatusCanceled=Abandonnée (fermée)
-timetableSEPAStatusDraft=Brouillon (à valider)
-timetableSEPAStatusValidated=Validée (à accepter)
-timetableSEPAStatusRefused=Refusée (fermée)
-timetableSEPAStatusAccepted=Acceptée (fermée)
+timetableSEPAStatusDraft=Brouillon (échéancier en attente)
+timetableSEPAStatusValidated=Validée (prêt pour prélèvement)
 
-timetableSEPAStatusCanceledShort=Abandonnée
 timetableSEPAStatusDraftShort=Brouillon
 timetableSEPAStatusValidatedShort=Validée
-timetableSEPAStatusRefusedShort=Refusée
-timetableSEPAStatusAcceptedShort=Acceptée
 
 # LIST
 timetableSEPAList=Liste échéanciers SEPA
@@ -38,6 +34,9 @@ NotimetableSEPA=(vide)
 NewtimetableSEPA=Création Echéancier SEPA
 timetableSEPACard=Fiche Echéancier SEPA
 bankWithdrawal=Prélèvement échéance %s
+timetablesepaNotCreatedYet=Aucun échéancier pour cette facture
+timetablesepaStatusBankLevy=Statut
+timetablesepaDateDemande=Date demande
 
 timetableSEPAModify=Modifier
 timetableSEPAClone=Cloner
@@ -49,7 +48,27 @@ timetableSEPACancel=Abandonner
 timetableSEPADelete=Supprimer
 timetableSEPACreate=Créer échéancier
 
+PeriodicityUnit=Unité periode
+PeriodicityValue=Valeur periode (tous les x unité)
+timetablesepa_periodicityDay=Jour
+timetablesepa_periodicityMonth=Mois
+timetablesepa_periodicityYear=Année
+
+ConfirmCreatetimetableSEPATitle=Création échéancier
+ConfirmCreatetimetableSEPABody=Souhaitez vous créer l'échéancier de prélèvement SEPA ?
+
+ConfirmValidatetimetableSEPATitle=
+ConfirmValidatetimetableSEPABody=
+
+ConfirmDeletetimetableSEPATitle=Supprimer échéancier
+ConfirmDeletetimetableSEPABody=Êtes-vous sûr de vouloir supprimer cet échéancier ?
+
+timetablesepa_dateStartEcheance=Date de démarrage
+
 # ERRORS
+CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
+CheckErrorCustomerHasNoIBAN=Le client de cette facture ne possède pas d'IBAN
+CheckErrorModeRgltNotMatch=Le mode règlement de correspond pas à ce qui est renseigné en configuration
 CheckErrorIsNotTimetible=Cette facture n'est pas un échéancier
 CheckErrorIsNotLinkedToContract=Cette facture n'est pas liée à un contrat
 CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active

@@ -109,13 +109,27 @@ if(!function_exists('setup_print_title')){
 setup_print_title("Parameters");
 
 // Example with a yes / no select
-setup_print_on_off('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc');
+//setup_print_on_off('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc');
 
 // Example with imput
-setup_print_input_form_part('CONSTNAME', $langs->trans('ParamLabel'));
+//setup_print_input_form_part('CONSTNAME', $langs->trans('ParamLabel'));
 
 // Example with color
-setup_print_input_form_part('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc', array('type'=>'color'), 'input', 'ParamHelp');
+//setup_print_input_form_part('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc', array('type'=>'color'), 'input', 'ParamHelp');
+
+$langs->load('bills');
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans('TIMETABLESEPA_MODE_REGLEMENT_TO_USE').'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_TIMETABLESEPA_MODE_REGLEMENT_TO_USE">';
+$form->select_types_paiements($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE, 'TIMETABLESEPA_MODE_REGLEMENT_TO_USE', 'CRDT');
+print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
 
 // Example with placeholder
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array('placeholder'=>'http://'),'input','ParamHelp');

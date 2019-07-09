@@ -25,12 +25,8 @@ if (!class_exists('SeedObject'))
 }
 
 
-class timetableSEPA extends SeedObject
+class TimetableSEPA extends SeedObject
 {
-    /**
-     * Canceled status
-     */
-    const STATUS_CANCELED = -1;
     /**
      * Draft status
      */
@@ -39,33 +35,13 @@ class timetableSEPA extends SeedObject
 	 * Validated status
 	 */
 	const STATUS_VALIDATED = 1;
-	/**
-	 * Refused status
-	 */
-	const STATUS_REFUSED = 3;
-	/**
-	 * Accepted status
-	 */
-	const STATUS_ACCEPTED = 4;
 
 	/** @var array $TStatus Array of translate key for each const */
 	public static $TStatus = array(
-		self::STATUS_CANCELED => 'timetableSEPAStatusCanceledShort'
-		,self::STATUS_DRAFT => 'timetableSEPAStatusDraftShort'
+		self::STATUS_DRAFT => 'timetableSEPAStatusDraftShort'
 		,self::STATUS_VALIDATED => 'timetableSEPAStatusValidatedShort'
-//		,self::STATUS_REFUSED => 'timetableSEPAStatusRefusedShort'
-//		,self::STATUS_ACCEPTED => 'timetableSEPAStatusAcceptedShort'
 	);
 
-	const PERIODE_DAYS = 1;
-	const PERIODE_MONTH = 2;
-	const PERIODE_YEAR = 3;
-
-	public $TPeriodicite = array(
-		self::PERIODE_DAYS => 'days'
-		,self::PERIODE_MONTH=>'month'
-		,self::PERIODE_YEAR=>'year'
-	);
 
 	/** @var string $table_element Table name in SQL */
 	public $table_element = 'timetablesepa';
@@ -79,52 +55,52 @@ class timetableSEPA extends SeedObject
     /** @var int $ismultientitymanaged 0=No test on entity, 1=Test with field entity, 2=Test with link by societe */
     public $ismultientitymanaged = 1;
 
+    const PERIODICITY_VALUE_DAY = 'day';
+    const PERIODICITY_VALUE_MONTH = 'month';
+    const PERIODICITY_VALUE_YEAR = 'year';
 
-    public $fields = array(
-		'ref'           =>array('type'=>'varchar(50)',  'length'=>50, 'label'=>'Ref','enabled'=>1, 'visible'=>1,  'notnull'=>1, 'showoncombobox'=>1, 'index'=>1, 'position'=>10, 'searchall'=>1, 'comment'=>'Reference of object'),
-	    'entity'        =>array('type'=>'integer',      'label'=>'Entity',           'enabled'=>1, 'visible'=>0,  'default'=>1, 'notnull'=>1,  'index'=>1, 'position'=>20),
-	    'status'        =>array('type'=>'integer',      'label'=>'Status',           'enabled'=>1, 'visible'=>0,  'notnull'=>1, 'default'=>0, 'index'=>1,  'position'=>30, 'arrayofkeyval'=>array(0=>'Draft', 1=>'Active', -1=>'Canceled')),
-	    'label'         =>array('type'=>'varchar(255)', 'label'=>'Label',            'enabled'=>1, 'visible'=>1,  'position'=>40,  'searchall'=>1, 'css'=>'minwidth200', 'help'=>'Help text', 'showoncombobox'=>1),
-		'fk_facture' 	=>array('type'=>'integer:Facture:compta/facture/class/facture.class.php', 'label'=>'Facture', 'visible'=>1, 'enabled'=>1, 'position'=>50, 'index'=>1, 'help'=>'LinkToInvoice'),
-		'date_start' 	=>array('type'=>'date'),
-		'date_end' 		=>array('type'=>'date'),
-		'fk_periodicite'=>array('type'=>'integer', 		'label'=>'Periodicite'),
-		'nb_periodes'	=>array('type'=>'integer'),
-		'description'   =>array('type'=>'text',			'label'=>'Description',		 'enabled'=>1, 'visible'=>0,  'position'=>60),
-		//'fk_user_valid' =>array('type'=>'integer',      'label'=>'UserValidation',        'enabled'=>1, 'visible'=>-1, 'position'=>512),
-		'import_key'    =>array('type'=>'varchar(14)',  'label'=>'ImportId',         'enabled'=>1, 'visible'=>-2, 'notnull'=>-1, 'index'=>0,  'position'=>1000),
+    public static $TPeriodicityString = array(
+        self::PERIODICITY_VALUE_DAY => 'day'
+        ,self::PERIODICITY_VALUE_MONTH => 'month'
+        ,self::PERIODICITY_VALUE_YEAR => 'year'
     );
 
-    /** @var string $ref Object reference */
-	public $ref;
-
-    /** @var int $entity Object entity */
-	public $entity;
+    public $fields = array(
+        'status' => array('type' => 'integer', 'visible' => 0, 'notnull' => 1, 'enabled' => 1, 'default' => 0, 'index' => 1, 'position' => 30)
+        ,'fk_facture' => array('type' => 'integer', 'visible' => 0, 'notnull' => 1, 'enabled' => 1, 'position' => 50, 'index' => 1)
+        ,'date_start' => array('type' => 'date', 'label' => 'DateStart', 'visible' => 1, 'notnull' => 1)
+        ,'date_end' => array('type' => 'date', 'label' => 'DateEnd', 'visible' => 1, 'notnull' => 1)
+        ,'periodicity_unit' => array('type' => 'list', 'label' => 'PeriodicityUnit', 'visible' => 1, 'notnull' => 1, 'default' => self::PERIODICITY_VALUE_MONTH) // day, month, year (value for strtotime)
+        ,'periodicity_value' => array('type' => 'integer', 'label' => 'PeriodicityValue', 'visible' => 1, 'notnull' => 1)
+        //,'fk_user_valid' => array('type'=>'integer', 'label'=>'UserValidation', 'enabled'=>1, 'visible'=>-1, 'position'=>512)
+        ,'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => 1, 'visible' => -2, 'notnull' => -1, 'index' => 0, 'position' => 1000)
+    );
 
 	/** @var int $status Object status */
 	public $status;
 
-    /** @var string $label Object label */
-    public $label;
-
     /** @var int $fk_facture Object link to invoice */
     public $fk_facture;
 
-    /** @var integer timetable periodicite */
-    public $fk_periodicite;
+    /** @var integer $date_start timestamp */
+    public $date_start;
 
-    public $nb_periodes;
+    /** @var integer $date_start timestamp */
+    public $date_end;
 
-    /** @var integer nombre d'échéances (calculé) */
-    public $nb_echeances;
+    /** @var integer $periodicity_unit */
+    public $periodicity_unit;
 
-    public $withChild = 1;
+    /** @var integer $periodicity_value */
+    public $periodicity_value;
 
-    public $childtables = array('timetablesepadet'=>'timetableSEPADet');
+
+    public $childtables = array('timetablesepadet'=>'TimetableSEPADet');
 
     public $fk_element = 'fk_timetable';
 
-
+    /** @var TimetableSEPADet[] $TTimetableSEPADet */
+    public $TTimetableSEPADet = array();
 
     /**
      * timetableSEPA constructor.
@@ -132,14 +108,19 @@ class timetableSEPA extends SeedObject
      */
     public function __construct($db)
     {
-		global $conf;
+        global $langs;
 
 		$this->db = $db;
 
 		$this->init();
 
 		$this->status = self::STATUS_DRAFT;
-		$this->entity = $conf->entity;
+
+		$this->fields['periodicity_unit']['arrayofkeyval'] = array(
+		    self::PERIODICITY_VALUE_DAY => $langs->trans('timetablesepa_periodicityDay')
+            , self::PERIODICITY_VALUE_MONTH => $langs->trans('timetablesepa_periodicityMonth')
+            , self::PERIODICITY_VALUE_YEAR => $langs->trans('timetablesepa_periodicityYear')
+        );
     }
 
     /**
@@ -148,12 +129,8 @@ class timetableSEPA extends SeedObject
      */
     public function save($user)
     {
-        if (!empty($this->is_clone))
-        {
-            // TODO determinate if auto generate
-            $this->ref = '(PROV'.$this->id.')';
-        }
-		$this->ref = '(PROV'.$this->id.')';
+        if (!empty($this->is_clone)) {}
+
         return $this->create($user);
     }
 
@@ -164,7 +141,7 @@ class timetableSEPA extends SeedObject
      */
     public function clearUniqueFields()
     {
-        $this->ref = 'Copy of '.$this->ref;
+
     }
 
 
@@ -176,35 +153,8 @@ class timetableSEPA extends SeedObject
     {
         $this->deleteObjectLinked();
 
+        unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
         return parent::delete($user);
-    }
-
-    /**
-     * @return string
-     */
-    public function getRef()
-    {
-		if (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))
-		{
-			return $this->getNextRef();
-		}
-
-		return $this->ref;
-    }
-
-    /**
-     * @return string
-     */
-    private function getNextRef()
-    {
-		global $db,$conf;
-
-		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-
-		$mask = !empty($conf->global->MYMODULE_REF_MASK) ? $conf->global->MYMODULE_REF_MASK : 'MM{yy}{mm}-{0000}';
-		$ref = get_next_value($db, $mask, 'timetablesepa', 'ref');
-
-		return $ref;
     }
 
 
@@ -233,8 +183,6 @@ class timetableSEPA extends SeedObject
     {
         if ($this->status === self::STATUS_DRAFT)
         {
-            // TODO determinate if auto generate
-//            $this->ref = $this->getRef();
 //            $this->fk_user_valid = $user->id;
             $this->status = self::STATUS_VALIDATED;
             $this->withChild = false;
@@ -296,54 +244,6 @@ class timetableSEPA extends SeedObject
         return 0;
     }
 
-
-    /**
-     * @param int    $withpicto     Add picto into link
-     * @param string $moreparams    Add more parameters in the URL
-     * @return string
-     */
-    public function getNomUrl($withpicto = 0, $moreparams = '')
-    {
-		global $langs;
-
-        $result='';
-        $label = '<u>' . $langs->trans("ShowtimetableSEPA") . '</u>';
-        if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
-
-        $linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
-        $link = '<a href="'.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
-
-        $linkend='</a>';
-
-        $picto='generic';
-//        $picto='timetablesepa@timetablesepa';
-
-        if ($withpicto) $result.=($link.img_object($label, $picto, 'class="classfortooltip"').$linkend);
-        if ($withpicto && $withpicto != 2) $result.=' ';
-
-        $result.=$link.$this->ref.$linkend;
-
-        return $result;
-    }
-
-    /**
-     * @param int       $id             Identifiant
-     * @param null      $ref            Ref
-     * @param int       $withpicto      Add picto into link
-     * @param string    $moreparams     Add more parameters in the URL
-     * @return string
-     */
-    public static function getStaticNomUrl($id, $ref = null, $withpicto = 0, $moreparams = '')
-    {
-		global $db;
-
-		$object = new timetableSEPA($db);
-		$object->fetch($id, false, $ref);
-
-		return $object->getNomUrl($withpicto, $moreparams);
-    }
-
-
     /**
      * @param int $mode     0=Long label, 1=Short label, 2=Picto + Short label, 3=Picto, 4=Picto + Long label, 5=Short label + Picto, 6=Long label + Picto
      * @return string
@@ -365,11 +265,8 @@ class timetableSEPA extends SeedObject
 		$langs->load('timetablesepa@timetablesepa');
         $res = '';
 
-        if ($status==self::STATUS_CANCELED) { $statusType='status9'; $statusLabel=$langs->trans('timetableSEPAStatusCancel'); $statusLabelShort=$langs->trans('timetableSEPAStatusShortCancel'); }
-        elseif ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('timetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('timetableSEPAStatusShortDraft'); }
-        elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('timetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('timetableSEPAStatusShortValidate'); }
-        elseif ($status==self::STATUS_REFUSED) { $statusType='status5'; $statusLabel=$langs->trans('timetableSEPAStatusRefused'); $statusLabelShort=$langs->trans('timetableSEPAStatusShortRefused'); }
-        elseif ($status==self::STATUS_ACCEPTED) { $statusType='status6'; $statusLabel=$langs->trans('timetableSEPAStatusAccepted'); $statusLabelShort=$langs->trans('timetableSEPAStatusShortAccepted'); }
+        if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('timetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('timetableSEPAStatusDraftShort'); }
+        elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('timetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('timetableSEPAStatusValidateShort'); }
 
         if (function_exists('dolGetStatus'))
         {
@@ -377,6 +274,7 @@ class timetableSEPA extends SeedObject
         }
         else
         {
+            $statusType = str_replace('status', 'statut', $statusType);
             if ($mode == 0) $res = $statusLabel;
             elseif ($mode == 1) $res = $statusLabelShort;
             elseif ($mode == 2) $res = img_picto($statusLabel, $statusType).$statusLabelShort;
@@ -390,33 +288,31 @@ class timetableSEPA extends SeedObject
     }
 
 	/**
+     * Méthode permettant de savoir si une facture correspond aux critères permettant de créer un échéancier
 	 * @param Facture $facture
 	 *
 	 * @return array array(bool, array(msgs))
 	 */
-    public static function checkFacture(Facture &$facture)
+    public static function checkFactureCondition($facture)
 	{
-		global $langs;
+		global $conf, $langs;
+
 		$langs->load('timetablesepa@timetablesepa');
 
-		$ret = true;
-		$msgs = array();
+        $TRestrictMessage = array();
 
-		if (empty($facture->array_options))
-		{
-			$facture->fetch_optionals();
-		}
+        if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
-		if (empty($facture->linkedObjects))
-		{
-			$facture->fetchObjectLinked();
-		}
+        if (empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) || $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE != $facture->mode_reglement_id) $TRestrictMessage[] = $langs->trans('CheckErrorModeRgltNotMatch');
+
+		if (empty($facture->array_options)) $facture->fetch_optionals();
+
+		if (empty($facture->linkedObjects)) $facture->fetchObjectLinked();
 
 		// vérifier qu'on a bien l'extrafield isecheancier à true
 		if (empty($facture->array_options['options_isecheancier']))
 		{
-			$ret = false;
-			$msgs[] = $langs->trans('CheckErrorIsNotTimetible');
+            $TRestrictMessage[] = $langs->trans('CheckErrorIsNotTimetible');
 		}
 
 		// vérifier qu'on a bien un contrat lié à cette facture avec au moins une ligne active
@@ -429,20 +325,24 @@ class timetableSEPA extends SeedObject
 
 			if ($contrat->nbofservicesopened == 0)
 			{
-				$ret = false;
-				$msgs[] = $langs->trans('CheckErrorNoActiveLineOnContract');
+                $TRestrictMessage[] = $langs->trans('CheckErrorNoActiveLineOnContract');
 			}
 		}
 		else
 		{
-			$ret = false;
-			$msgs[] = $langs->trans('CheckErrorIsNotLinkedToContract');
+            $TRestrictMessage[] = $langs->trans('CheckErrorIsNotLinkedToContract');
 		}
 
 		// TODO vérifier que le tiers de la facture a bien un compte bancaire avec les infos nécessaires au prélèvement
 		// IBAN valide + BIC + RUM + MODE (FRST ou RECUR)...
+        require_once DOL_DOCUMENT_ROOT.'/societe/class/companypaymentmode.class.php';
+        $companypaymentmode = new CompanyPaymentMode($facture->db);
+        if ($companypaymentmode->fetch(null, null, $facture->socid) <= 0)
+        {
+            $TRestrictMessage[] = $langs->trans('CheckErrorCustomerHasNoIBAN');
+        }
 
-		return array($ret, $msgs);
+		return $TRestrictMessage;
 	}
 
 	/**
@@ -452,168 +352,167 @@ class timetableSEPA extends SeedObject
 	 *
 	 * @return int <0 if KO, > 0 if OK
 	 */
-	public function createFromFacture(Facture &$facture, $resetLines = false)
+	public function createFromFacture($facture, $date_start=null, $resetLines = false)
 	{
 		global $user;
 
-		$res = $this->fetchBy($facture->id, 'fk_facture');
-		if ($res > 0)
-		{
-			// TODO vérifier qu'aucune des lignes de détail déjà présentes n'est liée à une demande de prélèvement SEPA
-			$this->initDetailEcheancier(true);
-		}
-		else
-		{
-			// check la facture
-			list($isOK, $errors) = $this->checkFacture($facture);
-			if (!$isOK)
-			{
-				setEventMessages('Impossible de créer l\'échéancier',$errors, 'errors');
-				return -1;
-			}
-			else
-			{
-				$this->fk_facture = $facture->id;
+        // check la facture
+        $TRestrictMessage = self::checkFactureCondition($facture);
+        if (!empty($TRestrictMessage))
+        {
+            $this->errors = $TRestrictMessage;
+            return -1;
+        }
+        else
+        {
+            $this->fk_facture = $facture->id;
 
-				// récupérer le contrat lié à la facture
-				if (empty($facture->linkedObjects))
-				{
-					$facture->fetchObjectLinked();
-				}
+            // récupérer le contrat lié à la facture
+            if (empty($facture->linkedObjects)) $facture->fetchObjectLinked();
 
-				$keys = array_keys($facture->linkedObjects['contrat']);
-				$contrat = &$facture->linkedObjects['contrat'][$keys[0]];
+            $keys = array_keys($facture->linkedObjects['contrat']);
+            $contrat = &$facture->linkedObjects['contrat'][$keys[0]];
 
-				// TODO on cherche une ligne active pour le moment, je ne connais pas la structure finale de cette partie
-				foreach($contrat->lines as $line)
-				{
-					// récupérer la périodicité du contrat + date début + date fin
-					if ($line->statut == 4){
-						$this->date_start = $line->date_start;
-						$this->date_end = $line->date_end;
-						$this->fk_periodicite = $line->array_options['options_periodicite'];
-						$this->nb_periodes = $line->array_options['options_nb_periodes'];
+            // TODO on cherche une ligne active pour le moment, je ne connais pas la structure finale de cette partie
+            foreach($contrat->lines as $line)
+            {
+                // récupérer la périodicité du contrat + date début + date fin
+                if ($line->statut == 4)
+                {
+                    $this->date_start = $line->date_start;
+                    $this->date_end = $line->date_end;
+                    $this->periodicity_unit = $line->array_options['options_periodicity_unit'];
+                    $this->periodicity_value = $line->array_options['options_periodicity_value'];
 
-						// TODO remove ajouté en dur pour les tests
-						$this->date_start = 1561932000;
-						$this->date_end = 1593511200;
-						$this->fk_periodicite = 2;
-						$this->nb_periodes = 1;
+                    // TODO remove jeux de test
+                    $this->date_start = strtotime('01-07-2019');
+                    $this->date_end = strtotime('01-06-2020');
+                    $this->periodicity_unit = self::PERIODICITY_VALUE_MONTH;
+                    $this->periodicity_value = 1;
 
-						break;
-					}
-				}
+                    break;
+                }
+            }
 
-				// calculer le nombre d'échéances
+            // TODO $date_start si le paramètre est donné, alors il faudrait ce baser sur celui-ci et y appliquer un nombre d'échéance pour obtenir la date de fin
+//            $this->date_start = $date_start;
 
-				$ret = $this->save($user);
-				if ($ret > 0)
-				{
-					$this->initDetailEcheancier($resetLines);
-				}
-				else
-				{
-					$this->errors[] = "save error";
-					return -1;
-				}
-				//var_dump($ret, $cpt, $this->nb_echeances, $start, $end, $this->TPeriodicite); exit;
+            // calculer le nombre d'échéances
 
-			}
-		}
+            $this->db->begin();
 
-		// si la facture est en brouillon et qu'aucune ligne n'est liée à un prélèvement SEPA, initDetailEcheancier($rest = true)
+            $res = $this->save($user);
+            if ($res > 0)
+            {
+                $res = $this->initDetailEcheancier(null, null, $resetLines);
+                if ($res >= 0)
+                {
+                    $this->db->commit();
+                    return $this->id;
+                }
+            }
+
+            $this->db->rollback();
+            return $res;
+        }
 	}
 
-	public function initDetailEcheancier($reset = false)
+	public function initDetailEcheancier($start, $end, $reset = false, $fill_amount = 'onlast')
 	{
 		global $user, $langs;
 
 		$langs->load('timetablesepa@timetablesepa');
 
-		$start = $this->date_start;
-		$end = $this->date_end;
+		if ($start === null) $start = $this->date_start;
+		if ($end === null) $end = $this->date_end;
 
-		if (empty($start) || empty($end) || empty($this->fk_facture)) {
-			$this->errors[] = "initDetail : missing parameters";
+		if ((empty($start) && $start !== 0) || (empty($end) && $end !== 0) || empty($this->fk_facture) || $this->fk_facture < 0)
+        {
+			$this->error = "initDetail : missing parameters";
+			$this->errors[] = $this->error;
 			return -1;
 		}
 
-		dol_include_once('compta/facture/class/facture.class.php');
-		$fac = new Facture($this->db);
-		$ret = $fac->fetch($this->fk_facture);
+		require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
+
+		$facture = new Facture($this->db);
+		$ret = $facture->fetch($this->fk_facture);
 		if ($ret <= 0)
 		{
 			$this->errors[] = $langs->trans('CanNotRetrieveInvoice');
-			return -1;
+			return -2;
 		}
 
-		$this->nb_echeances = 1;
-		$cpt = 0;
+		$cpt = 120; // TODO remplacer le 50 par une conf cachée (avoid infinite loop)
 		$TDatesEcheance = array();
-		while ($start < $end && $cpt < 50)
+		while ($start < $end && $cpt--)
 		{
 			if ($start < $end) $TDatesEcheance[] = $start;
-			$start = strtotime('+ '.$this->nb_periodes.' '.$this->TPeriodicite[$this->fk_periodicite], $start);
 
-			if ($start < $end) $this->nb_echeances++;
-
-			$cpt++;
+//			$start = strtotime('+'.$this->periodicity_value.' '.self::$TPeriodicityString[$this->periodicity_unit], $start);
+			$start = strtotime('+'.$this->periodicity_value.' '.$this->periodicity_unit, $start);
 		}
 
-		$amounts = array(
-			'HT' 	=> round($fac->total_ht / $this->nb_echeances, 2)
-			,'VAT'	=> round($fac->total_tva / $this->nb_echeances, 2)
-			,'TTC'	=> round($fac->total_ttc / $this->nb_echeances, 2)
+        $nb_iteration = count($TDatesEcheance);
+
+		$TDefaultAmountToPay = array(
+			'HT' 	=> round($facture->total_ht / $nb_iteration, 2)
+			,'VAT'	=> round($facture->total_tva / $nb_iteration, 2)
+			,'TTC'	=> round($facture->total_ttc / $nb_iteration, 2)
 		);
 
-		$lastAmounts = array(
-			'HT' 	=> $fac->total_ht - (($this->nb_echeances-1) * $amounts['HT'])
-			,'VAT' 	=> $fac->total_tva - (($this->nb_echeances-1) * $amounts['VAT'])
-			,'TTC' 	=> $fac->total_ttc - (($this->nb_echeances-1) * $amounts['TTC'])
+		$TLeftAmountToPay = array(
+			'HT' 	=> $facture->total_ht - (($nb_iteration-1) * $TDefaultAmountToPay['HT'])
+			,'VAT' 	=> $facture->total_tva - (($nb_iteration-1) * $TDefaultAmountToPay['VAT'])
+			,'TTC' 	=> $facture->total_ttc - (($nb_iteration-1) * $TDefaultAmountToPay['TTC'])
 		);
-
 
 		// si reset à true on supprime toutes les lignes avant de les recréer
 		if ($reset)
 		{
-			$this->fetchChild();
-			if (!empty($this->TtimetableSEPADet))
-			{
-				foreach ($this->TtimetableSEPADet as $det)
-				{
-					$det->delete($user);
-				}
-			}
-		}
+            foreach ($this->TTimetableSEPADet as $det)
+            {
+                $det->delete($user);
+            }
+        }
 
 		// on crée les lignes d'échéance SEPA (base des demandes de prélévement généré en auto)
-		for($i = 0; $i < $this->nb_echeances; $i++)
+		foreach ($TDatesEcheance as $i => $time)
 		{
-			$det = new timetableSEPADet($this->db);
+		    $k = $this->addChild('TimetableSEPADet');
+			$det = $this->TTimetableSEPADet[$k];
 			$det->fk_timetable = $this->id;
 			$det->label = $langs->trans('bankWithdrawal', $i+1);
-			$det->date_demande = $TDatesEcheance[$i];
-			if ($i == $this->nb_echeances-1)
-			{
-				$det->montant_ht  = $lastAmounts['HT'];
-				$det->montant_tva = $lastAmounts['VAT'];
-				$det->montant_ttc = $lastAmounts['TTC'];
-			}
-			else
-			{
-				$det->montant_ht  = $amounts['HT'];
-				$det->montant_tva = $amounts['VAT'];
-				$det->montant_ttc = $amounts['TTC'];
-			}
+			$det->date_demande = $time;
+
+            if ($fill_amount === 'onfirst' && $i == 0)
+            {
+                $det->amount_ht  = $TLeftAmountToPay['HT'];
+                $det->amount_tva = $TLeftAmountToPay['VAT'];
+                $det->amount_ttc = $TLeftAmountToPay['TTC'];
+            }
+            else
+            {
+                $det->amount_ht  = $TDefaultAmountToPay['HT'];
+                $det->amount_tva = $TDefaultAmountToPay['VAT'];
+                $det->amount_ttc = $TDefaultAmountToPay['TTC'];
+            }
 
 			$ret = $det->create($user);
+			if ($ret < 0)
+            {
+                $this->error = $det->error;
+                $this->errors[] = $this->error;
+                return -4;
+            }
 		}
 
+		return count($this->TTimetableSEPADet);
 	}
 }
 
 
-class timetableSEPADet extends SeedObject
+class TimetableSEPADet extends SeedObject
 {
     public $table_element = 'timetablesepadet';
 
@@ -621,12 +520,21 @@ class timetableSEPADet extends SeedObject
 
 	public $fields = array(
 		'fk_timetable'	=>	array('type'=>'integer', 'index'=>1)
+		,'status'	    =>	array('type'=>'integer')
 		,'label'		=>  array('type'=>'varchar(50)', 'length'=>50)
 		,'date_demande'	=> 	array('type'=>'date')
-		,'montant_ht'	=> 	array('type'=>'double')
-		,'montant_tva'	=> 	array('type'=>'double')
-		,'montant_ttc'	=> 	array('type'=>'double')
+		,'amount_ht'	=> 	array('type'=>'double')
+		,'amount_tva'	=> 	array('type'=>'double')
+		,'amount_ttc'	=> 	array('type'=>'double')
 	);
+
+	public $fk_timetable;
+	public $status;
+	public $label;
+	public $date_demande;
+	public $amount_ht;
+	public $amount_tva;
+	public $amount_ttc;
 
     /**
      * timetableSEPADet constructor.
@@ -647,6 +555,7 @@ class timetableSEPADet extends SeedObject
 	{
 		$this->deleteObjectLinked();
 
+//		unset($this->fk_element);
 		return parent::delete($user);
 	}
 }

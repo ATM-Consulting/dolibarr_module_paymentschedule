@@ -34,11 +34,11 @@ require_once '../lib/timetablesepa.lib.php';
 require_once '../class/timetablesepa.class.php';
 $langs->loadLangs(array('timetablesepa@timetablesepa', 'admin', 'other'));
 
-$timetablesepa = new timetableSEPA($db);
+$timetablesepa = new TimetableSEPA($db);
 $elementtype=$timetablesepa->table_element;  //Must be the $table_element of the class that manage extrafield
 
 // Page title and texts elements
-$textobject=$langs->transnoentitiesnoconv('timetableSEPA');
+$textobject=$langs->transnoentitiesnoconv('TimetableSEPA');
 $help_url='EN:Help timetableSEPA|FR:Aide timetableSEPA';
 $pageTitle = $langs->trans('timetableSEPAExtrafieldPage');
 

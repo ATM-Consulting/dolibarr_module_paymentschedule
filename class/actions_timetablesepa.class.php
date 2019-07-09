@@ -73,19 +73,26 @@ class ActionstimetableSEPA
 
 		if (in_array('invoicecard', $TContext))
 		{
-			if ($action == 'createTimetable')
+			if ($action == 'confirm_createtimetablesepa')
 			{
 				dol_include_once('timetablesepa/class/timetablesepa.class.php');
 
-				$Echeancier = new timetableSEPA($db);
-				$ret = $Echeancier->createFromFacture($object);
+				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
+				$echeancier = new TimetableSEPA($db);
+				$ret = $echeancier->createFromFacture($object, $date_start);
 				if ($ret < 0)
 				{
-					setEventMessage("error during creation", "errors");
+					setEventMessage($echeancier->errors, "errors");
 				}
+				else
+                {
+                    header('Location: '.dol_buildpath('/timetablesepa/card.php?id='.$echeancier->id, 1));
+                    exit;
+                }
 			}
 		}
 
+		return 0;
 	}
 
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
@@ -102,25 +109,77 @@ class ActionstimetableSEPA
 			}
 
 			// vérifier qu'on a bien l'extrafield isecheancier à true
-			if (empty($object->array_options['options_isecheancier']))
-			{
-				return 0; // on affiche pas le bouton
-			}
-			else
+			if (!empty($object->array_options['options_isecheancier']))
 			{
 				dol_include_once('/timetablesepa/class/timetablesepa.class.php');
-				list($isOK, $mesgs) = timetableSEPA::checkFacture($object);
 
-				if ($isOK)
+				$TRestrictMessage = TimetableSEPA::checkFactureCondition($object);
+				if (empty($TRestrictMessage))
 				{
-					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createTimetable">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createtimetablesepa">'.$langs->trans('timetableSEPACreate').'</a></div>';
 				}
 				else
 				{
-					print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.implode('<br />', $mesgs).'">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('timetableSEPACreate').'</a></div>';
 				}
 			}
-
 		}
+
+		return 0;
 	}
+
+	public function formConfirm($parameters, &$object, &$action, $hookmanager)
+    {
+        $TContext = explode(':',$parameters['context']);
+
+        if (in_array('invoicecard', $TContext))
+        {
+            dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
+
+            $form = new Form($this->db);
+            $this->resprints = getFormConfirmtimetableSEPA($form, null, $object, $action);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Permet de retirer l'onglet "Echéancier" sur la fiche d'une facture s'il n'en a pas de créé pour éviter à l'utilisateur de cliquer dessus
+     * @param $parameters
+     * @param $object
+     * @param $action
+     * @param $hookmanager
+     * @return int
+     */
+	public function completeTabsHead($parameters, &$object, &$action, $hookmanager)
+    {
+        $TContext = explode(':',$parameters['context']);
+
+        if (in_array('invoicecard', $TContext) && $parameters['mode'] == 'remove')
+        {
+            $head = $parameters['head'];
+            if (!empty($head))
+            {
+                foreach ($head as $k => $info)
+                {
+                    if ($info[2] === 'timetablesepacard')
+                    {
+                        dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+                        $TimetableSEPA = new TimetableSEPA($this->db);
+                        $TimetableSEPA->fetchBy($parameters['object']->id, 'fk_facture');
+                        if (empty($TimetableSEPA->id))
+                        {
+                            unset($head[$k]);
+                            $this->results = $head;
+                            return 1;
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
 }

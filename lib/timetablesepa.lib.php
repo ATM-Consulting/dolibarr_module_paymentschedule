@@ -55,7 +55,7 @@ function timetablesepaAdminPrepareHead()
     //$this->tabs = array(
     //	'entity:-tabname:Title:@timetablesepa:/timetablesepa/mypage.php?id=__ID__'
     //); // to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'timetablesepa');
+    complete_head_from_modules($conf, $langs, $object, $head, $h, 'TimetableSEPA');
 
     return $head;
 }
@@ -63,10 +63,10 @@ function timetablesepaAdminPrepareHead()
 /**
  * Return array of tabs to used on pages for third parties cards.
  *
- * @param 	timetableSEPA	$object		Object company shown
+ * @param 	TimetableSEPA $object Object company shown
  * @return 	array				Array of tabs
  */
-function timetablesepa_prepare_head(timetableSEPA $object)
+function timetablesepa_prepare_head(TimetableSEPA $object)
 {
     global $langs, $conf;
     $h = 0;
@@ -80,18 +80,19 @@ function timetablesepa_prepare_head(timetableSEPA $object)
     // Entries must be declared in modules descriptor with line
     // $this->tabs = array('entity:+tabname:Title:@timetablesepa:/timetablesepa/mypage.php?id=__ID__');   to add new tab
     // $this->tabs = array('entity:-tabname:Title:@timetablesepa:/timetablesepa/mypage.php?id=__ID__');   to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'timetablesepa');
+    complete_head_from_modules($conf, $langs, $object, $head, $h, 'TimetableSEPA');
 	
 	return $head;
 }
 
 /**
- * @param Form      $form       Form object
- * @param timetableSEPA  $object     timetableSEPA object
- * @param string    $action     Triggered action
+ * @param Form          $form   Form object
+ * @param TimetableSEPA $object timetableSEPA object
+ * @param Facture $facture Facture object
+ * @param string        $action Triggered action
  * @return string
  */
-function getFormConfirmtimetableSEPA($form, $object, $action)
+function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
 {
     global $langs, $user;
 
@@ -99,38 +100,22 @@ function getFormConfirmtimetableSEPA($form, $object, $action)
 
     if ($action === 'valid' && !empty($user->rights->timetablesepa->write))
     {
-        $body = $langs->trans('ConfirmValidatetimetableSEPABody', $object->ref);
+        $body = $langs->trans('ConfirmValidatetimetableSEPABody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidatetimetableSEPATitle'), $body, 'confirm_validate', '', 0, 1);
     }
-    elseif ($action === 'accept' && !empty($user->rights->timetablesepa->write))
+    elseif ($action === 'createtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
-        $body = $langs->trans('ConfirmAccepttimetableSEPABody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmAccepttimetableSEPATitle'), $body, 'confirm_accept', '', 0, 1);
-    }
-    elseif ($action === 'refuse' && !empty($user->rights->timetablesepa->write))
-    {
-        $body = $langs->trans('ConfirmRefusetimetableSEPABody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmRefusetimetableSEPATitle'), $body, 'confirm_refuse', '', 0, 1);
-    }
-    elseif ($action === 'reopen' && !empty($user->rights->timetablesepa->write))
-    {
-        $body = $langs->trans('ConfirmReopentimetableSEPABody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmReopentimetableSEPATitle'), $body, 'confirm_refuse', '', 0, 1);
+        // TODO load la valeur depuis le contrat
+        $formquestion = array(
+            array('type' => 'date', 'label' => $langs->trans('timetablesepa_dateStartEcheance'), 'name' => 'date_start', 'value' => '')
+        );
+        $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_validate', $formquestion, 0, 1);
     }
     elseif ($action === 'delete' && !empty($user->rights->timetablesepa->write))
     {
         $body = $langs->trans('ConfirmDeletetimetableSEPABody');
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletetimetableSEPATitle'), $body, 'confirm_delete', '', 0, 1);
-    }
-    elseif ($action === 'clone' && !empty($user->rights->timetablesepa->write))
-    {
-        $body = $langs->trans('ConfirmClonetimetableSEPABody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmClonetimetableSEPATitle'), $body, 'confirm_clone', '', 0, 1);
-    }
-    elseif ($action === 'cancel' && !empty($user->rights->timetablesepa->write))
-    {
-        $body = $langs->trans('ConfirmCanceltimetableSEPABody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmCanceltimetableSEPATitle'), $body, 'confirm_cancel', '', 0, 1);
     }
 
     return $formconfirm;

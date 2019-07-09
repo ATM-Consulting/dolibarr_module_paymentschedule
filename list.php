@@ -28,7 +28,7 @@ $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
-$object = new timetableSEPA($db);
+$object = new TimetableSEPA($db);
 
 $hookmanager->initHooks(array('timetablesepalist'));
 
@@ -103,7 +103,7 @@ $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_timetablesepa', 'GET'
 
 $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
-$r = new Listview($db, 'timetablesepa');
+$r = new Listview($db, 'TimetableSEPA');
 echo $r->render($sql, array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
     ,'allow-fields-select' => true
@@ -133,7 +133,7 @@ echo $r->render($sql, array(
 		,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
 		,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
 		,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-		,'status' => array('search_type' => timetableSEPA::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
+		,'status' => array('search_type' => TimetableSEPA::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 	)
 	,'translate' => array()
 	,'hide' => array(
@@ -168,7 +168,7 @@ function _getObjectNomUrl($id, $ref)
 {
 	global $db;
 
-	$o = new timetableSEPA($db);
+	$o = new TimetableSEPA($db);
 	$res = $o->fetch($id, false, $ref);
 	if ($res > 0)
 	{

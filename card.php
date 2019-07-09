@@ -20,21 +20,34 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('timetablesepa/class/timetablesepa.class.php');
 dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
+require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 
 if(empty($user->rights->timetablesepa->read)) accessforbidden();
 
-$langs->load('timetablesepa@timetablesepa');
+$langs->loadLangs(array('timetablesepa@timetablesepa', 'bills'));
 
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref');
+$facid = GETPOST('facid', 'int');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'timetablesepacard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$object = new timetableSEPA($db);
+$object = new TimetableSEPA($db);
 
 if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
+elseif (!empty($facid)) $object->fetchBy($facid, 'fk_facture');
+
+$facture = new Facture($db);
+
+if (!empty($object->id))
+{
+    $facture->fetch($object->fk_facture);
+    $facture->fetch_thirdparty();
+//    accessforbidden($langs->trans('timetablesepaNotCreatedYet'));
+}
 
 $hookmanager->initHooks(array('timetablesepacard', 'globalcard'));
 
@@ -132,11 +145,6 @@ if (empty($reshook))
                 exit;
             }
             break;
-		case 'confirm_clone':
-			$object->cloneObject($user);
-			
-			header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
-			exit;
 
 		case 'modif':
 		case 'reopen':
@@ -150,15 +158,9 @@ if (empty($reshook))
 			exit;
 
 		case 'confirm_delete':
-			if (!empty($user->rights->timetablesepa->delete)) $object->delete($user);
-			
-			header('Location: '.dol_buildpath('/timetablesepa/list.php', 1));
-			exit;
+			if (!empty($user->rights->timetablesepa->delete)) $res = $object->delete($user);
 
-		// link from llx_element_element
-		case 'dellink':
-			$object->deleteObjectLinked(null, '', null, '', GETPOST('dellinkid'));
-			header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+			header('Location: '.dol_buildpath('/compta/facture/card.php', 1).'?facid='.$facture->id);
 			exit;
 
 	}
@@ -170,7 +172,7 @@ if (empty($reshook))
  */
 $form = new Form($db);
 
-$title=$langs->trans('timetableSEPA');
+$title=$langs->trans('TimetableSEPA');
 llxHeader('', $title);
 
 if ($action == 'create')
@@ -221,9 +223,10 @@ else
             print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
             print '<input type="hidden" name="id" value="'.$object->id.'">';
 
-            $head = timetablesepa_prepare_head($object);
+//            $head = timetablesepa_prepare_head($object);
+            $head = facture_prepare_head($facture);
             $picto = 'timetablesepa@timetablesepa';
-            dol_fiche_head($head, 'card', $langs->trans('timetableSEPA'), 0, $picto);
+            dol_fiche_head($head, 'timetablesepacard', $langs->trans('TimetableSEPA'), -1, $picto);
 
             print '<table class="border centpercent">'."\n";
 
@@ -245,29 +248,33 @@ else
         }
         elseif ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
         {
-            $head = timetablesepa_prepare_head($object);
+//            $head = timetablesepa_prepare_head($object);
+            $head = facture_prepare_head($facture);
             $picto = 'timetablesepa@timetablesepa';
-            dol_fiche_head($head, 'card', $langs->trans('timetableSEPA'), -1, $picto);
+            dol_fiche_head($head, 'timetablesepacard', $langs->trans('TimetableSEPA'), -1, $picto);
 
-            $formconfirm = getFormConfirmtimetableSEPA($form, $object, $action);
+            $formconfirm = getFormConfirmtimetableSEPA($form, $object, $facture, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
 
             $linkback = '<a href="' .dol_buildpath('/timetablesepa/list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
 
             $morehtmlref='<div class="refidno">';
-            /*
-            // Ref bis
-            $morehtmlref.=$form->editfieldkey("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->timetablesepa->write, 'string', '', 0, 1);
-            $morehtmlref.=$form->editfieldval("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->timetablesepa->write, 'string', '', null, null, '', 1);
+            // Ref customer
+            $morehtmlref.=$form->editfieldkey("RefCustomer", 'ref_client', $facture->ref_client, $facture, 0, 'string', '', 0, 1);
+            $morehtmlref.=$form->editfieldval("RefCustomer", 'ref_client', $facture->ref_client, $facture, 0, 'string', '', null, null, '', 1);
             // Thirdparty
-            $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $soc->getNomUrl(1);
-            */
+            $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $facture->thirdparty->getNomUrl(1,'customer');
+            if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $facture->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/compta/facture/list.php?socid='.$facture->thirdparty->id.'&search_societe='.urlencode($facture->thirdparty->name).'">'.$langs->trans("OtherBills").'</a>)';
+
             $morehtmlref.='</div>';
 
+            $morehtmlstatus = $object->getLibStatut(6).'<br />';
 
-            //$morehtmlstatus.=$object->getLibStatut(2);
-            dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+            $fieldid = 'facnumber';
+            if ((float) DOL_VERSION >= 10.0) $fieldid = 'ref';
+            dol_banner_tab($facture, 'ref', '', 1, $fieldid, 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+
 
             print '<div class="fichecenter">';
 
@@ -289,6 +296,132 @@ else
 
             print '<div class="clearboth"></div><br />';
 
+
+            print '<br />';
+            print '<div class="div-table-responsive-no-min">';
+            print '<table id="tablelines" class="noborder noshadow" width="100%">';
+
+            $dateSelector = 1;
+            $selected = null;
+
+            $parameters = array('num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+            $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+            if (empty($reshook))
+            {
+                // Title line
+                print "<thead>\n";
+
+                print '<tr class="liste_titre nodrag nodrop">';
+
+                // Adds a line numbering column
+                if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) print '<td class="linecolnum" align="center" width="5">&nbsp;</td>';
+
+                // Label
+                print '<td class="linecollabel">'.$langs->trans('Label').'</td>';
+
+                // Date demande
+                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('timetablesepaDateDemande').'</td>';
+
+                // Amount HT
+                print '<td class="linecolamountht" align="right" width="80">'.$langs->trans('TotalHT').'</td>';
+
+                // Amount TVA
+                print '<td class="linecolamountvat" align="right" width="80">'.$langs->trans('TotalVAT').'</td>';
+
+                // Amount TTC ( TotalTTCShort )
+                print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
+
+                print '<td class="linecolstatus">'.$langs->trans('timetablesepaStatusBankLevy').'</td>';
+
+                print '<td class="linecoledit"></td>';  // No width to allow autodim
+
+                print '<td class="linecoldelete" width="10"></td>';
+
+                print '<td class="linecolmove" width="10"></td>';
+
+                print "</tr>\n";
+                print "</thead>\n";
+            }
+
+            $var = true;
+            $i	 = 0;
+
+            print "<tbody>\n";
+            foreach ($object->TTimetableSEPADet as $line)
+            {
+                if (is_object($hookmanager))   // Old code is commented on preceding line.
+                {
+                    if (empty($line->fk_parent_line))
+                    {
+                        $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+                        $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                    }
+                    else
+                    {
+                        $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+                        $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                    }
+                }
+                if (empty($reshook))
+                {
+                    $domData  = ' data-element="'.$line->element.'"';
+                    $domData .= ' data-id="'.$line->id.'"';
+                    $domData .= ' data-qty="'.$line->qty.'"';
+                    $domData .= ' data-product_type="'.$line->product_type.'"';
+
+                    print '<tr  id="row-'.$line->id.'" class="drag drop oddeven" '.$domData.' >';
+                    if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
+                        print '<td class="linecolnum" align="center">'.($i+1).'</td>';
+                        $coldisplay++;
+                    }
+
+                    // Label
+                    print '<td class="linecollabel minwidth300imp"><div id="line_'.$line->id.'">'.$line->label.'</div>';
+                    $coldisplay++;
+
+                    // Date demande
+                    print '<td class="linecoldatedemande  nowrap"  width="80">'.dol_print_date($line->date_demande, 'day').'</td>';
+                    $coldisplay++;
+
+                    // Amount HT
+                    print '<td class="linecolamountht right nowrap" align="right" width="80">'.price($line->amount_ht).'</td>';
+                    $coldisplay++;
+
+                    // Amount TVA
+                    print '<td class="linecolamountvat right nowrap" align="right" width="80">'.price($line->amount_tva).'</td>';
+                    $coldisplay++;
+
+                    // Amount TTC ( TotalTTCShort )
+                    print '<td class="linecolamountttc right nowrap" align="right" width="80">'.price($line->amount_ttc).'</td>';
+                    $coldisplay++;
+
+                    print '<td class="linecolstatus">'.$line->status.'</td>';
+                    $coldisplay++;
+
+                    print '<td class="linecoledit" width="10">'.img_edit().'</td>';  // No width to allow autodim
+                    $coldisplay++;
+
+                    print '<td class="linecoldelete" width="10">'.img_delete().'</td>';
+                    $coldisplay++;
+
+                    print '<td class="linecolmove" width="10">&nbsp;</td>';
+                    $coldisplay++;
+
+                    print "</tr>\n";
+
+                }
+
+                $i++;
+            }
+            print "</tbody>\n";
+
+            print "</table>\n";
+            print "</div>";
+
+            dol_fiche_end();
+
+
+
             print '<div class="tabsAction">'."\n";
             $parameters=array();
             $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
@@ -302,50 +435,30 @@ else
                 // Modify
                 if (!empty($user->rights->timetablesepa->write))
                 {
-                    if ($object->status !== timetableSEPA::STATUS_CANCELED)
+                    if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
                         // Modify
-                        if ($object->status !== timetableSEPA::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
-                        // Clone
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=clone">'.$langs->trans("timetableSEPAClone").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        // Valid
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=valid">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
                     }
-
-                    // Valid
-                    if ($object->status === timetableSEPA::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=valid">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
-
-                    // Accept
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('timetableSEPAAccept').'</a></div>'."\n";
-                    // Refuse
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=refuse">'.$langs->trans('timetableSEPARefuse').'</a></div>'."\n";
 
 
                     // Reopen
-                    if ($object->status === timetableSEPA::STATUS_ACCEPTED || $object->status === timetableSEPA::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
-                    // Cancel
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=cancel">'.$langs->trans("timetableSEPACancel").'</a></div>'."\n";
+                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
                 }
                 else
                 {
-                    if ($object->status !== timetableSEPA::STATUS_CANCELED)
+                    if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
                         // Modify
-                        if ($object->status !== timetableSEPA::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
-                        // Clone
-                        print '<div class="inline-block divButAction"><a class="butAction" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAClone").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        // Valid
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
                     }
 
-                    // Valid
-                    if ($object->status === timetableSEPA::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
-
-                    // Accept
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('timetableSEPAAccept').'</a></div>'."\n";
-                    // Refuse
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('timetableSEPARefuse').'</a></div>'."\n";
-
                     // Reopen
-                    if ($object->status === timetableSEPA::STATUS_ACCEPTED || $object->status === timetableSEPA::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
-                    // Cancel
-                    if ($object->status === timetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPACancel").'</a></div>'."\n";
+                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
                 }
 
                 if (!empty($user->rights->timetablesepa->delete))
@@ -359,20 +472,6 @@ else
             }
             print '</div>'."\n";
 
-            print '<div class="fichecenter"><div class="fichehalfleft">';
-            $linktoelem = $form->showLinkToObjectBlock($object, null, array($object->element));
-            $somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
-
-            print '</div><div class="fichehalfright"><div class="ficheaddleft">';
-
-            // List of actions on element
-            include_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
-            $formactions = new FormActions($db);
-            $somethingshown = $formactions->showactions($object, $object->element, $socid, 1);
-
-            print '</div></div></div>';
-
-            dol_fiche_end(-1);
         }
     }
 }
