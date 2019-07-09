@@ -110,7 +110,7 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
             array('type' => 'date', 'label' => $langs->trans('timetablesepa_dateStartEcheance'), 'name' => 'date_start', 'value' => '')
         );
         $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_validate', $formquestion, 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1);
     }
     elseif ($action === 'delete' && !empty($user->rights->timetablesepa->write))
     {
