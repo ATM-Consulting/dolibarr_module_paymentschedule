@@ -193,39 +193,6 @@ class TimetableSEPA extends SeedObject
         return 0;
     }
 
-    /**
-     * @param User  $user   User object
-     * @return int
-     */
-    public function setAccepted($user)
-    {
-        if ($this->status === self::STATUS_VALIDATED)
-        {
-            $this->status = self::STATUS_ACCEPTED;
-            $this->withChild = false;
-
-            return $this->update($user);
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param User  $user   User object
-     * @return int
-     */
-    public function setRefused($user)
-    {
-        if ($this->status === self::STATUS_VALIDATED)
-        {
-            $this->status = self::STATUS_REFUSED;
-            $this->withChild = false;
-
-            return $this->update($user);
-        }
-
-        return 0;
-    }
 
     /**
      * @param User  $user   User object
@@ -265,8 +232,8 @@ class TimetableSEPA extends SeedObject
 		$langs->load('timetablesepa@timetablesepa');
         $res = '';
 
-        if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('timetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('timetableSEPAStatusDraftShort'); }
-        elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('timetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('timetableSEPAStatusValidateShort'); }
+        if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('timetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('timetableSEPAStatusDraftShort'); }
+        elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('timetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('timetableSEPAStatusValidateShort'); }
 
         if (function_exists('dolGetStatus'))
         {
@@ -295,11 +262,13 @@ class TimetableSEPA extends SeedObject
 	 */
     public static function checkFactureCondition($facture)
 	{
-		global $conf, $langs;
+		global $conf, $langs, $user;
 
 		$langs->load('timetablesepa@timetablesepa');
 
         $TRestrictMessage = array();
+
+        if (empty($user->rights->timetablesepa->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
@@ -467,12 +436,12 @@ class TimetableSEPA extends SeedObject
 			,'TTC' 	=> $facture->total_ttc - (($nb_iteration-1) * $TDefaultAmountToPay['TTC'])
 		);
 
-		// si reset à true on supprime toutes les lignes avant de les recréer
+		// si reset à true, alors on supprime toutes les lignes avant de les recréer (uniquement celles qui sont en attente de traitement)
 		if ($reset)
 		{
             foreach ($this->TTimetableSEPADet as $det)
             {
-                $det->delete($user);
+                if ($det->status == TimetableSEPADet::STATUS_WAITING) $det->delete($user);
             }
         }
 
@@ -514,13 +483,37 @@ class TimetableSEPA extends SeedObject
 
 class TimetableSEPADet extends SeedObject
 {
+    /**
+     * Waiting status
+     */
+    const STATUS_WAITING = 0;
+    /**
+     * Validated status
+     */
+    const STATUS_IN_PROCESS = 1;
+    /**
+     * Accepted status
+     */
+    const STATUS_ACCEPTED = 2;
+    /**
+     * Refused status
+     */
+    const STATUS_REFUSED = -1;
+
+    public static $TStatusTransKey = array(
+        self::STATUS_WAITING => 'TimetableSEPADetStatusWaiting'
+        , self::STATUS_IN_PROCESS => 'TimetableSEPADetStatusInProcess'
+        , self::STATUS_ACCEPTED => 'TimetableSEPADetStatusAccepted'
+        , self::STATUS_REFUSED => 'TimetableSEPADetStatusRefused'
+    );
+
     public $table_element = 'timetablesepadet';
 
     public $element = 'timetablesepadet';
 
 	public $fields = array(
 		'fk_timetable'	=>	array('type'=>'integer', 'index'=>1)
-		,'status'	    =>	array('type'=>'integer')
+		,'status'	    =>	array('type'=>'integer', 'notnull' => 1, 'default' => 0)
 		,'label'		=>  array('type'=>'varchar(50)', 'length'=>50)
 		,'date_demande'	=> 	array('type'=>'date')
 		,'amount_ht'	=> 	array('type'=>'double')
@@ -558,4 +551,100 @@ class TimetableSEPADet extends SeedObject
 //		unset($this->fk_element);
 		return parent::delete($user);
 	}
+
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setWaiting($user)
+    {
+        $this->status = self::STATUS_WAITING;
+        $this->withChild = false;
+
+        return $this->update($user);
+    }
+
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setInProcess($user)
+    {
+        $this->status = self::STATUS_IN_PROCESS;
+        $this->withChild = false;
+
+        return $this->update($user);
+    }
+
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setAccepted($user)
+    {
+        $this->status = self::STATUS_ACCEPTED;
+        $this->withChild = false;
+
+        return $this->update($user);
+    }
+
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setRefused($user)
+    {
+        $this->status = self::STATUS_REFUSED;
+        $this->withChild = false;
+
+        return $this->update($user);
+    }
+
+    /**
+     * @param int $mode     0=Long label, 1=Short label, 2=Picto + Short label, 3=Picto, 4=Picto + Long label, 5=Short label + Picto, 6=Long label + Picto
+     * @return string
+     */
+    public function getLibStatut($mode = 0)
+    {
+        return self::LibStatut($this->status, $mode);
+    }
+
+    /**
+     * @param int       $status   Status
+     * @param int       $mode     0=Long label, 1=Short label, 2=Picto + Short label, 3=Picto, 4=Picto + Long label, 5=Short label + Picto, 6=Long label + Picto
+     * @return string
+     */
+    public static function LibStatut($status, $mode)
+    {
+        global $langs;
+
+        $langs->load('timetablesepa@timetablesepa');
+        $res = '';
+
+        $statusLabel=$langs->trans(self::$TStatusTransKey[$status]);
+        $statusLabelShort=$langs->trans(self::$TStatusTransKey[$status]);
+
+        if ($status==self::STATUS_WAITING) $statusType='status6';
+        elseif ($status==self::STATUS_IN_PROCESS) $statusType='status1';
+        elseif ($status==self::STATUS_ACCEPTED) $statusType='status4';
+        elseif ($status==self::STATUS_REFUSED) $statusType='status8';
+
+        if (function_exists('dolGetStatus'))
+        {
+            $res = dolGetStatus($statusLabel, $statusLabelShort, '', $statusType, $mode);
+        }
+        else
+        {
+            $statusType = str_replace('status', 'statut', $statusType);
+            if ($mode == 0) $res = $statusLabel;
+            elseif ($mode == 1) $res = $statusLabelShort;
+            elseif ($mode == 2) $res = img_picto($statusLabel, $statusType).$statusLabelShort;
+            elseif ($mode == 3) $res = img_picto($statusLabel, $statusType);
+            elseif ($mode == 4) $res = img_picto($statusLabel, $statusType).$statusLabel;
+            elseif ($mode == 5) $res = $statusLabelShort.img_picto($statusLabel, $statusType);
+            elseif ($mode == 6) $res = $statusLabel.img_picto($statusLabel, $statusType);
+        }
+
+        return $res;
+    }
 }

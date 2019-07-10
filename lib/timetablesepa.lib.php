@@ -112,6 +112,14 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
         $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1);
     }
+    elseif ($action === 'reset' && !empty($user->rights->timetablesepa->write))
+    {
+        $formquestion = array(
+            array('type' => 'checkbox', 'label' => $langs->trans('timetablesepa_fullReset'), 'name' => 'full_reset', 'value' => '1', 'moreattr' => 'value="1"')
+        );
+        $body = $langs->trans('ConfirmResettimetableSEPABody', $facture->ref);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResettimetableSEPATitle'), $body, 'confirm_reset', $formquestion, 0, 1);
+    }
     elseif ($action === 'delete' && !empty($user->rights->timetablesepa->write))
     {
         $body = $langs->trans('ConfirmDeletetimetableSEPABody');

@@ -97,7 +97,7 @@ class ActionstimetableSEPA
 
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
 	{
-		global $langs;
+		global $langs, $user;
 
 		$TContext = explode(':',$parameters['context']);
 
@@ -109,7 +109,7 @@ class ActionstimetableSEPA
 			}
 
 			// vérifier qu'on a bien l'extrafield isecheancier à true
-			if (!empty($object->array_options['options_isecheancier']))
+			if (!empty($object->array_options['options_isecheancier']) && !empty($user->rights->timetablesepa->write))
 			{
 				dol_include_once('/timetablesepa/class/timetablesepa.class.php');
 

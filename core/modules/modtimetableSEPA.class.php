@@ -245,7 +245,7 @@ class modtimetableSEPA extends DolibarrModules
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
 		
-
+/*
 		$this->menu[$r]=array(
 			'fk_menu'=>0,			                // Put 0 if this is a top menu
 			'type'=>'top',			                // This is a Top menu entry
@@ -310,7 +310,7 @@ class modtimetableSEPA extends DolibarrModules
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
-
+*/
 		
 		// Exports
 		$r=1;

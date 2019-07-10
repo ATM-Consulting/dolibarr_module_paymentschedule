@@ -163,6 +163,14 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/compta/facture/card.php', 1).'?facid='.$facture->id);
 			exit;
 
+        case 'confirm_reset':
+            if (!empty($user->rights->timetablesepa->write))
+            {
+                $object->initDetailEcheancier($object->date_start, $object->date_end, GETPOST('full_reset'));
+            }
+            header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+            exit;
+
 	}
 }
 
@@ -395,7 +403,7 @@ else
                     print '<td class="linecolamountttc right nowrap" align="right" width="80">'.price($line->amount_ttc).'</td>';
                     $coldisplay++;
 
-                    print '<td class="linecolstatus">'.$line->status.'</td>';
+                    print '<td class="linecolstatus">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;
 
                     print '<td class="linecoledit" width="10">'.img_edit().'</td>';  // No width to allow autodim
@@ -437,6 +445,8 @@ else
                 {
                     if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
+                        // Reset échéancier
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reset">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
                         // Modify
                         print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
                         // Valid
@@ -451,6 +461,8 @@ else
                 {
                     if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
+                        // Reset échéancier
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
                         // Modify
                         print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
                         // Valid
