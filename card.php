@@ -31,6 +31,7 @@ $action = GETPOST('action');
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref');
 $facid = GETPOST('facid', 'int');
+$lineid = GETPOST('lineid', 'int');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'timetablesepacard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -171,6 +172,35 @@ if (empty($reshook))
             header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
             exit;
 
+        case 'updateline':
+//            var_dump(GETPOST('save'), $lineid);
+            if (GETPOST('save') && $lineid > 0)
+            {
+                $k = $object->addChild('TimetableSEPADet', $lineid);
+                $child = &$object->TTimetableSEPADet[$k];
+                if (!empty($child->id))
+                {
+                    $child->label = GETPOST('label');
+                    $child->date_demande = dol_mktime(12, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+                    $child->fk_mode_reglement = GETPOST('fk_mode_reglement', 'int');
+
+                    $old_amount_ttc = $child->amount_ttc;
+                    $child->amount_ttc = price2num(GETPOST('amount_ttc', 'intcomma'));
+
+                    $res = $child->update($user);
+
+                    // TODO
+                    if ($child->amount_ttc != $child->amount_ttc)
+                    {
+
+                    }
+                }
+//            var_dump($k, $child->id, $res);
+            }
+//            exit;
+            header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
+            exit;
+
 	}
 }
 
@@ -307,6 +337,16 @@ else
 
             print '<br />';
             print '<div class="div-table-responsive-no-min">';
+
+            if ($action == 'editline')
+            {
+                print '<form id="" name="" action="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'#row-'.$lineid.'" method="POST">';
+                print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
+                print '<input type="hidden" name="action" value="updateline" />';
+                print '<input type="hidden" name="facid" value="'.$facture->id.'" />';
+                print '<input type="hidden" name="lineid" value="'.$lineid.'" />';
+            }
+
             print '<table id="tablelines" class="noborder noshadow" width="100%">';
 
             $dateSelector = 1;
@@ -330,11 +370,14 @@ else
                 // Date demande
                 print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('timetablesepaDateDemande').'</td>';
 
-                // Amount HT
-                print '<td class="linecolamountht" align="right" width="80">'.$langs->trans('TotalHT').'</td>';
+                // Mode de règlement
+                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('timetablesepaModeRglt').'</td>';
 
-                // Amount TVA
-                print '<td class="linecolamountvat" align="right" width="80">'.$langs->trans('TotalVAT').'</td>';
+//                // Amount HT
+//                print '<td class="linecolamountht" align="right" width="80">'.$langs->trans('TotalHT').'</td>';
+//
+//                // Amount TVA
+//                print '<td class="linecolamountvat" align="right" width="80">'.$langs->trans('TotalVAT').'</td>';
 
                 // Amount TTC ( TotalTTCShort )
                 print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
@@ -353,6 +396,9 @@ else
 
             $var = true;
             $i	 = 0;
+
+
+            $form->load_cache_types_paiements();
 
             print "<tbody>\n";
             foreach ($object->TTimetableSEPADet as $line)
@@ -384,33 +430,62 @@ else
                     }
 
                     // Label
-                    print '<td class="linecollabel minwidth300imp"><div id="line_'.$line->id.'">'.$line->label.'</div>';
+                    print '<td class="linecollabel minwidth300imp"><div id="line_'.$line->id.'">';
+                    if ($action == 'editline' && $line->id == $lineid) print '<textarea class="flat" name="label" rows="3" cols="60">'.$line->label.'</textarea>';
+                    else print $line->label;
+                    print '</div>';
                     $coldisplay++;
 
                     // Date demande
-                    print '<td class="linecoldatedemande  nowrap"  width="80">'.dol_print_date($line->date_demande, 'day').'</td>';
+                    print '<td class="linecoldatedemande  nowrap"  width="80">';
+                    if ($action == 'editline' && $line->id == $lineid) print $form->selectDate($line->date_demande, 're');
+                    else print dol_print_date($line->date_demande, 'day');
+                    print '</td>';
                     $coldisplay++;
 
-                    // Amount HT
-                    print '<td class="linecolamountht right nowrap" align="right" width="80">'.price($line->amount_ht).'</td>';
+                    // Mode de règlement
+                    print '<td class="linecoldatedemande  nowrap"  width="80">';
+                    if ($action == 'editline' && $line->id == $lineid) $form->select_types_paiements($object->mode_reglement_id, 'fk_mode_reglement', 'CRDT', 0, 1, 0, 0, 1);
+                    else print $form->cache_types_paiements[$object->mode_reglement_id]['label'];
+                    print '</td>';
                     $coldisplay++;
 
-                    // Amount TVA
-                    print '<td class="linecolamountvat right nowrap" align="right" width="80">'.price($line->amount_tva).'</td>';
-                    $coldisplay++;
+//                    // Amount HT
+//                    print '<td class="linecolamountht right nowrap" align="right" width="80">';
+//                    if ($action == 'editline' && $line->id == $lineid) print '<input class="flat right" type="text" value="'.$line->amount_ht.'" name="amount_ht" size="6">';
+//                    else print price($line->amount_ht);
+//                    print '</td>';
+//                    $coldisplay++;
+//
+//                    // Amount TVA
+//                    print '<td class="linecolamountvat right nowrap" align="right" width="80">'.price($line->amount_tva).'</td>';
+//                    $coldisplay++;
 
                     // Amount TTC ( TotalTTCShort )
-                    print '<td class="linecolamountttc right nowrap" align="right" width="80">'.price($line->amount_ttc).'</td>';
+                    print '<td class="linecolamountttc right nowrap" align="right" width="80">';
+                    if ($action == 'editline' && $line->id == $lineid) print '<input class="flat right" type="text" value="'.$line->amount_ttc.'" name="amount_ttc" size="6">';
+                    else print price($line->amount_ttc);
+                    print '</td>';
                     $coldisplay++;
 
                     print '<td class="linecolstatus">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;
 
-                    print '<td class="linecoledit" width="10">'.img_edit().'</td>';  // No width to allow autodim
-                    $coldisplay++;
+                    if ($action == 'editline' && $line->id == $lineid)
+                    {
+                        print '<td class="linecolsave center" colspan="2">
+                                    <input id="savelinebutton" type="submit" class="button" name="save" value="'.$langs->trans('Save').'" />
+                                    <input id="cancellinebutton" type="submit" class="button" name="cancel" value="'.$langs->trans('Cancel').'" />
+                                </td>';
+                    }
+                    else
+                    {
+                        print '<td class="linecoledit" width="10"><a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a></td>';  // No width to allow autodim
+                        $coldisplay++;
 
-                    print '<td class="linecoldelete" width="10">'.img_delete().'</td>';
-                    $coldisplay++;
+                        print '<td class="linecoldelete" width="10">'.img_delete().'</td>';
+                        $coldisplay++;
+                    }
 
                     print '<td class="linecolmove" width="10">&nbsp;</td>';
                     $coldisplay++;
@@ -424,6 +499,12 @@ else
             print "</tbody>\n";
 
             print "</table>\n";
+
+            if ($action == 'editline')
+            {
+                print '</form>';
+            }
+
             print "</div>";
 
             dol_fiche_end();

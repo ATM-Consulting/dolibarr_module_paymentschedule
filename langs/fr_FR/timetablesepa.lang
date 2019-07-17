@@ -38,6 +38,7 @@ bankWithdrawal=Prélèvement échéance %s
 timetablesepaNotCreatedYet=Aucun échéancier pour cette facture
 timetablesepaStatusBankLevy=Statut
 timetablesepaDateDemande=Date demande
+timetablesepaModeRglt=Mode de règlement
 
 timetableSEPAReset=Générer
 timetableSEPAModify=Modifier

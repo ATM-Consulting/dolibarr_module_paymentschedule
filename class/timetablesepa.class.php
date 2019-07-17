@@ -452,6 +452,7 @@ class TimetableSEPA extends SeedObject
             }
 
 			$det->date_demande = $time;
+			$det->fk_mode_reglement = $facture->mode_reglement_id;
 
             if ($fill_amount === 'onfirst' && $i == 0)
             {
@@ -515,8 +516,10 @@ class TimetableSEPADet extends SeedObject
 		,'status'	    =>	array('type'=>'integer', 'notnull' => 1, 'default' => 0)
 		,'label'		=>  array('type'=>'varchar(50)', 'length'=>50)
 		,'date_demande'	=> 	array('type'=>'date')
-		,'amount_ht'	=> 	array('type'=>'double')
-		,'amount_tva'	=> 	array('type'=>'double')
+		,'fk_mode_reglement'	=> 	array('type'=>'integer')
+		,'tva_tx'	    => 	array('type'=>'double')
+//		,'amount_ht'	=> 	array('type'=>'double')
+//		,'amount_tva'	=> 	array('type'=>'double')
 		,'amount_ttc'	=> 	array('type'=>'double')
 	);
 
@@ -524,8 +527,9 @@ class TimetableSEPADet extends SeedObject
 	public $status;
 	public $label;
 	public $date_demande;
-	public $amount_ht;
-	public $amount_tva;
+	public $fk_mode_reglement;
+//	public $amount_ht;
+//	public $amount_tva;
 	public $amount_ttc;
 
     /**
