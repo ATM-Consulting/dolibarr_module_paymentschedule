@@ -166,7 +166,7 @@ if (empty($reshook))
         case 'confirm_reset':
             if (!empty($user->rights->timetablesepa->write))
             {
-                $object->initDetailEcheancier($object->date_start, $object->date_end, GETPOST('full_reset'));
+                $object->initDetailEcheancier(GETPOST('full_reset'));
             }
             header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
             exit;

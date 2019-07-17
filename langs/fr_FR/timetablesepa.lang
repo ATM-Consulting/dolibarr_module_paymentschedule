@@ -15,7 +15,8 @@ ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
 
 TIMETABLESEPA_MODE_REGLEMENT_TO_USE=Mode de règlement à prendre en compte pour autoriser la création d'un échéancier depuis une facture
-
+TIMETABLESEPA_LABEL_PATTERN=Libellé à utiliser sur la création des lignes de prélèvement
+TIMETABLESEPA_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant de 1<br />{SOCNAME} = nom du tiers<br />{FACNUMBER} = référence de facture<br />{REFCLIENT} = référence client
 # MENU
 TopMenutimetableSEPA=Echéancier SEPA
 
@@ -51,6 +52,7 @@ timetableSEPACreate=Créer échéancier
 
 PeriodicityUnit=Unité période
 PeriodicityValue=Valeur période (tous les x unité)
+NbTerm=Nombre d'échéance
 timetablesepa_periodicityDay=Jour
 timetablesepa_periodicityMonth=Mois
 timetablesepa_periodicityYear=Année
@@ -58,6 +60,8 @@ timetablesepa_periodicityYear=Année
 ConfirmCreatetimetableSEPATitle=Création échéancier
 ConfirmCreatetimetableSEPABody=Souhaitez vous créer l'échéancier de prélèvement SEPA ?
 timetablesepa_dateStartEcheance=Date de démarrage
+timetablesepa_numberOfEcheanceEcheance=Nombre d'échéance
+timetablesepa_dateEndPrelevement=Date prévisionnelle de dernière échéance :
 
 ConfirmValidatetimetableSEPATitle=Validation échéancier
 ConfirmValidatetimetableSEPABody=Souhaitez vous valider cet échéancier pour prise en compte des prélèvements aux dates indiquées ?
@@ -76,6 +80,7 @@ TimetableSEPADetStatusRefused=Refusé
 
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
+CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture
 CheckErrorCustomerHasNoIBAN=Le client de cette facture ne possède pas d'IBAN
 CheckErrorModeRgltNotMatch=Le mode règlement de correspond pas à ce qui est renseigné en configuration
 CheckErrorIsNotTimetible=Cette facture n'est pas un échéancier

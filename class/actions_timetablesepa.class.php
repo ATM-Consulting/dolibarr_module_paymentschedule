@@ -78,8 +78,12 @@ class ActionstimetableSEPA
 				dol_include_once('timetablesepa/class/timetablesepa.class.php');
 
 				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
+				$periodicity_unit = GETPOST('periodicity_unit');
+				$periodicity_value = GETPOST('periodicity_value', 'int');
+				$nb_term = GETPOST('nb_term', 'int');
+
 				$echeancier = new TimetableSEPA($db);
-				$ret = $echeancier->createFromFacture($object, $date_start);
+				$ret = $echeancier->createFromFacture($object, $date_start, $periodicity_unit, $periodicity_value, $nb_term);
 				if ($ret < 0)
 				{
 					setEventMessage($echeancier->errors, "errors");

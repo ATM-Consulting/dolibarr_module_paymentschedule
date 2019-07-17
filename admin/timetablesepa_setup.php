@@ -130,6 +130,7 @@ print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'
 print '</form>';
 print '</td></tr>';
 
+setup_print_input_form_part('TIMETABLESEPA_LABEL_PATTERN', $langs->trans('TIMETABLESEPA_LABEL_PATTERN'), 'TIMETABLESEPA_LABEL_PATTERN_HELP', array('placeholder' => 'Prélèvement {SOCNAME} - {FACNUMBER}', 'size' => '40'));
 
 // Example with placeholder
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array('placeholder'=>'http://'),'input','ParamHelp');

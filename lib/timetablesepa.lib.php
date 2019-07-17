@@ -105,12 +105,46 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
     }
     elseif ($action === 'createtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
-        // TODO load la valeur depuis le contrat
+        $scriptjs = '
+            <label>'.$langs->transnoentities('timetablesepa_dateEndPrelevement').' <span id="date_last_prelevement"></span></label>
+            <script type="text/javascript">
+                $("#date_start, #periodicity_unit, #periodicity_value, #nb_term").change(function(event) {
+                    refreshDateEndPrelevement(event);
+                });
+                
+                function refreshDateEndPrelevement(event) {
+                    let jsDate = $("#date_start").datepicker("getDate");
+                    if (jsDate instanceof Date) {
+                        let periodicity_unit = $("#periodicity_unit").val();
+                        let periodicity_value = parseInt($("#periodicity_value").val());
+                        let nb_term = parseInt($("#nb_term").val());
+                        if (periodicity_unit === "'.TimetableSEPA::PERIODICITY_VALUE_DAY.'") {
+                            jsDate.setDate(jsDate.getDate()+periodicity_value*(nb_term-1));
+                        } else if (periodicity_unit === "'.TimetableSEPA::PERIODICITY_VALUE_MONTH.'") {
+                            jsDate.setMonth(jsDate.getMonth()+periodicity_value*(nb_term-1));
+                        } else if (periodicity_unit === "'.TimetableSEPA::PERIODICITY_VALUE_YEAR.'") {
+                            jsDate.setFullYear(jsDate.getFullYear()+periodicity_value*(nb_term-1));
+                        }
+                        
+                        $("#date_last_prelevement").text(("0" + jsDate.getDate()).slice(-2) + "/" + ("0" + (jsDate.getMonth() + 1)).slice(-2) + "/" + jsDate.getFullYear());
+                    } else {
+                        setTimeout(refreshDateEndPrelevement, 150, event);
+                    }
+                }
+                
+                refreshDateEndPrelevement();
+            </script>
+        ';
+
         $formquestion = array(
             array('type' => 'date', 'label' => $langs->trans('timetablesepa_dateStartEcheance'), 'name' => 'date_start', 'value' => '')
+            , array('type' => 'select', 'label' => $langs->trans('PeriodicityUnit'), 'name' => 'periodicity_unit', 'values' => TimetableSEPA::$TPeriodicityString, 'default' => TimetableSEPA::PERIODICITY_VALUE_MONTH)
+            , array('type' => 'text', 'label' => $langs->trans('PeriodicityValue'), 'name' => 'periodicity_value', 'value' => '1', 'size' => '5')
+            , array('type' => 'text', 'label' => $langs->trans('timetablesepa_numberOfEcheanceEcheance'), 'name' => 'nb_term', 'value' => '6', 'size' => '5')
+            , array('type' => 'onecolumn', 'value' => $scriptjs)
         );
         $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1, 'auto');
     }
     elseif ($action === 'reset' && !empty($user->rights->timetablesepa->write))
     {

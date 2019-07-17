@@ -69,11 +69,12 @@ class TimetableSEPA extends SeedObject
         'status' => array('type' => 'integer', 'visible' => 0, 'notnull' => 1, 'enabled' => 1, 'default' => 0, 'index' => 1, 'position' => 30)
         ,'fk_facture' => array('type' => 'integer', 'visible' => 0, 'notnull' => 1, 'enabled' => 1, 'position' => 50, 'index' => 1)
         ,'date_start' => array('type' => 'date', 'label' => 'DateStart', 'visible' => 1, 'notnull' => 1)
-        ,'date_end' => array('type' => 'date', 'label' => 'DateEnd', 'visible' => 1, 'notnull' => 1)
+//        ,'date_end' => array('type' => 'date', 'label' => 'DateEnd', 'visible' => 1, 'notnull' => 1)
         ,'periodicity_unit' => array('type' => 'list', 'label' => 'PeriodicityUnit', 'visible' => 1, 'notnull' => 1, 'default' => self::PERIODICITY_VALUE_MONTH) // day, month, year (value for strtotime)
         ,'periodicity_value' => array('type' => 'integer', 'label' => 'PeriodicityValue', 'visible' => 1, 'notnull' => 1)
+        ,'nb_term' => array('type' => 'integer', 'label' => 'NbTerm', 'visible' => 1, 'notnull' => 1)
         //,'fk_user_valid' => array('type'=>'integer', 'label'=>'UserValidation', 'enabled'=>1, 'visible'=>-1, 'position'=>512)
-        ,'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => 1, 'visible' => -2, 'notnull' => -1, 'index' => 0, 'position' => 1000)
+        ,'import_key' => array('type' => 'varchar(14)', 'length' => 14, 'label' => 'ImportId', 'enabled' => 1, 'visible' => -2, 'notnull' => -1, 'index' => 0, 'position' => 1000)
     );
 
 	/** @var int $status Object status */
@@ -85,8 +86,11 @@ class TimetableSEPA extends SeedObject
     /** @var integer $date_start timestamp */
     public $date_start;
 
-    /** @var integer $date_start timestamp */
-    public $date_end;
+//    /** @var integer $date_start timestamp */
+//    public $date_end;
+
+    /** @var integer $nb_term */
+    public $nb_term;
 
     /** @var integer $periodicity_unit */
     public $periodicity_unit;
@@ -274,6 +278,10 @@ class TimetableSEPA extends SeedObject
 
         if (empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) || $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE != $facture->mode_reglement_id) $TRestrictMessage[] = $langs->trans('CheckErrorModeRgltNotMatch');
 
+        $echeancier = new TimetableSEPA($facture->db);
+        $echeancier->fetchBy($facture->id, 'fk_facture');
+        if (!empty($echeancier->id)) $TRestrictMessage[] = $langs->trans('CheckErrorTimetableAlreadyExists');
+
 		if (empty($facture->array_options)) $facture->fetch_optionals();
 
 		if (empty($facture->linkedObjects)) $facture->fetchObjectLinked();
@@ -284,6 +292,7 @@ class TimetableSEPA extends SeedObject
             $TRestrictMessage[] = $langs->trans('CheckErrorIsNotTimetible');
 		}
 
+		// TODO à vérifier mais peut être que le test sur link contrat pas utile
 		// vérifier qu'on a bien un contrat lié à cette facture avec au moins une ligne active
 		if (array_key_exists('contrat', $facture->linkedObjects))
 		{
@@ -321,7 +330,7 @@ class TimetableSEPA extends SeedObject
 	 *
 	 * @return int <0 if KO, > 0 if OK
 	 */
-	public function createFromFacture($facture, $date_start=null, $resetLines = false)
+	public function createFromFacture($facture, $date_start, $periodicity_unit, $periodicity_value, $nb_term)
 	{
 		global $user;
 
@@ -336,44 +345,18 @@ class TimetableSEPA extends SeedObject
         {
             $this->fk_facture = $facture->id;
 
-            // récupérer le contrat lié à la facture
-            if (empty($facture->linkedObjects)) $facture->fetchObjectLinked();
-
-            $keys = array_keys($facture->linkedObjects['contrat']);
-            $contrat = &$facture->linkedObjects['contrat'][$keys[0]];
-
-            // TODO on cherche une ligne active pour le moment, je ne connais pas la structure finale de cette partie
-            foreach($contrat->lines as $line)
-            {
-                // récupérer la périodicité du contrat + date début + date fin
-                if ($line->statut == 4)
-                {
-                    $this->date_start = $line->date_start;
-                    $this->date_end = $line->date_end;
-                    $this->periodicity_unit = $line->array_options['options_periodicity_unit'];
-                    $this->periodicity_value = $line->array_options['options_periodicity_value'];
-
-                    // TODO remove jeux de test
-                    $this->date_start = strtotime('01-07-2019');
-                    $this->date_end = strtotime('01-06-2020');
-                    $this->periodicity_unit = self::PERIODICITY_VALUE_MONTH;
-                    $this->periodicity_value = 1;
-
-                    break;
-                }
-            }
-
-            // TODO $date_start si le paramètre est donné, alors il faudrait ce baser sur celui-ci et y appliquer un nombre d'échéance pour obtenir la date de fin
-//            $this->date_start = $date_start;
-
-            // calculer le nombre d'échéances
+            $this->date_start = $date_start;
+            // TODO control values
+            $this->periodicity_unit = $periodicity_unit;
+            $this->periodicity_value = $periodicity_value;
+            $this->nb_term = $nb_term;
 
             $this->db->begin();
 
             $res = $this->save($user);
             if ($res > 0)
             {
-                $res = $this->initDetailEcheancier(null, null, $resetLines);
+                $res = $this->initDetailEcheancier();
                 if ($res >= 0)
                 {
                     $this->db->commit();
@@ -386,16 +369,15 @@ class TimetableSEPA extends SeedObject
         }
 	}
 
-	public function initDetailEcheancier($start, $end, $reset = false, $fill_amount = 'onlast')
+	public function initDetailEcheancier($reset = false, $fill_amount = 'onlast')
 	{
-		global $user, $langs;
+		global $user, $conf, $langs;
 
 		$langs->load('timetablesepa@timetablesepa');
 
-		if ($start === null) $start = $this->date_start;
-		if ($end === null) $end = $this->date_end;
+		$start = $this->date_start;
 
-		if ((empty($start) && $start !== 0) || (empty($end) && $end !== 0) || empty($this->fk_facture) || $this->fk_facture < 0)
+		if ((empty($this->date_start) && $this->date_start !== 0) || empty($this->fk_facture) || $this->fk_facture < 0)
         {
 			$this->error = "initDetail : missing parameters";
 			$this->errors[] = $this->error;
@@ -412,28 +394,28 @@ class TimetableSEPA extends SeedObject
 			return -2;
 		}
 
-		$cpt = 120; // TODO remplacer le 50 par une conf cachée (avoid infinite loop)
-		$TDatesEcheance = array();
-		while ($start < $end && $cpt--)
-		{
-			if ($start < $end) $TDatesEcheance[] = $start;
+		if (empty($facture->thirdparty)) $facture->fetch_thirdparty();
 
-//			$start = strtotime('+'.$this->periodicity_value.' '.self::$TPeriodicityString[$this->periodicity_unit], $start);
+        $nb_term = $this->nb_term;
+		if ($nb_term < 0) $nb_term = 0;
+
+		$TDatesEcheance = array();
+		while ($nb_term--)
+		{
+			$TDatesEcheance[] = $start;
 			$start = strtotime('+'.$this->periodicity_value.' '.$this->periodicity_unit, $start);
 		}
 
-        $nb_iteration = count($TDatesEcheance);
-
 		$TDefaultAmountToPay = array(
-			'HT' 	=> round($facture->total_ht / $nb_iteration, 2)
-			,'VAT'	=> round($facture->total_tva / $nb_iteration, 2)
-			,'TTC'	=> round($facture->total_ttc / $nb_iteration, 2)
+			'HT' 	=> round($facture->total_ht / $this->nb_term, 2)
+			,'VAT'	=> round($facture->total_tva / $this->nb_term, 2)
+			,'TTC'	=> round($facture->total_ttc / $this->nb_term, 2)
 		);
 
 		$TLeftAmountToPay = array(
-			'HT' 	=> $facture->total_ht - (($nb_iteration-1) * $TDefaultAmountToPay['HT'])
-			,'VAT' 	=> $facture->total_tva - (($nb_iteration-1) * $TDefaultAmountToPay['VAT'])
-			,'TTC' 	=> $facture->total_ttc - (($nb_iteration-1) * $TDefaultAmountToPay['TTC'])
+			'HT' 	=> $facture->total_ht - (($this->nb_term-1) * $TDefaultAmountToPay['HT'])
+			,'VAT' 	=> $facture->total_tva - (($this->nb_term-1) * $TDefaultAmountToPay['VAT'])
+			,'TTC' 	=> $facture->total_ttc - (($this->nb_term-1) * $TDefaultAmountToPay['TTC'])
 		);
 
 		// si reset à true, alors on supprime toutes les lignes avant de les recréer (uniquement celles qui sont en attente de traitement)
@@ -451,7 +433,24 @@ class TimetableSEPA extends SeedObject
 		    $k = $this->addChild('TimetableSEPADet');
 			$det = $this->TTimetableSEPADet[$k];
 			$det->fk_timetable = $this->id;
-			$det->label = $langs->trans('bankWithdrawal', $i+1);
+
+			$facnumber = ((float) DOL_VERSION < 9.0 ) ? $facture->facnumber : $facture->ref;
+			// {INDICE} {SOCNAME} - {FACNUMBER} {REFCLIENT}
+            if (!empty($conf->global->TIMETABLESEPA_LABEL_PATTERN))
+            {
+                $det->label = $conf->global->TIMETABLESEPA_LABEL_PATTERN;
+                $det->label = strtr($det->label, array(
+                    '{INDICE}' => $i+1
+                    , '{SOCNAME}' => $facture->thirdparty->name
+                    , '{FACNUMBER}' => $facnumber
+                    , '{REFCLIENT}' => $facture->ref_client
+                ));
+            }
+            else
+            {
+                $det->label = 'Prélèvement '.$facture->thirdparty->name.' - '.$facnumber;
+            }
+
 			$det->date_demande = $time;
 
             if ($fill_amount === 'onfirst' && $i == 0)
