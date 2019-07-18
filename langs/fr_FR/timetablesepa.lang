@@ -52,7 +52,7 @@ timetableSEPADelete=Supprimer
 timetableSEPACreate=Créer échéancier
 
 PeriodicityUnit=Unité période
-PeriodicityValue=Valeur période (tous les x unité)
+PeriodicityValue=Valeur période (toutes les x unité)
 NbTerm=Nombre d'échéance
 timetablesepa_periodicityDay=Jour
 timetablesepa_periodicityMonth=Mois
