@@ -81,6 +81,15 @@ TimetableSEPADetStatusRefused=Refusé
 
 TimetableSEPA_warningSumIsDifferent=Attention: le montant des prélèvements est différent du montant de la facture, écart de : %s
 
+NewtimetableSEPA_createRequests=Création des demandes de prélèvement
+TimetableSEPA_requestSelectDate=Date de demande recherchée
+TimetableSEPA_requestNumRowsFound=Nombre de demande trouvée pour cette date : %d
+TimetableSEPA_requestNbCreate=Demande de prélèvement créée : %d
+TimetableSEPA_requestNbError=Demande de prélèvement en erreur : %d
+TimetableSEPA_requestBack=Retour
+
+LeftMenutimetableSEPACreatePrevlevement=Création demande prélèvement SEPA
+
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
 CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture

@@ -67,7 +67,7 @@ class ActionstimetableSEPA
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		global $db;
+		global $user;
 
 		$TContext = explode(':',$parameters['context']);
 
@@ -82,7 +82,7 @@ class ActionstimetableSEPA
 				$periodicity_value = GETPOST('periodicity_value', 'int');
 				$nb_term = GETPOST('nb_term', 'int');
 
-				$echeancier = new TimetableSEPA($db);
+				$echeancier = new TimetableSEPA($this->db);
 				$ret = $echeancier->createFromFacture($object, $date_start, $periodicity_unit, $periodicity_value, $nb_term);
 				if ($ret < 0)
 				{
@@ -95,6 +95,40 @@ class ActionstimetableSEPA
                 }
 			}
 		}
+		elseif (in_array('levycard', $TContext))
+        {
+            if ($action === 'delete')
+            {
+                $did = GETPOST('did', 'int');
+                if ($did > 0)
+                {
+                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element 
+                        WHERE fk_source = '.$did.' AND sourcetype = \'prelevement_facture_demande\'
+                        AND targettype = \'timetablesepadet\'';
+
+                    $resql = $this->db->query($sql);
+                    if ($resql)
+                    {
+                        $obj = $this->db->fetch_object($resql);
+                        if ($obj)
+                        {
+                            dol_include_once('timetablesepa/class/timetablesepa.class.php');
+                            $det = new TimetableSEPADet($this->db);
+                            $det->fetch($obj->fk_target);
+
+                            $det->setWaiting($user);
+                            $det->deleteObjectLinked();
+                        }
+                    }
+                    else
+                    {
+                        setEventMessage($this->db->lasterror(), 'errors');
+                    }
+
+                }
+            }
+//            var_dump($action);exit;
+        }
 
 		return 0;
 	}

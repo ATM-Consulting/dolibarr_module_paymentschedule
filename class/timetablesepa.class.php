@@ -571,10 +571,15 @@ class TimetableSEPADet extends SeedObject
      * @param User  $user   User object
      * @return int
      */
-    public function setInProcess($user)
+    public function setInProcess($user, $fk_prelevement_facture_demande=null)
     {
         $this->status = self::STATUS_IN_PROCESS;
         $this->withChild = false;
+
+        if ($fk_prelevement_facture_demande > 0)
+        {
+            $this->add_object_linked('prelevement_facture_demande', $fk_prelevement_facture_demande);
+        }
 
         return $this->update($user);
     }
