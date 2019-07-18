@@ -185,7 +185,7 @@ if (empty($reshook))
                     $child->fk_mode_reglement = GETPOST('fk_mode_reglement', 'int');
 
                     $old_amount_ttc = $child->amount_ttc;
-                    $child->amount_ttc = price2num(GETPOST('amount_ttc', 'intcomma'));
+                    $child->amount_ttc = price2num(GETPOST('amount_ttc'));
 
                     $res = $child->update($user);
 
@@ -445,8 +445,8 @@ else
 
                     // Mode de règlement
                     print '<td class="linecoldatedemande  nowrap"  width="80">';
-                    if ($action == 'editline' && $line->id == $lineid) $form->select_types_paiements($object->mode_reglement_id, 'fk_mode_reglement', 'CRDT', 0, 1, 0, 0, 1);
-                    else print $form->cache_types_paiements[$object->mode_reglement_id]['label'];
+                    if ($action == 'editline' && $line->id == $lineid) $form->select_types_paiements($line->fk_mode_reglement, 'fk_mode_reglement', 'CRDT', 0, 1, 0, 0, 1);
+                    else print $form->cache_types_paiements[$line->fk_mode_reglement]['label'];
                     print '</td>';
                     $coldisplay++;
 
