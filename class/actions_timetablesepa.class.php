@@ -96,7 +96,7 @@ class ActionstimetableSEPA
                 }
 			}
 		}
-		elseif (in_array('levycard', $TContext))
+		elseif (in_array('directdebitcard', $TContext))
         {
             if ($action === 'delete')
             {
@@ -231,7 +231,7 @@ class ActionstimetableSEPA
         global $user;
 
         $TContext = explode(':',$parameters['context']);
-        if (in_array('levycreatecard', $TContext))
+        if (in_array('directdebitcreatecard', $TContext))
         {
             if (GETPOST('action') === 'create')
             {

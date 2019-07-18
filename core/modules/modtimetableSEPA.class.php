@@ -91,8 +91,8 @@ class modtimetableSEPA extends DolibarrModules
 		$this->module_parts = array(
 			'hooks' => array(
 				'invoicecard'
-                ,'levycard'
-                ,'levycreatecard'
+                ,'directdebitcard'
+                ,'directdebitcreatecard'
 			)
             ,'triggers' => 1
 		);
