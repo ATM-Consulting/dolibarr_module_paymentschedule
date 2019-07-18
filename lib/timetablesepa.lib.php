@@ -96,6 +96,7 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
 {
     global $langs, $user;
 
+    $langs->load('main');
     $formconfirm = '';
 
     if ($action === 'validtimetablesepa' && !empty($user->rights->timetablesepa->write))
@@ -136,9 +137,12 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
             </script>
         ';
 
+        $values = TimetableSEPA::$TPeriodicityString;
+        foreach ($values as &$v) $v = $langs->transnoentities(ucfirst($v));
+
         $formquestion = array(
             array('type' => 'date', 'label' => $langs->trans('timetablesepa_dateStartEcheance'), 'name' => 'date_start', 'value' => '')
-            , array('type' => 'select', 'label' => $langs->trans('PeriodicityUnit'), 'name' => 'periodicity_unit', 'values' => TimetableSEPA::$TPeriodicityString, 'default' => TimetableSEPA::PERIODICITY_VALUE_MONTH)
+            , array('type' => 'select', 'label' => $langs->trans('PeriodicityUnit'), 'name' => 'periodicity_unit', 'values' => $values, 'default' => TimetableSEPA::PERIODICITY_VALUE_MONTH)
             , array('type' => 'text', 'label' => $langs->trans('PeriodicityValue'), 'name' => 'periodicity_value', 'value' => '1', 'size' => '5')
             , array('type' => 'text', 'label' => $langs->trans('timetablesepa_numberOfEcheanceEcheance'), 'name' => 'nb_term', 'value' => '6', 'size' => '5')
             , array('type' => 'onecolumn', 'value' => $scriptjs)

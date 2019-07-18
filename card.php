@@ -25,7 +25,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 
 if(empty($user->rights->timetablesepa->read)) accessforbidden();
 
-$langs->loadLangs(array('timetablesepa@timetablesepa', 'bills'));
+$langs->loadLangs(array('timetablesepa@timetablesepa', 'bills', 'main'));
 
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
