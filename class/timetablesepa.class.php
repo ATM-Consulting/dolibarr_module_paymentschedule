@@ -588,10 +588,15 @@ class TimetableSEPADet extends SeedObject
      * @param User  $user   User object
      * @return int
      */
-    public function setAccepted($user)
+    public function setAccepted($user, $fk_prelevement_bons = null)
     {
         $this->status = self::STATUS_ACCEPTED;
         $this->withChild = false;
+
+        if ($fk_prelevement_bons > 0)
+        {
+            $this->add_object_linked('widthdraw', $fk_prelevement_bons);
+        }
 
         return $this->update($user);
     }

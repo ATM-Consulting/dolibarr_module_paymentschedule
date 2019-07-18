@@ -75,6 +75,7 @@ class ActionstimetableSEPA
 		{
 			if ($action == 'confirm_createtimetablesepa')
 			{
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 				dol_include_once('timetablesepa/class/timetablesepa.class.php');
 
 				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
@@ -112,12 +113,13 @@ class ActionstimetableSEPA
                         $obj = $this->db->fetch_object($resql);
                         if ($obj)
                         {
+                            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                             dol_include_once('timetablesepa/class/timetablesepa.class.php');
                             $det = new TimetableSEPADet($this->db);
                             $det->fetch($obj->fk_target);
 
                             $det->setWaiting($user);
-                            $det->deleteObjectLinked();
+                            $det->deleteObjectLinked($did, 'prelevement_facture_demande');
                         }
                     }
                     else
@@ -149,6 +151,7 @@ class ActionstimetableSEPA
 			// vérifier qu'on a bien l'extrafield isecheancier à true
 			if (!empty($object->array_options['options_isecheancier']) && !empty($user->rights->timetablesepa->write))
 			{
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 				dol_include_once('/timetablesepa/class/timetablesepa.class.php');
 
 				$TRestrictMessage = TimetableSEPA::checkFactureCondition($object);
@@ -172,6 +175,7 @@ class ActionstimetableSEPA
 
         if (in_array('invoicecard', $TContext))
         {
+            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
             dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
 
             $form = new Form($this->db);
@@ -202,6 +206,7 @@ class ActionstimetableSEPA
                 {
                     if ($info[2] === 'timetablesepacard')
                     {
+                        if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                         dol_include_once('/timetablesepa/class/timetablesepa.class.php');
                         $TimetableSEPA = new TimetableSEPA($this->db);
                         $TimetableSEPA->fetchBy($parameters['object']->id, 'fk_facture');
@@ -214,6 +219,56 @@ class ActionstimetableSEPA
 
                         break;
                     }
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    public function printCommonFooter($parameters, &$object, &$action, $hookmanager)
+    {
+        global $user;
+
+        $TContext = explode(':',$parameters['context']);
+        if (in_array('levycreatecard', $TContext))
+        {
+            if (GETPOST('action') === 'create')
+            {
+                $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_bons';
+                $resql = $this->db->query($sql);
+                if ($resql)
+                {
+                    $obj = $this->db->fetch_object($resql);
+                    $fk_prelevement_bons = $obj->last_id;
+                    //var_dump($fk_prelevement_bons);
+                    $sql = 'SELECT pfd.rowid, ee.fk_target
+                            FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande pfd
+                            INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
+                            WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
+                            AND ee.targettype = \'timetablesepadet\'';
+
+                    $resql = $this->db->query($sql);
+                    if ($resql)
+                    {
+                        if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                        dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+                        while ($obj = $this->db->fetch_object($resql))
+                        {
+                            $det = new TimetableSEPADet($this->db);
+                            $det->fetch($obj->fk_target);
+
+                            $det->setAccepted($user, $fk_prelevement_bons);
+                        }
+                    }
+                    else
+                    {
+                        setEventMessage($this->db->lasterror(), 'errors');
+                    }
+                }
+                else
+                {
+                    setEventMessage($this->db->lasterror(), 'errors');
                 }
             }
         }

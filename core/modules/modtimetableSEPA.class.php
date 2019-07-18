@@ -92,7 +92,9 @@ class modtimetableSEPA extends DolibarrModules
 			'hooks' => array(
 				'invoicecard'
                 ,'levycard'
+                ,'levycreatecard'
 			)
+            ,'triggers' => 1
 		);
 
 		// Data directories to create when module is enabled.
@@ -316,7 +318,6 @@ class modtimetableSEPA extends DolibarrModules
         $this->menu[$r]=array(
             'fk_menu'=>'fk_mainmenu=bank,fk_leftmenu=withdraw',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'left',			                // This is a Left menu entry
-//            'titre'=>$langs->trans('LeftMenutimetableSEPACreatePrevlevement'),
             'titre'=>'LeftMenutimetableSEPACreatePrevlevement',
             'mainmenu'=> 'bank',
             'leftmenu'=>'timetablesepa_left_create',
