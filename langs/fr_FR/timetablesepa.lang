@@ -79,6 +79,8 @@ TimetableSEPADetStatusInProcess=En cours de traitement
 TimetableSEPADetStatusAccepted=Accepté
 TimetableSEPADetStatusRefused=Refusé
 
+TimetableSEPA_warningSumIsDifferent=Attention: le montant des prélèvements est différent du montant de la facture, écart de : %s
+
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
 CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture

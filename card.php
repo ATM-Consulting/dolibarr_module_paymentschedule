@@ -82,8 +82,8 @@ if (empty($reshook))
 {
 	$error = 0;
 	switch ($action) {
-		case 'add':
-		case 'update':
+		case 'addtimetablesepa':
+		case 'updatetimetablesepa':
 			$object->setValues($_REQUEST); // Set standard attributes
 
             if ($object->isextrafieldmanaged)
@@ -105,7 +105,7 @@ if (empty($reshook))
 
 			if ($error > 0)
 			{
-				$action = 'edit';
+				$action = 'edittimetablesepa';
 				break;
 			}
 			
@@ -113,8 +113,8 @@ if (empty($reshook))
             if ($res < 0)
             {
                 setEventMessage($object->errors, 'errors');
-                if (empty($object->id)) $action = 'create';
-                else $action = 'edit';
+                if (empty($object->id)) $action = 'createtimetablesepa';
+                else $action = 'edittimetablesepa';
             }
             else
             {
@@ -147,24 +147,24 @@ if (empty($reshook))
             }
             break;
 
-		case 'modif':
-		case 'reopen':
+		case 'modiftimetablesepa':
+		case 'reopentimetablesepa':
 			if (!empty($user->rights->timetablesepa->write)) $object->setDraft($user);
 				
 			break;
-		case 'confirm_validate':
+		case 'confirm_validatetimetablesepa':
 			if (!empty($user->rights->timetablesepa->write)) $object->setValid($user);
 			
 			header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
 			exit;
 
-		case 'confirm_delete':
+		case 'confirm_deletetimetablesepa':
 			if (!empty($user->rights->timetablesepa->delete)) $res = $object->delete($user);
 
 			header('Location: '.dol_buildpath('/compta/facture/card.php', 1).'?facid='.$facture->id);
 			exit;
 
-        case 'confirm_reset':
+        case 'confirm_resettimetablesepa':
             if (!empty($user->rights->timetablesepa->write))
             {
                 $object->initDetailEcheancier(GETPOST('full_reset'));
@@ -172,7 +172,7 @@ if (empty($reshook))
             header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
             exit;
 
-        case 'updateline':
+        case 'updatelinetimetablesepa':
 //            var_dump(GETPOST('save'), $lineid);
             if (GETPOST('save') && $lineid > 0)
             {
@@ -219,7 +219,7 @@ if ($action == 'create')
 
     print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-    print '<input type="hidden" name="action" value="add">';
+    print '<input type="hidden" name="action" value="addtimetablesepa">';
     print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 
     dol_fiche_head(array(), '');
@@ -253,11 +253,11 @@ else
     }
     else
     {
-        if (!empty($object->id) && $action === 'edit')
+        if (!empty($object->id) && $action === 'edittimetablesepa')
         {
             print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
             print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-            print '<input type="hidden" name="action" value="update">';
+            print '<input type="hidden" name="action" value="updatetimetablesepa">';
             print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
             print '<input type="hidden" name="id" value="'.$object->id.'">';
 
@@ -342,7 +342,7 @@ else
             {
                 print '<form id="" name="" action="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'#row-'.$lineid.'" method="POST">';
                 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
-                print '<input type="hidden" name="action" value="updateline" />';
+                print '<input type="hidden" name="action" value="updatelinetimetablesepa" />';
                 print '<input type="hidden" name="facid" value="'.$facture->id.'" />';
                 print '<input type="hidden" name="lineid" value="'.$lineid.'" />';
             }
@@ -396,7 +396,7 @@ else
 
             $var = true;
             $i	 = 0;
-
+            $sum = 0;
 
             $form->load_cache_types_paiements();
 
@@ -494,6 +494,7 @@ else
 
                 }
 
+                $sum+= $line->amount_ttc;
                 $i++;
             }
             print "</tbody>\n";
@@ -503,6 +504,10 @@ else
             if ($action == 'editline')
             {
                 print '</form>';
+            }
+            else
+            {
+                if ($sum != $facture->total_ttc) print '<div class="warning">'.$langs->trans('TimetableSEPA_warningSumIsDifferent', price($sum-$facture->total_ttc)).'</div>';
             }
 
             print "</div>";
@@ -527,16 +532,16 @@ else
                     if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reset">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resettimetablesepa">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edittimetablesepa">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=valid">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validtimetablesepa">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
                     }
 
 
                     // Reopen
-                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
+                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopentimetablesepa">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
                 }
                 else
                 {
@@ -556,7 +561,7 @@ else
 
                 if (!empty($user->rights->timetablesepa->delete))
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=delete">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletetimetablesepa">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
                 }
                 else
                 {

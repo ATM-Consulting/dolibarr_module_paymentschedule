@@ -98,10 +98,10 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
 
     $formconfirm = '';
 
-    if ($action === 'valid' && !empty($user->rights->timetablesepa->write))
+    if ($action === 'validtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
         $body = $langs->trans('ConfirmValidatetimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidatetimetableSEPATitle'), $body, 'confirm_validate', '', 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidatetimetableSEPATitle'), $body, 'confirm_validatetimetablesepa', '', 0, 1);
     }
     elseif ($action === 'createtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
@@ -146,18 +146,18 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
         $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1, 'auto');
     }
-    elseif ($action === 'reset' && !empty($user->rights->timetablesepa->write))
+    elseif ($action === 'resettimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
         $formquestion = array(
             array('type' => 'checkbox', 'label' => $langs->trans('timetablesepa_fullReset'), 'name' => 'full_reset', 'value' => '1', 'moreattr' => 'value="1"')
         );
         $body = $langs->trans('ConfirmResettimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResettimetableSEPATitle'), $body, 'confirm_reset', $formquestion, 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResettimetableSEPATitle'), $body, 'confirm_resettimetablesepa', $formquestion, 0, 1);
     }
-    elseif ($action === 'delete' && !empty($user->rights->timetablesepa->write))
+    elseif ($action === 'deletetimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
         $body = $langs->trans('ConfirmDeletetimetableSEPABody');
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletetimetableSEPATitle'), $body, 'confirm_delete', '', 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletetimetableSEPATitle'), $body, 'confirm_deletetimetablesepa', '', 0, 1);
     }
 
     return $formconfirm;
