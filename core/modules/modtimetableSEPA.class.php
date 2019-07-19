@@ -93,6 +93,7 @@ class modtimetableSEPA extends DolibarrModules
 				'invoicecard'
                 ,'directdebitcard'
                 ,'directdebitcreatecard'
+                ,'directdebitprevcard'
 			)
             ,'triggers' => 1
 		);
