@@ -139,6 +139,12 @@ class InterfacetimetableSEPAtrigger
             if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
             dol_include_once('/timetablesepa/class/timetablesepa.class.php');
 
+            $TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
+            foreach ($TDet as $det)
+            {
+                $det->setRequested($user);
+            }
+
             $object->deleteObjectLinked();
         }
 

@@ -136,29 +136,14 @@ class ActionstimetableSEPA
             // PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
             if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0)
             {
-                $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
-                        WHERE fk_source = '.$object->id.'
-                        AND sourcetype = \''.$object->element.'\'
-                        AND targettype = \'timetablesepadet\'';
-                $resql = $this->db->query($sql);
-                if ($resql)
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                dol_include_once('timetablesepa/class/timetablesepa.class.php');
+
+                $TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
+                foreach ($TDet as $det)
                 {
-                    if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                    dol_include_once('timetablesepa/class/timetablesepa.class.php');
-
-                    while ($obj = $this->db->fetch_object($resql))
-                    {
-                        $det = new TimetableSEPADet($this->db);
-                        $det->fetch($obj->fk_target);
-
-                        $det->setAccepted($user);
-                    }
+                    $det->setAccepted($user);
                 }
-                else
-                {
-                    setEventMessage($this->db->lasterror(), 'errors');
-                }
-
             }
         }
 

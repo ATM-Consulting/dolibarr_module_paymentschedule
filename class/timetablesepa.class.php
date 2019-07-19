@@ -678,4 +678,31 @@ class TimetableSEPADet extends SeedObject
 
         return $res;
     }
+
+    /**
+     * @param BonPrelevement $object
+     * @return TimetableSEPADet[] array
+     */
+    public static function getAllFromBonPrelevement($object)
+    {
+        $TRes = array();
+
+        $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
+                WHERE fk_source = '.$object->id.'
+                AND sourcetype = \''.$object->element.'\'
+                AND targettype = \'timetablesepadet\'';
+
+        $resql = $object->db->query($sql);
+        if ($resql)
+        {
+            while ($obj = $object->db->fetch_object($resql))
+            {
+                $det = new TimetableSEPADet($object->db);
+                $det->fetch($obj->fk_target);
+                $TRes[] = $det;
+            }
+        }
+
+        return $TRes;
+    }
 }
