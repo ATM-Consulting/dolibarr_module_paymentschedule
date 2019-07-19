@@ -488,13 +488,17 @@ class TimetableSEPADet extends SeedObject
      */
     const STATUS_WAITING = 0;
     /**
-     * Validated status
+     * Demande de prelevement faite
      */
     const STATUS_IN_PROCESS = 1;
     /**
+     * La demande fait partie d'un bon de prelevement
+     */
+    const STATUS_REQUESTED = 2;
+    /**
      * Accepted status
      */
-    const STATUS_ACCEPTED = 2;
+    const STATUS_ACCEPTED = 3;
     /**
      * Refused status
      */
@@ -503,6 +507,7 @@ class TimetableSEPADet extends SeedObject
     public static $TStatusTransKey = array(
         self::STATUS_WAITING => 'TimetableSEPADetStatusWaiting'
         , self::STATUS_IN_PROCESS => 'TimetableSEPADetStatusInProcess'
+        , self::STATUS_REQUESTED => 'TimetableSEPADetStatusRequested'
         , self::STATUS_ACCEPTED => 'TimetableSEPADetStatusAccepted'
         , self::STATUS_REFUSED => 'TimetableSEPADetStatusRefused'
     );
@@ -588,15 +593,27 @@ class TimetableSEPADet extends SeedObject
      * @param User  $user   User object
      * @return int
      */
-    public function setAccepted($user, $fk_prelevement_bons = null)
+    public function setRequested($user, $fk_prelevement_bons = null)
     {
-        $this->status = self::STATUS_ACCEPTED;
+        $this->status = self::STATUS_REQUESTED;
         $this->withChild = false;
 
         if ($fk_prelevement_bons > 0)
         {
             $this->add_object_linked('widthdraw', $fk_prelevement_bons);
         }
+
+        return $this->update($user);
+    }
+
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setAccepted($user)
+    {
+        $this->status = self::STATUS_ACCEPTED;
+        $this->withChild = false;
 
         return $this->update($user);
     }
@@ -638,7 +655,8 @@ class TimetableSEPADet extends SeedObject
         $statusLabelShort=$langs->trans(self::$TStatusTransKey[$status]);
 
         if ($status==self::STATUS_WAITING) $statusType='status6';
-        elseif ($status==self::STATUS_IN_PROCESS) $statusType='status1';
+        elseif ($status==self::STATUS_IN_PROCESS) $statusType='status3';
+        elseif ($status==self::STATUS_REQUESTED) $statusType='status1';
         elseif ($status==self::STATUS_ACCEPTED) $statusType='status4';
         elseif ($status==self::STATUS_REFUSED) $statusType='status8';
 

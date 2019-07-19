@@ -75,9 +75,13 @@ ConfirmResettimetableSEPABody=Êtes-vous sûr de vouloir générer l'échéancie
 timetablesepa_fullReset=Supprimer les lignes au statut "En attente de traitement"
 
 TimetableSEPADetStatusWaiting=En attente de traitement
-TimetableSEPADetStatusInProcess=En cours de traitement
+TimetableSEPADetStatusInProcess=Demande en cours
+TimetableSEPADetStatusRequested=Bon de prélèvement en attente de retour
 TimetableSEPADetStatusAccepted=Accepté
-TimetableSEPADetStatusRefused=Refusé
+TimetableSEPADetStatusRefused=Rejeté
+
+timetablesepaSetAccept=Passer à accepter
+timetablesepaSetRefuse=Passer à rejeter
 
 TimetableSEPA_warningSumIsDifferent=Attention: le montant des prélèvements est différent du montant de la facture, écart de : %s
 

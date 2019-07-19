@@ -201,6 +201,21 @@ if (empty($reshook))
             header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
             exit;
 
+        case 'set_accept':
+        case 'set_refuse':
+            if (!empty($user->rights->timetablesepa->write))
+            {
+                $k = $object->addChild('TimetableSEPADet', $lineid);
+                $child = &$object->TTimetableSEPADet[$k];
+                if (!empty($child->id))
+                {
+                    if ($action == 'set_accept') $child->setAccepted($user);
+                    elseif ($action == 'set_refuse') $child->setRefused($user);
+                }
+            }
+
+            header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
+            exit;
 	}
 }
 
@@ -382,7 +397,9 @@ else
                 // Amount TTC ( TotalTTCShort )
                 print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
 
-                print '<td class="linecolstatus">'.$langs->trans('timetablesepaStatusBankLevy').'</td>';
+                print '<td class="linecolstatus center">'.$langs->trans('timetablesepaStatusBankLevy').'</td>';
+
+                print '<td class="linecolupdatestatus"></td>';
 
                 print '<td class="linecoledit"></td>';  // No width to allow autodim
 
@@ -468,7 +485,17 @@ else
                     print '</td>';
                     $coldisplay++;
 
-                    print '<td class="linecolstatus">'.$line->getLibStatut(3).'</td>';
+                    print '<td class="linecolstatus center">'.$line->getLibStatut(3).'</td>';
+                    $coldisplay++;
+
+                    print '<td class="linecolupdatestatus">';
+                    if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
+                    elseif (in_array($line->status, array(TimetableSEPADet::STATUS_REQUESTED, TimetableSEPADet::STATUS_ACCEPTED, TimetableSEPADet::STATUS_REFUSED)))
+                    {
+                        if ($line->status != TimetableSEPADet::STATUS_ACCEPTED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('timetablesepaSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                        if ($line->status != TimetableSEPADet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('timetablesepaSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
+                    }
+                    print '</td>';
                     $coldisplay++;
 
                     if ($action == 'editline' && $line->id == $lineid)
@@ -480,10 +507,14 @@ else
                     }
                     else
                     {
-                        print '<td class="linecoledit" width="10"><a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a></td>';  // No width to allow autodim
+                        print '<td class="linecoledit" width="10">';  // No width to allow autodim
+                        if ($line->status == TimetableSEPADet::STATUS_WAITING) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
+                        print '</td>';
                         $coldisplay++;
 
-                        print '<td class="linecoldelete" width="10">'.img_delete().'</td>';
+                        print '<td class="linecoldelete" width="10">';
+                        if (false) print img_delete();
+                        print '</td>';
                         $coldisplay++;
                     }
 
