@@ -60,7 +60,6 @@ if (empty($reshook))
 
 		if ($date_demande_start && !empty($TPaiementId))
         {
-
             // TODO mettre le fk_mode_reglement en conf
             $sql = 'SELECT COUNT(*) AS nb 
                     FROM '.MAIN_DB_PREFIX.'timetablesepadet td
@@ -77,85 +76,97 @@ if (empty($reshook))
                 $number_det_found = $obj->nb;
             }
         }
+		else
+		{
+			setEventMessage($langs->trans('TimetableSEPA_Warnings_checkDateOrPaymentType'), 'warnings');
+		}
     }
     elseif ($action === 'createtimetablesepa')
     {
         $date_demande_start = GETPOST('date_demande_start');
         $date_demande_end = GETPOST('date_demande_end');
+		$TPaiementId = !empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) ? explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) : array();
 
-        // TODO mettre le fk_mode_reglement en conf
-        $sql = 'SELECT t.fk_facture, td.rowid
+		if (!empty($TPaiementId))
+		{
+			// TODO mettre le fk_mode_reglement en conf
+			$sql = 'SELECT t.fk_facture, td.rowid
                 FROM '.MAIN_DB_PREFIX.'timetablesepadet td
                 INNER JOIN '.MAIN_DB_PREFIX.'timetablesepa t ON (t.rowid = td.fk_timetable)
                 WHERE t.status = '.TimetableSEPA::STATUS_VALIDATED.'
                 AND td.status = '.TimetableSEPADet::STATUS_WAITING.'
-                AND td.fk_mode_reglement = 3
+                AND td.fk_mode_reglement IN ('.$conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE.')
                 AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
-        $resql = $db->query($sql);
+			$resql = $db->query($sql);
 
-        $errors = array();
-        if ($resql)
-        {
-            $nb_create = $nb_error = 0;
-            while ($obj = $db->fetch_object($resql))
-            {
-                $facture = new Facture($db);
-                $facture->fetch($obj->fk_facture);
+			$errors = array();
+			if ($resql)
+			{
+				$nb_create = $nb_error = 0;
+				while ($obj = $db->fetch_object($resql))
+				{
+					$facture = new Facture($db);
+					$facture->fetch($obj->fk_facture);
 
-                $det = new TimetableSEPADet($db);
-                $det->fetch($obj->rowid);
+					$det = new TimetableSEPADet($db);
+					$det->fetch($obj->rowid);
 
 //                var_dump($facture->ref, $det->id);exit;
-                $db->begin();
+					$db->begin();
 
-                $result = $facture->demande_prelevement($user, $det->amount_ttc);
+					$result = $facture->demande_prelevement($user, $det->amount_ttc);
 //                var_dump($result, $facture->error);exit;
-                if ($result > 0)
-                {
-                    $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
-                    $resql = $db->query($sql);
-                    if ($resql)
-                    {
-                        $obj = $db->fetch_object($resql);
-                        if ($obj)
-                        {
-                            $res = $det->setInProcess($user, $obj->last_id);
-                            if ($res > 0)
-                            {
-                                $nb_create++;
-                                $db->commit();
-                            }
-                            else
-                            {
-                                $nb_error++;
-                                $db->rollback();
-                                $errors = array_merge($errors, $det->errors);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        $nb_error++;
-                        $db->rollback();
-                        $errors[] = $db->lasterror();
-                    }
+					if ($result > 0)
+					{
+						$sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
+						$resql = $db->query($sql);
+						if ($resql)
+						{
+							$obj = $db->fetch_object($resql);
+							if ($obj)
+							{
+								$res = $det->setInProcess($user, $obj->last_id);
+								if ($res > 0)
+								{
+									$nb_create++;
+									$db->commit();
+								}
+								else
+								{
+									$nb_error++;
+									$db->rollback();
+									$errors = array_merge($errors, $det->errors);
+								}
+							}
+						}
+						else
+						{
+							$nb_error++;
+							$db->rollback();
+							$errors[] = $db->lasterror();
+						}
 
-                }
-                else
-                {
-                    $nb_error++;
-                    $db->rollback();
-                    $errors[] = $facture->error;
-                }
-            }
+					}
+					else
+					{
+						$nb_error++;
+						$db->rollback();
+						$errors[] = $facture->error;
+					}
+				}
 
-            if ($nb_create > 0) setEventMessage($langs->trans('TimetableSEPA_requestNbCreate', $nb_create));
-            if ($nb_error > 0) setEventMessage($langs->trans('TimetableSEPA_requestNbError', $nb_error), 'errors');
+				if ($nb_create > 0) setEventMessage($langs->trans('TimetableSEPA_requestNbCreate', $nb_create));
+				if ($nb_error > 0) setEventMessage($langs->trans('TimetableSEPA_requestNbError', $nb_error), 'errors');
 
-            header('Location: '.$_SERVER['PHP_SELF']);
-            exit;
-        }
-    }
+				header('Location: '.$_SERVER['PHP_SELF']);
+				exit;
+			}
+		}
+		else
+		{
+			setEventMessage($langs->trans('TimetableSEPA_Warnings_checkDateOrPaymentType'), 'warnings');
+		}
+	}
 }
 
 /**

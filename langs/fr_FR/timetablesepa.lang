@@ -106,3 +106,6 @@ CheckErrorIsNotLinkedToContract=Cette facture n'est pas liée à un contrat
 CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active
 CanNotRetrieveInvoice=Impossible de récupérer la facture liée
 CheckErrorInvoiceInsufficientPermission=Permission inssufisante
+
+# WARNINGS
+TimetableSEPA_Warnings_checkDateOrPaymentType=Veuillez vérifier la date saisie et/ou les types de paiements autorisés en configuration du module
