@@ -56,15 +56,18 @@ if (empty($reshook))
     {
         $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
         $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
-        if ($date_demande_start)
+		$TPaiementId = !empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) ? explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) : array();
+
+		if ($date_demande_start && !empty($TPaiementId))
         {
+
             // TODO mettre le fk_mode_reglement en conf
             $sql = 'SELECT COUNT(*) AS nb 
                     FROM '.MAIN_DB_PREFIX.'timetablesepadet td
                     INNER JOIN '.MAIN_DB_PREFIX.'timetablesepa t ON (t.rowid = td.fk_timetable)
                     WHERE t.status = '.TimetableSEPA::STATUS_VALIDATED.'
                     AND td.status = '.TimetableSEPADet::STATUS_WAITING.'
-                    AND td.fk_mode_reglement = 3
+                    AND td.fk_mode_reglement IN ('.$conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE.')
                     AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
             $resql = $db->query($sql);
 
