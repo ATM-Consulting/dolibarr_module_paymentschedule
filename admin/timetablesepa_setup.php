@@ -150,6 +150,7 @@ setup_print_input_form_part('TIMETABLESEPA_LABEL_PATTERN', $langs->trans('TIMETA
 // Example with textarea
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array(),'textarea');
 
+setup_print_on_off('TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN');
 
 print '</table>';
 

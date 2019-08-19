@@ -317,12 +317,15 @@ class TimetableSEPA extends SeedObject
 
 		// TODO vérifier que le tiers de la facture a bien un compte bancaire avec les infos nécessaires au prélèvement
 		// IBAN valide + BIC + RUM + MODE (FRST ou RECUR)...
-        require_once DOL_DOCUMENT_ROOT.'/societe/class/companypaymentmode.class.php';
-        $companypaymentmode = new CompanyPaymentMode($facture->db);
-        if ($companypaymentmode->fetch(null, null, $facture->socid) <= 0)
-        {
-            $TRestrictMessage[] = $langs->trans('CheckErrorCustomerHasNoIBAN');
-        }
+        if (empty($conf->global->TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN))
+		{
+			require_once DOL_DOCUMENT_ROOT.'/societe/class/companypaymentmode.class.php';
+			$companypaymentmode = new CompanyPaymentMode($facture->db);
+			if ($companypaymentmode->fetch(null, null, $facture->socid) <= 0)
+			{
+				$TRestrictMessage[] = $langs->trans('CheckErrorCustomerHasNoIBAN');
+			}
+		}
 
 		return $TRestrictMessage;
 	}

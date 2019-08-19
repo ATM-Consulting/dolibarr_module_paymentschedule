@@ -17,6 +17,8 @@ ParamHelp=Le contenu de l'aide
 TIMETABLESEPA_MODE_REGLEMENT_TO_USE=Mode de règlement à prendre en compte pour autoriser la création d'un échéancier depuis une facture
 TIMETABLESEPA_LABEL_PATTERN=Libellé à utiliser sur la création des lignes de prélèvement
 TIMETABLESEPA_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant de 1<br />{SOCNAME} = nom du tiers<br />{FACNUMBER} = référence de facture<br />{REFCLIENT} = référence client
+TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'existant d'un IBAN sur le tiers
+
 # MENU
 TopMenutimetableSEPA=Echéancier SEPA
 
