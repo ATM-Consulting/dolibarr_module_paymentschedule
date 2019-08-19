@@ -49,7 +49,13 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	$val = GETPOST($code);
+	if ($code === 'TIMETABLESEPA_MODE_REGLEMENT_TO_USE' && !empty($val))
+	{
+		$val = implode(',', $val);
+	}
+
+	if (dolibarr_set_const($db, $code, $val, 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -125,7 +131,13 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_TIMETABLESEPA_MODE_REGLEMENT_TO_USE">';
-$form->select_types_paiements($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE, 'TIMETABLESEPA_MODE_REGLEMENT_TO_USE', 'CRDT');
+$form->load_cache_types_paiements();
+$TPaiementId = array();
+foreach ($form->cache_types_paiements as $info)
+{
+	$TPaiementId[$info['id']] = $info['label'];
+}
+print Form::multiselectarray('TIMETABLESEPA_MODE_REGLEMENT_TO_USE', $TPaiementId, explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE), 0, 0, 'minwidth200');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
