@@ -368,7 +368,7 @@ else
             $selected = null;
 
             $parameters = array('num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-            $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+            $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
             if (empty($reshook))
             {
                 // Title line
@@ -396,6 +396,7 @@ else
 
                 // Amount TTC ( TotalTTCShort )
                 print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
+
 
                 print '<td class="linecolstatus center">'.$langs->trans('timetablesepaStatusBankLevy').'</td>';
 
@@ -425,12 +426,12 @@ else
                     if (empty($line->fk_parent_line))
                     {
                         $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-                        $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                        $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                     else
                     {
                         $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-                        $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                        $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                 }
                 if (empty($reshook))
