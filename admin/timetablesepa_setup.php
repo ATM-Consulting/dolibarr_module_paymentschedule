@@ -50,6 +50,7 @@ if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
 	$val = GETPOST($code);
+
 	if ($code === 'TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND' && !empty($val))
 	{
 		$val = implode(',', $val);
@@ -124,6 +125,14 @@ setup_print_title("Parameters");
 //setup_print_input_form_part('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc', array('type'=>'color'), 'input', 'ParamHelp');
 
 $langs->load('bills');
+$form->load_cache_types_paiements();
+$TPaiementId = array();
+foreach ($form->cache_types_paiements as $info)
+{
+	$TPaiementId[$info['id']] = $info['label'];
+}
+
+//MODE DE PAIEMENT PRINCIPAL
 print '<tr '.$bc[$var].'>';
 print '<td>'.$langs->trans('TIMETABLESEPA_MODE_REGLEMENT_TO_USE').'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
@@ -131,29 +140,18 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_TIMETABLESEPA_MODE_REGLEMENT_TO_USE">';
-$form->load_cache_types_paiements();
-$TPaiementId = array();
-foreach ($form->cache_types_paiements as $info)
-{
-	$TPaiementId[$info['id']] = $info['label'];
-}
-print Form::selectarray('TIMETABLESEPA_MODE_REGLEMENT_TO_USE', $TPaiementId, explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE), $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE, 0, 'minwidth200');
+print Form::selectarray('TIMETABLESEPA_MODE_REGLEMENT_TO_USE', $TPaiementId, $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE, $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE, 0, '');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
 
+// MODES DE PAIEMENT SECONDAIRES
 print '<td>'.$langs->trans('TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND').'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND">';
-$form->load_cache_types_paiements();
-$TPaiementId = array();
-foreach ($form->cache_types_paiements as $info)
-{
-	$TPaiementId[$info['id']] = $info['label'];
-}
 print Form::multiselectarray('TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND', $TPaiementId, explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND), 0, 0, 'minwidth200');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
