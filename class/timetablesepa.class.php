@@ -276,9 +276,9 @@ class TimetableSEPA extends SeedObject
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
-        if (empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) || $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE != $facture->mode_reglement_id)
+        if ((empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND) || $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND != $facture->mode_reglement_id) && $facture->mode_reglement_id != $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE)
 		{
-			$TPaiementId = explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE);
+			$TPaiementId = explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE_SECOND);
 			if (!in_array($facture->mode_reglement_id, $TPaiementId)) $TRestrictMessage[] = $langs->trans('CheckErrorModeRgltNotMatch');
 		}
 
