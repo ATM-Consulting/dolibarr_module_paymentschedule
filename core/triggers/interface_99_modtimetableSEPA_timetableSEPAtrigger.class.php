@@ -436,10 +436,85 @@ class InterfacetimetableSEPAtrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+
+            //CHAQUE FACTURE
+			foreach ($object->amounts as $invoice_id=>$amount){
+
+				$sql = 'SELECT MAX(rowid) as last_id FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_facture =' . $invoice_id;
+				$resql = $this->db->query($sql);
+				$obj = $this->db->fetch_object($resql);
+
+				$fk_paiement = $obj->last_id;
+				$fk_paiementtype = 'paiement';
+
+				//RECHERCHE DU DET ASSOCIE A LA FACTURE
+				foreach ($_POST as $key=>$value) {
+					if(substr($key,0,4) == 'det_' && substr($key,4) == $invoice_id){
+						$fk_det = $value;
+						$fk_dettype = 'timetablesepadet';
+
+					}
+				}
+
+				// INSERTION LIEN PAIEMENT ET DET DANS TABLE ELEMENT_ELEMENT
+				if(!empty($fk_det)) {
+					$sql = "INSERT INTO " . MAIN_DB_PREFIX . "element_element (";
+					$sql .= "fk_source";
+					$sql .= ", sourcetype";
+					$sql .= ", fk_target";
+					$sql .= ", targettype";
+					$sql .= ") VALUES (";
+					$sql .= $fk_paiement;
+					$sql .= ", '" . $fk_paiementtype . "'";
+					$sql .= ", " . $fk_det;
+					$sql .= ", '" . $fk_dettype . "'";
+					$sql .= ")";
+
+					$this->db->query($sql);
+				}
+			}
+
         } elseif ($action == 'PAYMENT_SUPPLIER_CREATE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+
+			//CHAQUE FACTURE
+			foreach ($object->amounts as $invoice_id=>$amount){
+
+				$sql = 'SELECT MAX(rowid) as last_id FROM ' . MAIN_DB_PREFIX . 'paiementfourn_facture WHERE fk_facturefourn =' . $invoice_id;
+				$resql = $this->db->query($sql);
+				$obj = $this->db->fetch_object($resql);
+
+				$fk_paiement = $obj->last_id;
+				$fk_paiementtype = 'paiementfourn';
+
+				//RECHERCHE DU DET ASSOCIE A LA FACTURE
+				foreach ($_POST as $key=>$value) {
+					if(substr($key,0,4) == 'det_' && substr($key,4) == $invoice_id){
+						$fk_det = $value;
+						$fk_dettype = 'timetablesepadet';
+
+					}
+				}
+
+				// INSERTION LIEN PAIEMENT ET DET DANS TABLE ELEMENT_ELEMENT
+				if(!empty($fk_det)) {
+					$sql = "INSERT INTO " . MAIN_DB_PREFIX . "element_element (";
+					$sql .= "fk_source";
+					$sql .= ", sourcetype";
+					$sql .= ", fk_target";
+					$sql .= ", targettype";
+					$sql .= ") VALUES (";
+					$sql .= $fk_paiement;
+					$sql .= ", '" . $fk_paiementtype . "'";
+					$sql .= ", " . $fk_det;
+					$sql .= ", '" . $fk_dettype . "'";
+					$sql .= ")";
+
+					$this->db->query($sql);
+				}
+			}
         } elseif ($action == 'PAYMENT_ADD_TO_BANK') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id

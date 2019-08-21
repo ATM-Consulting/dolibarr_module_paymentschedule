@@ -69,13 +69,13 @@ class ActionstimetableSEPA
 	{
 		global $user, $conf;
 
-		$TContext = explode(':',$parameters['context']);
+		$TContext = explode(':', $parameters['context']);
 
-		if (in_array('invoicecard', $TContext))
-		{
-			if ($action == 'confirm_createtimetablesepa')
-			{
-                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+		if (in_array('invoicecard', $TContext)) {
+
+			if ($action == 'confirm_createtimetablesepa') {
+
+				if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 				dol_include_once('timetablesepa/class/timetablesepa.class.php');
 
 				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
@@ -85,69 +85,92 @@ class ActionstimetableSEPA
 
 				$echeancier = new TimetableSEPA($this->db);
 				$ret = $echeancier->createFromFacture($object, $date_start, $periodicity_unit, $periodicity_value, $nb_term);
-				if ($ret < 0)
-				{
+				if ($ret < 0) {
 					setEventMessage($echeancier->errors, "errors");
+				} else {
+					header('Location: ' . dol_buildpath('/timetablesepa/card.php?id=' . $echeancier->id, 1));
+					exit;
 				}
-				else
-                {
-                    header('Location: '.dol_buildpath('/timetablesepa/card.php?id='.$echeancier->id, 1));
-                    exit;
-                }
 			}
-		}
-		elseif (in_array('directdebitcard', $TContext))
-        {
-            if ($action === 'delete')
-            {
-                $did = GETPOST('did', 'int');
-                if ($did > 0)
-                {
-                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element 
-                        WHERE fk_source = '.$did.' AND sourcetype = \'prelevement_facture_demande\'
+		} elseif (in_array('directdebitcard', $TContext)) {
+			if ($action === 'delete') {
+				$did = GETPOST('did', 'int');
+				if ($did > 0) {
+					$sql = 'SELECT fk_target FROM ' . MAIN_DB_PREFIX . 'element_element 
+                        WHERE fk_source = ' . $did . ' AND sourcetype = \'prelevement_facture_demande\'
                         AND targettype = \'timetablesepadet\'';
 
-                    $resql = $this->db->query($sql);
-                    if ($resql)
-                    {
-                        $obj = $this->db->fetch_object($resql);
-                        if ($obj)
-                        {
-                            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                            dol_include_once('timetablesepa/class/timetablesepa.class.php');
-                            $det = new TimetableSEPADet($this->db);
-                            $det->fetch($obj->fk_target);
+					$resql = $this->db->query($sql);
+					if ($resql) {
+						$obj = $this->db->fetch_object($resql);
+						if ($obj) {
+							if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+							dol_include_once('timetablesepa/class/timetablesepa.class.php');
+							$det = new TimetableSEPADet($this->db);
+							$det->fetch($obj->fk_target);
 
-                            $det->setWaiting($user);
-                            $det->deleteObjectLinked($did, 'prelevement_facture_demande');
-                        }
-                    }
-                    else
-                    {
-                        setEventMessage($this->db->lasterror(), 'errors');
-                    }
+							$det->setWaiting($user);
+							$det->deleteObjectLinked($did, 'prelevement_facture_demande');
+						}
+					} else {
+						setEventMessage($this->db->lasterror(), 'errors');
+					}
 
-                }
-            }
-//            var_dump($action);exit;
-        }
-        elseif (in_array('directdebitprevcard', $TContext))
-        {
-            // PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
-            if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0)
-            {
-                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                dol_include_once('timetablesepa/class/timetablesepa.class.php');
+				}
+			}
+		} elseif (in_array('directdebitprevcard', $TContext)) {
+			// PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
+			if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0) {
+				if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+				dol_include_once('timetablesepa/class/timetablesepa.class.php');
 
-                $TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
-                foreach ($TDet as $det)
-                {
-                    $det->setAccepted($user);
-                }
-            }
-        }
+				$TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
+				foreach ($TDet as $det) {
+					$det->setAccepted($user);
+				}
+			}
+		}
 
 		return 0;
+	}
+
+	public function printObjectLine($parameters, &$object, &$action, $hookmanager){
+
+		$TContext = explode(':',$parameters['context']);
+
+		if(in_array('paiementcard', $TContext)) {
+
+			//AJOUT COLONNE "Prélévement prévu"
+			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+			dol_include_once('timetablesepa/class/timetablesepa.class.php');
+
+			$tableSEPA = new TimetableSEPA($this->db);
+			$tableSEPA->fetchBy($object->facid, 'fk_facture');
+
+			print '<td align="right">';
+			print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
+			print '<option value="" selected data-amount="">&nbsp;</option>';
+			foreach ($tableSEPA->TTimetableSEPADet as $det) {
+				if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
+					print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
+				} else {
+					print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . '</option>';
+				}
+			}
+			print '</select>';
+			print '</td>';
+		}
+	}
+
+	public function printObjectLineTitle($parameters, &$object, &$action, $hookmanager){
+
+		$TContext = explode(':',$parameters['context']);
+
+		if(in_array('paiementcard', $TContext)) {
+
+			print '<td align="center">Prélèvement prévu</td>';
+
+		}
 	}
 
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
