@@ -94,6 +94,7 @@ class modtimetableSEPA extends DolibarrModules
                 ,'directdebitcard'
                 ,'directdebitcreatecard'
                 ,'directdebitprevcard'
+				,'paiementcard'
 			)
             ,'triggers' => 1
 		);
@@ -348,6 +349,24 @@ class modtimetableSEPA extends DolibarrModules
 		// $this->export_sql_end[$r] .=' WHERE f.fk_soc = s.rowid AND f.rowid = fd.fk_facture';
 		// $this->export_sql_order[$r] .=' ORDER BY s.nom';
 		// $r++;
+
+//        $this->cronjobs = array(
+//            0=>array(
+//                'label' => 'TimetableSEPA'
+//                ,'jobtype' => 'method'
+//                ,'class' => '/timetablesepa/class/timetablesepa.class.php'
+//                ,'objectname' => 'TimetableSEPA'
+//                ,'method' => 'cronSepa'
+//                ,'parameters' => ''
+//                ,'comment' => 'Permet de créer les prélèvement SEPA'
+//                ,'frequency' => 1
+//                ,'unitfrequency' => 86400
+//                ,'datestart' => strtotime(date('Y-m-d 00:30:00'))
+//                ,'status' => 0
+//                ,'test' => '$conf->timetablesepa->enabled'
+//                ,'priority' => 20
+//            )
+//        );
 	}
 
 	/**
