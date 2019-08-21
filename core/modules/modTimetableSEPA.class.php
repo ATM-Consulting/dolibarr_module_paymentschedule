@@ -16,20 +16,20 @@
  */
 
 /**
- * 	\defgroup   timetablesepa     Module timetableSEPA
+ * 	\defgroup   timetablesepa     Module TimetableSEPA
  *  \brief      Example of a module descriptor.
  *				Such a file must be copied into htdocs/timetablesepa/core/modules directory.
- *  \file       htdocs/timetablesepa/core/modules/modtimetableSEPA.class.php
+ *  \file       htdocs/timetablesepa/core/modules/modTimetableSEPA.class.php
  *  \ingroup    timetablesepa
- *  \brief      Description and activation file for module timetableSEPA
+ *  \brief      Description and activation file for module TimetableSEPA
  */
 include_once DOL_DOCUMENT_ROOT .'/core/modules/DolibarrModules.class.php';
 
 
 /**
- *  Description and activation class for module timetableSEPA
+ *  Description and activation class for module TimetableSEPA
  */
-class modtimetableSEPA extends DolibarrModules
+class modTimetableSEPA extends DolibarrModules
 {
 	/**
 	 *   Constructor. Define names, constants, directories, boxes, permissions
@@ -57,7 +57,7 @@ class modtimetableSEPA extends DolibarrModules
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module timetableSEPA";
+		$this->description = "Description of module TimetableSEPA";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 		$this->version = '1.0.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
@@ -146,7 +146,7 @@ class modtimetableSEPA extends DolibarrModules
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
         $this->tabs = array(
-            'invoice:+timetablesepacard:timetableSEPA:timetablesepa@timetablesepa:$user->rights->timetablesepa->read:/timetablesepa/card.php?facid=__ID__'
+            'invoice:+timetablesepacard:TimetableSEPA:timetablesepa@timetablesepa:$user->rights->timetablesepa->read:/timetablesepa/card.php?facid=__ID__'
         );
 
         // Dictionaries
@@ -222,7 +222,7 @@ class modtimetableSEPA extends DolibarrModules
 		// Example to declare a new Top Menu entry and its Left menu entry:
 		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=timetablesepa',		// Put 0 if this is a single top menu or keep fk_mainmenu to give an entry on left
 		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'timetableSEPA top menu',
+		//							'titre'=>'TimetableSEPA top menu',
 		//							'mainmenu'=>'timetablesepa',
 		//							'leftmenu'=>'timetablesepa_left',			// This is the name of left menu for the next entries
 		//							'url'=>'/timetablesepa/pagetop.php',
@@ -237,7 +237,7 @@ class modtimetableSEPA extends DolibarrModules
 		// Example to declare a Left Menu entry into an existing Top menu entry:
 		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'timetableSEPA left menu',
+		//							'titre'=>'TimetableSEPA left menu',
 		//							'mainmenu'=>'timetablesepa',
 		//							'leftmenu'=>'timetablesepa_left',			// Goes into left menu previously created by the mainmenu
 		//							'url'=>'/timetablesepa/pagelevel2.php',
@@ -253,7 +253,7 @@ class modtimetableSEPA extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>0,			                // Put 0 if this is a top menu
 			'type'=>'top',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenutimetableSEPA'),
+			'titre'=>$langs->trans('TopMenuTimetableSEPA'),
 			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'',
 			'url'=>'/timetablesepa/list.php',
@@ -269,7 +269,7 @@ class modtimetableSEPA extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=timetablesepa',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenutimetableSEPA'),
+			'titre'=>$langs->trans('TopMenuTimetableSEPA'),
 			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left',
 			'url'=>'/timetablesepa/list.php',
@@ -285,7 +285,7 @@ class modtimetableSEPA extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenutimetableSEPACreate'),
+			'titre'=>$langs->trans('LeftMenuTimetableSEPACreate'),
 			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left_create',
 			'url'=>'/timetablesepa/card.php?action=create',
@@ -302,7 +302,7 @@ class modtimetableSEPA extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenutimetableSEPAList'),
+			'titre'=>$langs->trans('LeftMenuTimetableSEPAList'),
 			'mainmenu'=> 'timetablesepa',
 			'leftmenu'=>'timetablesepa_left_list',
 			'url'=>'/timetablesepa/list.php',
@@ -319,7 +319,7 @@ class modtimetableSEPA extends DolibarrModules
         $this->menu[$r]=array(
             'fk_menu'=>'fk_mainmenu=bank,fk_leftmenu=withdraw',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'left',			                // This is a Left menu entry
-            'titre'=>'LeftMenutimetableSEPACreatePrevlevement',
+            'titre'=>'LeftMenuTimetableSEPACreatePrevlevement',
             'mainmenu'=> 'bank',
             'leftmenu'=>'timetablesepa_left_create',
             'url'=>'/timetablesepa/prelevement.php',

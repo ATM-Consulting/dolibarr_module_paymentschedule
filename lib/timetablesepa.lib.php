@@ -72,7 +72,7 @@ function timetablesepa_prepare_head(TimetableSEPA $object)
     $h = 0;
     $head = array();
     $head[$h][0] = dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id;
-    $head[$h][1] = $langs->trans("timetableSEPACard");
+    $head[$h][1] = $langs->trans("TimetableSEPACard");
     $head[$h][2] = 'card';
     $h++;
 	
@@ -87,12 +87,12 @@ function timetablesepa_prepare_head(TimetableSEPA $object)
 
 /**
  * @param Form          $form   Form object
- * @param TimetableSEPA $object timetableSEPA object
+ * @param TimetableSEPA $object TimetableSEPA object
  * @param Facture $facture Facture object
  * @param string        $action Triggered action
  * @return string
  */
-function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
+function getFormConfirmTimetableSEPA($form, $object, $facture, $action)
 {
     global $langs, $user;
 
@@ -101,8 +101,8 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
 
     if ($action === 'validtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
-        $body = $langs->trans('ConfirmValidatetimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidatetimetableSEPATitle'), $body, 'confirm_validatetimetablesepa', '', 0, 1);
+        $body = $langs->trans('ConfirmValidateTimetableSEPABody', $facture->ref);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidateTimetableSEPATitle'), $body, 'confirm_validatetimetablesepa', '', 0, 1);
     }
     elseif ($action === 'createtimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
@@ -147,21 +147,21 @@ function getFormConfirmtimetableSEPA($form, $object, $facture, $action)
             , array('type' => 'text', 'label' => $langs->trans('timetablesepa_numberOfEcheanceEcheance'), 'name' => 'nb_term', 'value' => '6', 'size' => '5')
             , array('type' => 'onecolumn', 'value' => $scriptjs)
         );
-        $body = $langs->trans('ConfirmCreatetimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatetimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1, 'auto');
+        $body = $langs->trans('ConfirmCreateTimetableSEPABody', $facture->ref);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreateTimetableSEPATitle'), $body, 'confirm_createtimetablesepa', $formquestion, 0, 1, 'auto');
     }
     elseif ($action === 'resettimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
         $formquestion = array(
             array('type' => 'checkbox', 'label' => $langs->trans('timetablesepa_fullReset'), 'name' => 'full_reset', 'value' => '1', 'moreattr' => 'value="1"')
         );
-        $body = $langs->trans('ConfirmResettimetableSEPABody', $facture->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResettimetableSEPATitle'), $body, 'confirm_resettimetablesepa', $formquestion, 0, 1);
+        $body = $langs->trans('ConfirmResetTimetableSEPABody', $facture->ref);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResetTimetableSEPATitle'), $body, 'confirm_resettimetablesepa', $formquestion, 0, 1);
     }
     elseif ($action === 'deletetimetablesepa' && !empty($user->rights->timetablesepa->write))
     {
-        $body = $langs->trans('ConfirmDeletetimetableSEPABody');
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletetimetableSEPATitle'), $body, 'confirm_deletetimetablesepa', '', 0, 1);
+        $body = $langs->trans('ConfirmDeleteTimetableSEPABody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeleteTimetableSEPATitle'), $body, 'confirm_deletetimetablesepa', '', 0, 1);
     }
 
     return $formconfirm;

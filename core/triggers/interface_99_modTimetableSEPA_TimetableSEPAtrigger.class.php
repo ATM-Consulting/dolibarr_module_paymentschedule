@@ -16,7 +16,7 @@
  */
 
 /**
- * 	\file		core/triggers/interface_99_modMyodule_timetableSEPAtrigger.class.php
+ * 	\file		core/triggers/interface_99_modMyodule_TimetableSEPAtrigger.class.php
  * 	\ingroup	timetablesepa
  * 	\brief		Sample trigger
  * 	\remarks	You can create other triggers by copying this one
@@ -32,7 +32,7 @@
 /**
  * Trigger class
  */
-class InterfacetimetableSEPAtrigger
+class InterfaceTimetableSEPAtrigger
 {
 
     private $db;

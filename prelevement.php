@@ -178,7 +178,7 @@ $title=$langs->trans('TimetableSEPA');
 llxHeader('', $title);
 
 
-print load_fiche_titre($langs->trans('NewtimetableSEPA_createRequests'), '', 'timetablesepa@timetablesepa');
+print load_fiche_titre($langs->trans('NewTimetableSEPA_createRequests'), '', 'timetablesepa@timetablesepa');
 
 dol_fiche_head(array(), '');
 

@@ -42,7 +42,7 @@ if (! $user->admin) {
 /*
  * View
  */
-$page_name = 'timetableSEPAAbout';
+$page_name = 'TimetableSEPAAbout';
 llxHeader('', $langs->trans($page_name));
 
 // Subheader

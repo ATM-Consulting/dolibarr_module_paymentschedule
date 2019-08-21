@@ -83,7 +83,7 @@ if (preg_match('/del_(.*)/', $action, $reg))
 /*
  * View
  */
-$page_name = "timetableSEPASetup";
+$page_name = "TimetableSEPASetup";
 llxHeader('', $langs->trans($page_name));
 
 // Subheader

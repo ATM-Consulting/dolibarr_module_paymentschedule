@@ -23,9 +23,9 @@
  */
 
 /**
- * Class ActionstimetableSEPA
+ * Class ActionsTimetableSEPA
  */
-class ActionstimetableSEPA
+class ActionsTimetableSEPA
 {
     /**
      * @var DoliDb		Database handler (result of a new DoliDB)
@@ -172,11 +172,11 @@ class ActionstimetableSEPA
 				$TRestrictMessage = TimetableSEPA::checkFactureCondition($object);
 				if (empty($TRestrictMessage))
 				{
-					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createtimetablesepa">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createtimetablesepa">'.$langs->trans('TimetableSEPACreate').'</a></div>';
 				}
 				else
 				{
-					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('TimetableSEPACreate').'</a></div>';
 				}
 			}
 		}
@@ -194,7 +194,7 @@ class ActionstimetableSEPA
             dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
 
             $form = new Form($this->db);
-            $this->resprints = getFormConfirmtimetableSEPA($form, null, $object, $action);
+            $this->resprints = getFormConfirmTimetableSEPA($form, null, $object, $action);
         }
 
         return 0;

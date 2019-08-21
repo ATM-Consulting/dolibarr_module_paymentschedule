@@ -3,10 +3,10 @@ Module104077Desc = Creation d'un échéancier de prélévement SEPA sur les fact
 
 ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
-timetableSEPASetup = Configuration du module Echéancier SEPA
-timetableSEPAAbout = A propos du module Echéancier SEPA
+TimetableSEPASetup = Configuration du module Echéancier SEPA
+TimetableSEPAAbout = A propos du module Echéancier SEPA
 
-timetableSEPA=Echéancier SEPA
+TimetableSEPA=Echéancier SEPA
 AbricotNeedUpdate=Le module abricot doit être mis à jour
 
 # SETUP
@@ -20,38 +20,38 @@ TIMETABLESEPA_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant 
 TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'existant d'un IBAN sur le tiers
 
 # MENU
-TopMenutimetableSEPA=Echéancier SEPA
+TopMenuTimetableSEPA=Echéancier SEPA
 
 # STATUS
-timetableSEPAStatusDraft=Brouillon (échéancier en attente)
-timetableSEPAStatusValidated=Validée (prêt pour prélèvement)
+TimetableSEPAStatusDraft=Brouillon (échéancier en attente)
+TimetableSEPAStatusValidated=Validée (prêt pour prélèvement)
 
-timetableSEPAStatusDraftShort=Brouillon
-timetableSEPAStatusValidatedShort=Validée
+TimetableSEPAStatusDraftShort=Brouillon
+TimetableSEPAStatusValidatedShort=Validée
 
 # LIST
-timetableSEPAList=Liste échéanciers SEPA
-NotimetableSEPA=(vide)
+TimetableSEPAList=Liste échéanciers SEPA
+NoTimetableSEPA=(vide)
 
 # CARD
-NewtimetableSEPA=Création Echéancier SEPA
-timetableSEPACard=Fiche Echéancier SEPA
+NewTimetableSEPA=Création Echéancier SEPA
+TimetableSEPACard=Fiche Echéancier SEPA
 bankWithdrawal=Prélèvement échéance %s
 timetablesepaNotCreatedYet=Aucun échéancier pour cette facture
 timetablesepaStatusBankLevy=Statut
 timetablesepaDateDemande=Date demande
 timetablesepaModeRglt=Mode de règlement
 
-timetableSEPAReset=Générer
-timetableSEPAModify=Modifier
-timetableSEPAClone=Cloner
-timetableSEPAValid=Valider
-timetableSEPAAccept=Accepter
-timetableSEPARefuse=Refuser
-timetableSEPAReopen=Rouvrir
-timetableSEPACancel=Abandonner
-timetableSEPADelete=Supprimer
-timetableSEPACreate=Créer échéancier
+TimetableSEPAReset=Générer
+TimetableSEPAModify=Modifier
+TimetableSEPAClone=Cloner
+TimetableSEPAValid=Valider
+TimetableSEPAAccept=Accepter
+TimetableSEPARefuse=Refuser
+TimetableSEPAReopen=Rouvrir
+TimetableSEPACancel=Abandonner
+TimetableSEPADelete=Supprimer
+TimetableSEPACreate=Créer échéancier
 
 PeriodicityUnit=Unité période
 PeriodicityValue=Valeur période (toutes les x unité)
@@ -60,20 +60,20 @@ timetablesepa_periodicityDay=Jour
 timetablesepa_periodicityMonth=Mois
 timetablesepa_periodicityYear=Année
 
-ConfirmCreatetimetableSEPATitle=Création échéancier
-ConfirmCreatetimetableSEPABody=Souhaitez vous créer l'échéancier de prélèvement SEPA ?
+ConfirmCreateTimetableSEPATitle=Création échéancier
+ConfirmCreateTimetableSEPABody=Souhaitez vous créer l'échéancier de prélèvement SEPA ?
 timetablesepa_dateStartEcheance=Date de démarrage
 timetablesepa_numberOfEcheanceEcheance=Nombre d'échéance
 timetablesepa_dateEndPrelevement=Date prévisionnelle de dernière échéance :
 
-ConfirmValidatetimetableSEPATitle=Validation échéancier
-ConfirmValidatetimetableSEPABody=Souhaitez vous valider cet échéancier pour prise en compte des prélèvements aux dates indiquées ?
+ConfirmValidateTimetableSEPATitle=Validation échéancier
+ConfirmValidateTimetableSEPABody=Souhaitez vous valider cet échéancier pour prise en compte des prélèvements aux dates indiquées ?
 
-ConfirmDeletetimetableSEPATitle=Supprimer échéancier
-ConfirmDeletetimetableSEPABody=Êtes-vous sûr de vouloir supprimer cet échéancier ?
+ConfirmDeleteTimetableSEPATitle=Supprimer échéancier
+ConfirmDeleteTimetableSEPABody=Êtes-vous sûr de vouloir supprimer cet échéancier ?
 
-ConfirmResettimetableSEPATitle=Générer échéancier
-ConfirmResettimetableSEPABody=Êtes-vous sûr de vouloir générer l'échéancier ?
+ConfirmResetTimetableSEPATitle=Générer échéancier
+ConfirmResetTimetableSEPABody=Êtes-vous sûr de vouloir générer l'échéancier ?
 timetablesepa_fullReset=Supprimer les lignes au statut "En attente de traitement"
 
 TimetableSEPADetStatusWaiting=En attente de traitement
@@ -87,14 +87,14 @@ timetablesepaSetRefuse=Passer à rejeter
 
 TimetableSEPA_warningSumIsDifferent=Attention: le montant des prélèvements est différent du montant de la facture, écart de : %s
 
-NewtimetableSEPA_createRequests=Création des demandes de prélèvement
+NewTimetableSEPA_createRequests=Création des demandes de prélèvement
 TimetableSEPA_requestSelectDate=Date de demande recherchée
 TimetableSEPA_requestNumRowsFound=Nombre de demande trouvée pour cette date : %d
 TimetableSEPA_requestNbCreate=Demande de prélèvement créée : %d
 TimetableSEPA_requestNbError=Demande de prélèvement en erreur : %d
 TimetableSEPA_requestBack=Retour
 
-LeftMenutimetableSEPACreatePrevlevement=Création demande prélèvement SEPA
+LeftMenuTimetableSEPACreatePrevlevement=Création demande prélèvement SEPA
 
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon

@@ -38,8 +38,8 @@ class TimetableSEPA extends SeedObject
 
 	/** @var array $TStatus Array of translate key for each const */
 	public static $TStatus = array(
-		self::STATUS_DRAFT => 'timetableSEPAStatusDraftShort'
-		,self::STATUS_VALIDATED => 'timetableSEPAStatusValidatedShort'
+		self::STATUS_DRAFT => 'TimetableSEPAStatusDraftShort'
+		,self::STATUS_VALIDATED => 'TimetableSEPAStatusValidatedShort'
 	);
 
 
@@ -107,7 +107,7 @@ class TimetableSEPA extends SeedObject
     public $TTimetableSEPADet = array();
 
     /**
-     * timetableSEPA constructor.
+     * TimetableSEPA constructor.
      * @param DoliDB    $db    Database connector
      */
     public function __construct($db)
@@ -236,8 +236,8 @@ class TimetableSEPA extends SeedObject
 		$langs->load('timetablesepa@timetablesepa');
         $res = '';
 
-        if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('timetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('timetableSEPAStatusDraftShort'); }
-        elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('timetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('timetableSEPAStatusValidateShort'); }
+        if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('TimetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('TimetableSEPAStatusDraftShort'); }
+        elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('TimetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('TimetableSEPAStatusValidateShort'); }
 
         if (function_exists('dolGetStatus'))
         {
@@ -545,7 +545,7 @@ class TimetableSEPADet extends SeedObject
 	public $amount_ttc;
 
     /**
-     * timetableSEPADet constructor.
+     * TimetableSEPADet constructor.
      * @param DoliDB    $db    Database connector
      */
     public function __construct($db)

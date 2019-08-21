@@ -62,7 +62,7 @@ if (empty($reshook))
  * View
  */
 
-llxHeader('', $langs->trans('timetableSEPAList'), '', '');
+llxHeader('', $langs->trans('TimetableSEPAList'), '', '');
 
 //$type = GETPOST('type');
 //if (empty($user->rights->timetablesepa->all->read)) $type = 'mine';
@@ -91,7 +91,7 @@ if (!empty($object->isextrafieldmanaged))
 }
 
 $sql.= ' WHERE 1=1';
-//$sql.= ' AND t.entity IN ('.getEntity('timetableSEPA', 1).')';
+//$sql.= ' AND t.entity IN ('.getEntity('TimetableSEPA', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
 
 // Add where from hooks
@@ -111,12 +111,12 @@ echo $r->render($sql, array(
 		'nbLine' => $nbLine
 	)
     ,'list' => array(
-        'title' => $langs->trans('timetableSEPAList')
+        'title' => $langs->trans('TimetableSEPAList')
         ,'image' => 'title_generic.png'
         ,'picto_precedent' => '<'
         ,'picto_suivant' => '>'
         ,'noheader' => 0
-        ,'messageNothing' => $langs->trans('NotimetableSEPA')
+        ,'messageNothing' => $langs->trans('NoTimetableSEPA')
         ,'picto_search' => img_picto('', 'search.png', '', 0)
         ,'massactions'=>array(
             'yourmassactioncode'  => $langs->trans('YourMassActionLabel')

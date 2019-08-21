@@ -28,7 +28,7 @@ if (! $res) {
 
 
 /*
- * Config of extrafield page for timetableSEPA
+ * Config of extrafield page for TimetableSEPA
  */
 require_once '../lib/timetablesepa.lib.php';
 require_once '../class/timetablesepa.class.php';
@@ -39,8 +39,8 @@ $elementtype=$timetablesepa->table_element;  //Must be the $table_element of the
 
 // Page title and texts elements
 $textobject=$langs->transnoentitiesnoconv('TimetableSEPA');
-$help_url='EN:Help timetableSEPA|FR:Aide timetableSEPA';
-$pageTitle = $langs->trans('timetableSEPAExtrafieldPage');
+$help_url='EN:Help TimetableSEPA|FR:Aide TimetableSEPA';
+$pageTitle = $langs->trans('TimetableSEPAExtrafieldPage');
 
 // Configuration header
 $head = timetablesepaAdminPrepareHead();

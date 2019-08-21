@@ -34,7 +34,7 @@ $linkedObjectBlock = $GLOBALS['linkedObjectBlock'];
 
 $langs->load("timetablesepa@timetablesepa");
 echo '<br>';
-print load_fiche_titre($langs->trans("timetableSEPARelated"));
+print load_fiche_titre($langs->trans("TimetableSEPARelated"));
 ?>
 <table class="noborder allwidth">
 <tr class="liste_titre">

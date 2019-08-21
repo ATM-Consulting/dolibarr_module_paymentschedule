@@ -230,7 +230,7 @@ llxHeader('', $title);
 
 if ($action == 'create')
 {
-    print load_fiche_titre($langs->trans('NewtimetableSEPA'), '', 'timetablesepa@timetablesepa');
+    print load_fiche_titre($langs->trans('NewTimetableSEPA'), '', 'timetablesepa@timetablesepa');
 
     print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
@@ -306,7 +306,7 @@ else
             $picto = 'timetablesepa@timetablesepa';
             dol_fiche_head($head, 'timetablesepacard', $langs->trans('TimetableSEPA'), -1, $picto);
 
-            $formconfirm = getFormConfirmtimetableSEPA($form, $object, $facture, $action);
+            $formconfirm = getFormConfirmTimetableSEPA($form, $object, $facture, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
 
@@ -564,40 +564,40 @@ else
                     if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resettimetablesepa">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resettimetablesepa">'.$langs->trans("TimetableSEPAReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edittimetablesepa">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edittimetablesepa">'.$langs->trans("TimetableSEPAModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validtimetablesepa">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validtimetablesepa">'.$langs->trans('TimetableSEPAValid').'</a></div>'."\n";
                     }
 
 
                     // Reopen
-                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopentimetablesepa">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
+                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopentimetablesepa">'.$langs->trans('TimetableSEPAReopen').'</a></div>'."\n";
                 }
                 else
                 {
                     if ($object->status === TimetableSEPA::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("TimetableSEPAReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("TimetableSEPAModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('TimetableSEPAValid').'</a></div>'."\n";
                     }
 
                     // Reopen
-                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
+                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('TimetableSEPAReopen').'</a></div>'."\n";
                 }
 
                 if (!empty($user->rights->timetablesepa->delete))
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletetimetablesepa">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletetimetablesepa">'.$langs->trans("TimetableSEPADelete").'</a></div>'."\n";
                 }
                 else
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("TimetableSEPADelete").'</a></div>'."\n";
                 }
             }
             print '</div>'."\n";
