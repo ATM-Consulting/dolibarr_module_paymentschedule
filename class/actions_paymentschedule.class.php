@@ -69,7 +69,7 @@ class ActionsPaymentSchedule
 	{
 		global $user, $conf;
 
-		$TContext = explode(':',$parameters['context']);
+		$TContext = explode(':', $parameters['context']);
 
 		if (in_array('invoicecard', $TContext))
 		{
@@ -129,7 +129,6 @@ class ActionsPaymentSchedule
 
                 }
             }
-//            var_dump($action);exit;
         }
         elseif (in_array('directdebitprevcard', $TContext))
         {
@@ -148,6 +147,54 @@ class ActionsPaymentSchedule
         }
 
 		return 0;
+	}
+
+	public function printObjectLine($parameters, &$object, &$action, $hookmanager)
+    {
+	    global $langs;
+
+		$TContext = explode(':',$parameters['context']);
+		if(in_array('paiementcard', $TContext)) {
+
+			//AJOUT COLONNE "Prélévement prévu"
+			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+			dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+			$tableSEPA = new PaymentSchedule($this->db);
+			$tableSEPA->fetchBy($object->facid, 'fk_facture');
+
+			print '<td class="right">';
+			if (!empty($tableSEPA->id))
+            {
+                print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
+                print '<option value="" selected data-amount="">&nbsp;</option>';
+                foreach ($tableSEPA->TPaymentScheduleDet as $det) {
+                    if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
+                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
+                    } else {
+                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . '</option>';
+                    }
+                }
+                print '</select>';
+            }
+			else
+            {
+                print $langs->trans('NotPaymentSchedule');
+            }
+			print '</td>';
+		}
+	}
+
+	public function printFieldListTitle($parameters, &$object, &$action, $hookmanager)
+    {
+        global $langs;
+
+		$TContext = explode(':',$parameters['context']);
+
+		if(in_array('paiementcard', $TContext))
+		{
+			print '<td class="right">'.$langs->trans('PaymentScheduleDetLinked').'</td>';
+		}
 	}
 
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)

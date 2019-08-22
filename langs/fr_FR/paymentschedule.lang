@@ -96,6 +96,9 @@ PaymentSchedule_requestBack=Retour
 
 LeftMenuPaymentScheduleCreatePrevlevement=Création demande prélèvement SEPA
 
+NotPaymentSchedule=Pas d'échéancier
+PaymentScheduleDetLinked=Ligne d'échéancier concernée
+
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
 CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture

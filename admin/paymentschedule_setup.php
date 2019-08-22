@@ -50,7 +50,7 @@ if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
 	$val = GETPOST($code);
-	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE' && !empty($val))
+	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND' && !empty($val))
 	{
 		$val = implode(',', $val);
 	}
@@ -138,6 +138,18 @@ foreach ($form->cache_types_paiements as $info)
 	$TPaiementId[$info['id']] = $info['label'];
 }
 print Form::multiselectarray('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE', $TPaiementId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE), 0, 0, 'minwidth200');
+print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
+// MODES DE PAIEMENT SECONDAIRES
+print '<td>'.$langs->trans('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND').'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND">';
+print Form::multiselectarray('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND', $TPaiementId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND), 0, 0, 'minwidth200');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';

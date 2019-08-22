@@ -56,17 +56,15 @@ if (empty($reshook))
     {
         $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
         $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
-		$TPaiementId = !empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) ? explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) : array();
-
-		if ($date_demande_start && !empty($TPaiementId))
+		
+		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) && $date_demande_start)
         {
-            // TODO mettre le fk_mode_reglement en conf
             $sql = 'SELECT COUNT(*) AS nb 
                     FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
                     INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
                     WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                     AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
-                    AND td.fk_mode_reglement IN ('.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.')
+                    AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
                     AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
             $resql = $db->query($sql);
 
@@ -85,9 +83,8 @@ if (empty($reshook))
     {
         $date_demande_start = GETPOST('date_demande_start');
         $date_demande_end = GETPOST('date_demande_end');
-		$TPaiementId = !empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) ? explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) : array();
-
-		if (!empty($TPaiementId))
+		
+		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
 		{
 			// TODO mettre le fk_mode_reglement en conf
 			$sql = 'SELECT t.fk_facture, td.rowid
@@ -95,7 +92,7 @@ if (empty($reshook))
                 INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
                 WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                 AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
-                AND td.fk_mode_reglement IN ('.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.')
+                AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
                 AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
 			$resql = $db->query($sql);
 
