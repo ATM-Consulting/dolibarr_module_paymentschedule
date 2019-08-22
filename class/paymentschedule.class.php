@@ -276,11 +276,11 @@ class PaymentSchedule extends SeedObject
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
-	$TPaimentId = array();
-	if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE)) $TPaiementId[] = $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE;
-	if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND)) $TPaiementId[] = array_merge($TPaiementId, explode(',', PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND));
+        $TPaymentId = array();
+        if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE)) $TPaymentId[] = $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE;
+        if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND)) $TPaymentId = array_merge($TPaymentId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND));
 
-        if (!in_array($facture->mode_reglement_id, $TPaimentId))
+        if (!in_array($facture->mode_reglement_id, $TPaymentId))
 		{
 			$TRestrictMessage[] = $langs->trans('CheckErrorModeRgltNotMatch');
 		}

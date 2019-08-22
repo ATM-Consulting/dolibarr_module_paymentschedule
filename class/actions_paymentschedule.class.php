@@ -149,10 +149,11 @@ class ActionsPaymentSchedule
 		return 0;
 	}
 
-	public function printObjectLine($parameters, &$object, &$action, $hookmanager){
+	public function printObjectLine($parameters, &$object, &$action, $hookmanager)
+    {
+	    global $langs;
 
 		$TContext = explode(':',$parameters['context']);
-
 		if(in_array('paiementcard', $TContext)) {
 
 			//AJOUT COLONNE "Prélévement prévu"
@@ -162,29 +163,37 @@ class ActionsPaymentSchedule
 			$tableSEPA = new PaymentSchedule($this->db);
 			$tableSEPA->fetchBy($object->facid, 'fk_facture');
 
-			print '<td align="right">';
-			print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
-			print '<option value="" selected data-amount="">&nbsp;</option>';
-			foreach ($tableSEPA->TPaymentScheduleDet as $det) {
-				if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
-					print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
-				} else {
-					print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . '</option>';
-				}
-			}
-			print '</select>';
+			print '<td class="right">';
+			if (!empty($tableSEPA->id))
+            {
+                print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
+                print '<option value="" selected data-amount="">&nbsp;</option>';
+                foreach ($tableSEPA->TPaymentScheduleDet as $det) {
+                    if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
+                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
+                    } else {
+                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . '</option>';
+                    }
+                }
+                print '</select>';
+            }
+			else
+            {
+                print $langs->trans('NotPaymentSchedule');
+            }
 			print '</td>';
 		}
 	}
 
-	public function printObjectLineTitle($parameters, &$object, &$action, $hookmanager){
+	public function printObjectLineTitle($parameters, &$object, &$action, $hookmanager)
+    {
+        global $langs;
 
 		$TContext = explode(':',$parameters['context']);
 
-		if(in_array('paiementcard', $TContext)) {
-
-			print '<td align="center">Prélèvement prévu</td>';
-
+		if(in_array('paiementcard', $TContext))
+		{
+			print '<td class="right">'.$langs->trans('PaymentScheduleDetLinked').'</td>';
 		}
 	}
 

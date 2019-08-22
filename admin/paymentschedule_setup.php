@@ -50,7 +50,7 @@ if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
 	$val = GETPOST($code);
-	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE' && !empty($val))
+	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND' && !empty($val))
 	{
 		$val = implode(',', $val);
 	}
