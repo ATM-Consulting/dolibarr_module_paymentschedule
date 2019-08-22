@@ -16,20 +16,20 @@
  */
 
 /**
- * 	\defgroup   timetablesepa     Module TimetableSEPA
+ * 	\defgroup   paymentschedule     Module PaymentSchedule
  *  \brief      Example of a module descriptor.
- *				Such a file must be copied into htdocs/timetablesepa/core/modules directory.
- *  \file       htdocs/timetablesepa/core/modules/modTimetableSEPA.class.php
- *  \ingroup    timetablesepa
- *  \brief      Description and activation file for module TimetableSEPA
+ *				Such a file must be copied into htdocs/paymentschedule/core/modules directory.
+ *  \file       htdocs/paymentschedule/core/modules/modPaymentSchedule.class.php
+ *  \ingroup    paymentschedule
+ *  \brief      Description and activation file for module PaymentSchedule
  */
 include_once DOL_DOCUMENT_ROOT .'/core/modules/DolibarrModules.class.php';
 
 
 /**
- *  Description and activation class for module TimetableSEPA
+ *  Description and activation class for module PaymentSchedule
  */
-class modTimetableSEPA extends DolibarrModules
+class modPaymentSchedule extends DolibarrModules
 {
 	/**
 	 *   Constructor. Define names, constants, directories, boxes, permissions
@@ -49,7 +49,7 @@ class modTimetableSEPA extends DolibarrModules
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 104077; // 104000 to 104999 for ATM CONSULTING
 		// Key text used to identify module (for permissions, menus, etc...)
-		$this->rights_class = 'timetablesepa';
+		$this->rights_class = 'paymentschedule';
 
 		// Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
 		// It is used to group modules in module setup page
@@ -57,7 +57,7 @@ class modTimetableSEPA extends DolibarrModules
 		// Module label (no space allowed), used if translation string 'ModuleXXXName' not found (where XXX is value of numeric property 'numero' of module)
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
-		$this->description = "Description of module TimetableSEPA";
+		$this->description = "Description of module PaymentSchedule";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 		$this->version = '1.0.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
@@ -67,12 +67,12 @@ class modTimetableSEPA extends DolibarrModules
 		// Name of image file used for this module.
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-		$this->picto='timetablesepa@timetablesepa';
+		$this->picto='paymentschedule@paymentschedule';
 		
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
-		// for default path (eg: /timetablesepa/core/xxxxx) (0=disable, 1=enable)
-		// for specific path of parts (eg: /timetablesepa/core/modules/barcode)
-		// for specific css file (eg: /timetablesepa/css/timetablesepa.css.php)
+		// for default path (eg: /paymentschedule/core/xxxxx) (0=disable, 1=enable)
+		// for specific path of parts (eg: /paymentschedule/core/modules/barcode)
+		// for specific css file (eg: /paymentschedule/css/paymentschedule.css.php)
 		//$this->module_parts = array(
 		//                        	'triggers' => 0,                                 	// Set this to 1 if module has its own trigger directory (core/triggers)
 		//							'login' => 0,                                    	// Set this to 1 if module has its own login method directory (core/login)
@@ -82,11 +82,11 @@ class modTimetableSEPA extends DolibarrModules
 		//                        	'tpl' => 0,                                      	// Set this to 1 if module overwrite template dir (core/tpl)
 		//							'barcode' => 0,                                  	// Set this to 1 if module has its own barcode directory (core/modules/barcode)
 		//							'models' => 0,                                   	// Set this to 1 if module has its own models directory (core/modules/xxx)
-		//							'css' => array('/timetablesepa/css/timetablesepa.css.php'),	// Set this to relative path of css file if module has its own css file
-	 	//							'js' => array('/timetablesepa/js/timetablesepa.js'),          // Set this to relative path of js file if module must load a js on all pages
+		//							'css' => array('/paymentschedule/css/paymentschedule.css.php'),	// Set this to relative path of css file if module has its own css file
+	 	//							'js' => array('/paymentschedule/js/paymentschedule.js'),          // Set this to relative path of js file if module must load a js on all pages
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@timetablesepa')) // Set here all workflow context managed by module
+		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@paymentschedule')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
 			'hooks' => array(
@@ -99,11 +99,11 @@ class modTimetableSEPA extends DolibarrModules
 		);
 
 		// Data directories to create when module is enabled.
-		// Example: this->dirs = array("/timetablesepa/temp");
+		// Example: this->dirs = array("/paymentschedule/temp");
 		$this->dirs = array();
 
-		// Config pages. Put here list of php page, stored into timetablesepa/admin directory, to use to setup module.
-		$this->config_page_url = array("timetablesepa_setup.php@timetablesepa");
+		// Config pages. Put here list of php page, stored into paymentschedule/admin directory, to use to setup module.
+		$this->config_page_url = array("paymentschedule_setup.php@paymentschedule");
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module
@@ -112,7 +112,7 @@ class modTimetableSEPA extends DolibarrModules
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(5,0);					// Minimum version of PHP required by module
 		$this->need_dolibarr_version = array(3,0);	// Minimum version of Dolibarr required by module
-		$this->langfiles = array("timetablesepa@timetablesepa");
+		$this->langfiles = array("paymentschedule@paymentschedule");
 
 		// Constants
 		// List of particular constants to add when module is enabled (key, 'chaine', value, desc, visible, 'current' or 'allentities', deleteonunactive)
@@ -122,8 +122,8 @@ class modTimetableSEPA extends DolibarrModules
 		$this->const = array();
 
 		// Array to add new pages in new tabs
-		// Example: $this->tabs = array('objecttype:+tabname1:Title1:timetablesepa@timetablesepa:$user->rights->timetablesepa->read:/timetablesepa/mynewtab1.php?id=__ID__',  	// To add a new tab identified by code tabname1
-        //                              'objecttype:+tabname2:Title2:timetablesepa@timetablesepa:$user->rights->othermodule->read:/timetablesepa/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2
+		// Example: $this->tabs = array('objecttype:+tabname1:Title1:paymentschedule@paymentschedule:$user->rights->paymentschedule->read:/paymentschedule/mynewtab1.php?id=__ID__',  	// To add a new tab identified by code tabname1
+        //                              'objecttype:+tabname2:Title2:paymentschedule@paymentschedule:$user->rights->othermodule->read:/paymentschedule/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2
         //                              'objecttype:-tabname:NU:conditiontoremove');                                                     						// To remove an existing tab identified by code tabname
 		// where objecttype can be
 		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
@@ -146,20 +146,20 @@ class modTimetableSEPA extends DolibarrModules
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
         $this->tabs = array(
-            'invoice:+timetablesepacard:TimetableSEPA:timetablesepa@timetablesepa:$user->rights->timetablesepa->read:/timetablesepa/card.php?facid=__ID__'
+            'invoice:+paymentschedulecard:PaymentSchedule:paymentschedule@paymentschedule:$user->rights->paymentschedule->read:/paymentschedule/card.php?facid=__ID__'
         );
 
         // Dictionaries
-	    if (! isset($conf->timetablesepa->enabled))
+	    if (! isset($conf->paymentschedule->enabled))
         {
-        	$conf->timetablesepa=new stdClass();
-        	$conf->timetablesepa->enabled=0;
+        	$conf->paymentschedule=new stdClass();
+        	$conf->paymentschedule->enabled=0;
         }
 		$this->dictionaries=array();
         /* Example:
-        if (! isset($conf->timetablesepa->enabled)) $conf->timetablesepa->enabled=0;	// This is to avoid warnings
+        if (! isset($conf->paymentschedule->enabled)) $conf->paymentschedule->enabled=0;	// This is to avoid warnings
         $this->dictionaries=array(
-            'langs'=>'timetablesepa@timetablesepa',
+            'langs'=>'paymentschedule@paymentschedule',
             'tabname'=>array(MAIN_DB_PREFIX."table1",MAIN_DB_PREFIX."table2",MAIN_DB_PREFIX."table3"),		// List of tables we want to see into dictonnary editor
             'tablib'=>array("Table1","Table2","Table3"),													// Label of tables
             'tabsql'=>array('SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table1 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table2 as f','SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'table3 as f'),	// Request to select fields
@@ -168,7 +168,7 @@ class modTimetableSEPA extends DolibarrModules
             'tabfieldvalue'=>array("code,label","code,label","code,label"),																				// List of fields (list of fields to edit a record)
             'tabfieldinsert'=>array("code,label","code,label","code,label"),																			// List of fields (list of fields for insert)
             'tabrowid'=>array("rowid","rowid","rowid"),																									// Name of columns with primary key (try to always name it 'rowid')
-            'tabcond'=>array($conf->timetablesepa->enabled,$conf->timetablesepa->enabled,$conf->timetablesepa->enabled)												// Condition to show each dictionary
+            'tabcond'=>array($conf->paymentschedule->enabled,$conf->paymentschedule->enabled,$conf->paymentschedule->enabled)												// Condition to show each dictionary
         );
         */
 
@@ -192,21 +192,21 @@ class modTimetableSEPA extends DolibarrModules
 		// $r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'timetablesepa_read';	// Permission label
+		$this->rights[$r][1] = 'paymentschedule_read';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
 		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
 		
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'timetablesepa_write';	// Permission label
+		$this->rights[$r][1] = 'paymentschedule_write';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
 		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'timetablesepa_delete';	// Permission label
+		$this->rights[$r][1] = 'paymentschedule_delete';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
 		$this->rights[$r][4] = 'delete';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
@@ -220,31 +220,31 @@ class modTimetableSEPA extends DolibarrModules
 		// Add here entries to declare new menus
 		//
 		// Example to declare a new Top Menu entry and its Left menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=timetablesepa',		// Put 0 if this is a single top menu or keep fk_mainmenu to give an entry on left
+		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=paymentschedule',		// Put 0 if this is a single top menu or keep fk_mainmenu to give an entry on left
 		//							'type'=>'top',			                // This is a Top menu entry
-		//							'titre'=>'TimetableSEPA top menu',
-		//							'mainmenu'=>'timetablesepa',
-		//							'leftmenu'=>'timetablesepa_left',			// This is the name of left menu for the next entries
-		//							'url'=>'/timetablesepa/pagetop.php',
-		//							'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+		//							'titre'=>'PaymentSchedule top menu',
+		//							'mainmenu'=>'paymentschedule',
+		//							'leftmenu'=>'paymentschedule_left',			// This is the name of left menu for the next entries
+		//							'url'=>'/paymentschedule/pagetop.php',
+		//							'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
-		//							'enabled'=>'$conf->timetablesepa->enabled',	// Define condition to show or hide menu entry. Use '$conf->timetablesepa->enabled' if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->timetablesepa->level1->level2' if you want your menu with a permission rules
+		//							'enabled'=>'$conf->paymentschedule->enabled',	// Define condition to show or hide menu entry. Use '$conf->paymentschedule->enabled' if entry must be visible if module is enabled.
+		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->paymentschedule->level1->level2' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
 		//
 		// Example to declare a Left Menu entry into an existing Top menu entry:
-		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+		// $this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu=paymentschedule,fk_leftmenu=paymentschedule_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 		//							'type'=>'left',			                // This is a Left menu entry
-		//							'titre'=>'TimetableSEPA left menu',
-		//							'mainmenu'=>'timetablesepa',
-		//							'leftmenu'=>'timetablesepa_left',			// Goes into left menu previously created by the mainmenu
-		//							'url'=>'/timetablesepa/pagelevel2.php',
-		//							'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+		//							'titre'=>'PaymentSchedule left menu',
+		//							'mainmenu'=>'paymentschedule',
+		//							'leftmenu'=>'paymentschedule_left',			// Goes into left menu previously created by the mainmenu
+		//							'url'=>'/paymentschedule/pagelevel2.php',
+		//							'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
-		//							'enabled'=>'$conf->timetablesepa->enabled',  // Define condition to show or hide menu entry. Use '$conf->timetablesepa->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->timetablesepa->level1->level2' if you want your menu with a permission rules
+		//							'enabled'=>'$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->paymentschedule->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->paymentschedule->level1->level2' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
@@ -253,46 +253,46 @@ class modTimetableSEPA extends DolibarrModules
 		$this->menu[$r]=array(
 			'fk_menu'=>0,			                // Put 0 if this is a top menu
 			'type'=>'top',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenuTimetableSEPA'),
-			'mainmenu'=> 'timetablesepa',
+			'titre'=>$langs->trans('TopMenuPaymentSchedule'),
+			'mainmenu'=> 'paymentschedule',
 			'leftmenu'=>'',
-			'url'=>'/timetablesepa/list.php',
-			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'url'=>'/paymentschedule/list.php',
+			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>'$conf->timetablesepa->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->timetablesepa->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>'$conf->paymentschedule->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);
 		$r++;
 
 		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=timetablesepa',			                // Put 0 if this is a top menu
+			'fk_menu'=>'fk_mainmenu=paymentschedule',			                // Put 0 if this is a top menu
 			'type'=>'left',			                // This is a Top menu entry
-			'titre'=>$langs->trans('TopMenuTimetableSEPA'),
-			'mainmenu'=> 'timetablesepa',
-			'leftmenu'=>'timetablesepa_left',
-			'url'=>'/timetablesepa/list.php',
-			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'titre'=>$langs->trans('TopMenuPaymentSchedule'),
+			'mainmenu'=> 'paymentschedule',
+			'leftmenu'=>'paymentschedule_left',
+			'url'=>'/paymentschedule/list.php',
+			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>'$conf->timetablesepa->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->timetablesepa->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>'$conf->paymentschedule->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);
 		$r++;
 
 		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'fk_menu'=>'fk_mainmenu=paymentschedule,fk_leftmenu=paymentschedule_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenuTimetableSEPACreate'),
-			'mainmenu'=> 'timetablesepa',
-			'leftmenu'=>'timetablesepa_left_create',
-			'url'=>'/timetablesepa/card.php?action=create',
-			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'titre'=>$langs->trans('LeftMenuPaymentScheduleCreate'),
+			'mainmenu'=> 'paymentschedule',
+			'leftmenu'=>'paymentschedule_left_create',
+			'url'=>'/paymentschedule/card.php?action=create',
+			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=> '$conf->timetablesepa->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->timetablesepa->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -300,16 +300,16 @@ class modTimetableSEPA extends DolibarrModules
 
 
 		$this->menu[$r]=array(
-			'fk_menu'=>'fk_mainmenu=timetablesepa,fk_leftmenu=timetablesepa_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'fk_menu'=>'fk_mainmenu=paymentschedule,fk_leftmenu=paymentschedule_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>$langs->trans('LeftMenuTimetableSEPAList'),
-			'mainmenu'=> 'timetablesepa',
-			'leftmenu'=>'timetablesepa_left_list',
-			'url'=>'/timetablesepa/list.php',
-			'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'titre'=>$langs->trans('LeftMenuPaymentScheduleList'),
+			'mainmenu'=> 'paymentschedule',
+			'leftmenu'=>'paymentschedule_left_list',
+			'url'=>'/paymentschedule/list.php',
+			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=> '$conf->timetablesepa->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->timetablesepa->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -319,14 +319,15 @@ class modTimetableSEPA extends DolibarrModules
         $this->menu[$r]=array(
             'fk_menu'=>'fk_mainmenu=bank,fk_leftmenu=withdraw',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'type'=>'left',			                // This is a Left menu entry
-            'titre'=>'LeftMenuTimetableSEPACreatePrevlevement',
+            'titre'=>'LeftMenuPaymentScheduleCreatePrevlevement',
             'mainmenu'=> 'bank',
-            'leftmenu'=>'timetablesepa_left_create',
-            'url'=>'/timetablesepa/prelevement.php',
-            'langs'=>'timetablesepa@timetablesepa',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+            'leftmenu'=>'paymentschedule_left_create',
+//            'url'=>'/paymentschedule/prelevement.php',
+            'url'=>'/paymentschedule/prelevement.php?mainmenu=bank&leftmenu=withdraw',
+            'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
-            'enabled'=> '$conf->timetablesepa->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->rights->timetablesepa->write && $user->rights->prelevement->bons->creer',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+            'perms'=> '$user->rights->paymentschedule->write && $user->rights->prelevement->bons->creer',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -351,10 +352,10 @@ class modTimetableSEPA extends DolibarrModules
 
 //        $this->cronjobs = array(
 //            0=>array(
-//                'label' => 'TimetableSEPA'
+//                'label' => 'PaymentSchedule'
 //                ,'jobtype' => 'method'
-//                ,'class' => '/timetablesepa/class/timetablesepa.class.php'
-//                ,'objectname' => 'TimetableSEPA'
+//                ,'class' => '/paymentschedule/class/paymentschedule.class.php'
+//                ,'objectname' => 'PaymentSchedule'
 //                ,'method' => 'cronSepa'
 //                ,'parameters' => ''
 //                ,'comment' => 'Permet de créer les prélèvement SEPA'
@@ -362,7 +363,7 @@ class modTimetableSEPA extends DolibarrModules
 //                ,'unitfrequency' => 86400
 //                ,'datestart' => strtotime(date('Y-m-d 00:30:00'))
 //                ,'status' => 0
-//                ,'test' => '$conf->timetablesepa->enabled'
+//                ,'test' => '$conf->paymentschedule->enabled'
 //                ,'priority' => 20
 //            )
 //        );
@@ -384,9 +385,9 @@ class modTimetableSEPA extends DolibarrModules
 		
 		define('INC_FROM_DOLIBARR', true);
 
-		require dol_buildpath('/timetablesepa/script/create-maj-base.php');
+		require dol_buildpath('/paymentschedule/script/create-maj-base.php');
 
-		$result=$this->_load_tables('/timetablesepa/sql/');
+		$result=$this->_load_tables('/paymentschedule/sql/');
 
 		dol_include_once("/core/class/extrafields.class.php");
 		$e = new ExtraFields($db);

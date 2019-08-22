@@ -16,21 +16,21 @@
  */
 
 require 'config.php';
-dol_include_once('timetablesepa/class/timetablesepa.class.php');
+dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-if(empty($user->rights->timetablesepa->read)) accessforbidden();
+if(empty($user->rights->paymentschedule->read)) accessforbidden();
 
 $langs->load('abricot@abricot');
-$langs->load('timetablesepa@timetablesepa');
+$langs->load('paymentschedule@paymentschedule');
 
 
 $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
-$object = new TimetableSEPA($db);
+$object = new PaymentSchedule($db);
 
-$hookmanager->initHooks(array('timetablesepalist'));
+$hookmanager->initHooks(array('paymentschedulelist'));
 
 if ($object->isextrafieldmanaged)
 {
@@ -62,10 +62,10 @@ if (empty($reshook))
  * View
  */
 
-llxHeader('', $langs->trans('TimetableSEPAList'), '', '');
+llxHeader('', $langs->trans('PaymentScheduleList'), '', '');
 
 //$type = GETPOST('type');
-//if (empty($user->rights->timetablesepa->all->read)) $type = 'mine';
+//if (empty($user->rights->paymentschedule->all->read)) $type = 'mine';
 
 // TODO ajouter les champs de son objet que l'on souhaite afficher
 $keys = array_keys($object->fields);
@@ -83,15 +83,15 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListSelect', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-$sql.= ' FROM '.MAIN_DB_PREFIX.'timetablesepa t ';
+$sql.= ' FROM '.MAIN_DB_PREFIX.'paymentschedule t ';
 
 if (!empty($object->isextrafieldmanaged))
 {
-    $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'timetablesepa_extrafields et ON (et.fk_object = t.rowid)';
+    $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paymentschedule_extrafields et ON (et.fk_object = t.rowid)';
 }
 
 $sql.= ' WHERE 1=1';
-//$sql.= ' AND t.entity IN ('.getEntity('TimetableSEPA', 1).')';
+//$sql.= ' AND t.entity IN ('.getEntity('PaymentSchedule', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
 
 // Add where from hooks
@@ -99,11 +99,11 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListWhere', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_timetablesepa', 'GET');
+$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_paymentschedule', 'GET');
 
 $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
-$r = new Listview($db, 'TimetableSEPA');
+$r = new Listview($db, 'PaymentSchedule');
 echo $r->render($sql, array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
     ,'allow-fields-select' => true
@@ -111,12 +111,12 @@ echo $r->render($sql, array(
 		'nbLine' => $nbLine
 	)
     ,'list' => array(
-        'title' => $langs->trans('TimetableSEPAList')
+        'title' => $langs->trans('PaymentScheduleList')
         ,'image' => 'title_generic.png'
         ,'picto_precedent' => '<'
         ,'picto_suivant' => '>'
         ,'noheader' => 0
-        ,'messageNothing' => $langs->trans('NoTimetableSEPA')
+        ,'messageNothing' => $langs->trans('NoPaymentSchedule')
         ,'picto_search' => img_picto('', 'search.png', '', 0)
         ,'massactions'=>array(
             'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
@@ -133,7 +133,7 @@ echo $r->render($sql, array(
 		,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
 		,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
 		,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-		,'status' => array('search_type' => TimetableSEPA::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
+		,'status' => array('search_type' => PaymentSchedule::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 	)
 	,'translate' => array()
 	,'hide' => array(
@@ -168,7 +168,7 @@ function _getObjectNomUrl($id, $ref)
 {
 	global $db;
 
-	$o = new TimetableSEPA($db);
+	$o = new PaymentSchedule($db);
 	$res = $o->fetch($id, false, $ref);
 	if ($res > 0)
 	{

@@ -17,7 +17,7 @@
 
 /**
  * 	\file		admin/about.php
- * 	\ingroup	timetablesepa
+ * 	\ingroup	paymentschedule
  * 	\brief		This file is an example about page
  * 				Put some comments here
  */
@@ -29,10 +29,10 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
-require_once '../lib/timetablesepa.lib.php';
+require_once '../lib/paymentschedule.lib.php';
 
 // Translations
-$langs->load('timetablesepa@timetablesepa');
+$langs->load('paymentschedule@paymentschedule');
 
 // Access control
 if (! $user->admin) {
@@ -42,7 +42,7 @@ if (! $user->admin) {
 /*
  * View
  */
-$page_name = 'TimetableSEPAAbout';
+$page_name = 'PaymentScheduleAbout';
 llxHeader('', $langs->trans($page_name));
 
 // Subheader
@@ -51,13 +51,13 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print load_fiche_titre($langs->trans($page_name), $linkback);
 
 // Configuration header
-$head = timetablesepaAdminPrepareHead();
+$head = paymentscheduleAdminPrepareHead();
 dol_fiche_head(
     $head,
     'about',
     $langs->trans('Module104077Name'),
     0,
-    'timetablesepa@timetablesepa'
+    'paymentschedule@paymentschedule'
 );
 
 // About page goes here

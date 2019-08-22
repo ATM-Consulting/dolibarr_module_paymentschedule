@@ -32,9 +32,9 @@ global $db,$user;
 $langs = $GLOBALS['langs'];
 $linkedObjectBlock = $GLOBALS['linkedObjectBlock'];
 
-$langs->load("timetablesepa@timetablesepa");
+$langs->load("paymentschedule@paymentschedule");
 echo '<br>';
-print load_fiche_titre($langs->trans("TimetableSEPARelated"));
+print load_fiche_titre($langs->trans("PaymentScheduleRelated"));
 ?>
 <table class="noborder allwidth">
 <tr class="liste_titre">

@@ -25,7 +25,7 @@ if (!class_exists('SeedObject'))
 }
 
 
-class TimetableSEPA extends SeedObject
+class PaymentSchedule extends SeedObject
 {
     /**
      * Draft status
@@ -38,16 +38,16 @@ class TimetableSEPA extends SeedObject
 
 	/** @var array $TStatus Array of translate key for each const */
 	public static $TStatus = array(
-		self::STATUS_DRAFT => 'TimetableSEPAStatusDraftShort'
-		,self::STATUS_VALIDATED => 'TimetableSEPAStatusValidatedShort'
+		self::STATUS_DRAFT => 'PaymentScheduleStatusDraftShort'
+		,self::STATUS_VALIDATED => 'PaymentScheduleStatusValidatedShort'
 	);
 
 
 	/** @var string $table_element Table name in SQL */
-	public $table_element = 'timetablesepa';
+	public $table_element = 'paymentschedule';
 
 	/** @var string $element Name of the element (tip for better integration in Dolibarr: this value should be the reflection of the class name with ucfirst() function) */
-	public $element = 'timetablesepa';
+	public $element = 'paymentschedule';
 
 	/** @var int $isextrafieldmanaged Enable the fictionalises of extrafields */
     public $isextrafieldmanaged = 0;
@@ -99,15 +99,15 @@ class TimetableSEPA extends SeedObject
     public $periodicity_value;
 
 
-    public $childtables = array('timetablesepadet'=>'TimetableSEPADet');
+    public $childtables = array('paymentscheduledet'=>'PaymentScheduleDet');
 
-    public $fk_element = 'fk_timetable';
+    public $fk_element = 'fk_payment_schedule';
 
-    /** @var TimetableSEPADet[] $TTimetableSEPADet */
-    public $TTimetableSEPADet = array();
+    /** @var PaymentScheduleDet[] $TPaymentScheduleDet */
+    public $TPaymentScheduleDet = array();
 
     /**
-     * TimetableSEPA constructor.
+     * PaymentSchedule constructor.
      * @param DoliDB    $db    Database connector
      */
     public function __construct($db)
@@ -121,9 +121,9 @@ class TimetableSEPA extends SeedObject
 		$this->status = self::STATUS_DRAFT;
 
 		$this->fields['periodicity_unit']['arrayofkeyval'] = array(
-		    self::PERIODICITY_VALUE_DAY => $langs->trans('timetablesepa_periodicityDay')
-            , self::PERIODICITY_VALUE_MONTH => $langs->trans('timetablesepa_periodicityMonth')
-            , self::PERIODICITY_VALUE_YEAR => $langs->trans('timetablesepa_periodicityYear')
+		    self::PERIODICITY_VALUE_DAY => $langs->trans('paymentschedule_periodicityDay')
+            , self::PERIODICITY_VALUE_MONTH => $langs->trans('paymentschedule_periodicityMonth')
+            , self::PERIODICITY_VALUE_YEAR => $langs->trans('paymentschedule_periodicityYear')
         );
     }
 
@@ -233,11 +233,11 @@ class TimetableSEPA extends SeedObject
     {
 		global $langs;
 
-		$langs->load('timetablesepa@timetablesepa');
+		$langs->load('paymentschedule@paymentschedule');
         $res = '';
 
-        if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('TimetableSEPAStatusDraft'); $statusLabelShort=$langs->trans('TimetableSEPAStatusDraftShort'); }
-        elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('TimetableSEPAStatusValidated'); $statusLabelShort=$langs->trans('TimetableSEPAStatusValidateShort'); }
+        if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('PaymentScheduleStatusDraft'); $statusLabelShort=$langs->trans('PaymentScheduleStatusDraftShort'); }
+        elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('PaymentScheduleStatusValidated'); $statusLabelShort=$langs->trans('PaymentScheduleStatusValidateShort'); }
 
         if (function_exists('dolGetStatus'))
         {
@@ -268,21 +268,21 @@ class TimetableSEPA extends SeedObject
 	{
 		global $conf, $langs, $user;
 
-		$langs->load('timetablesepa@timetablesepa');
+		$langs->load('paymentschedule@paymentschedule');
 
         $TRestrictMessage = array();
 
-        if (empty($user->rights->timetablesepa->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
+        if (empty($user->rights->paymentschedule->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
-        if (empty($conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE) || $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE != $facture->mode_reglement_id)
+        if (empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) || $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE != $facture->mode_reglement_id)
 		{
-			$TPaiementId = explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE);
+			$TPaiementId = explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE);
 			if (!in_array($facture->mode_reglement_id, $TPaiementId)) $TRestrictMessage[] = $langs->trans('CheckErrorModeRgltNotMatch');
 		}
 
-        $echeancier = new TimetableSEPA($facture->db);
+        $echeancier = new PaymentSchedule($facture->db);
         $echeancier->fetchBy($facture->id, 'fk_facture');
         if (!empty($echeancier->id)) $TRestrictMessage[] = $langs->trans('CheckErrorTimetableAlreadyExists');
 
@@ -293,7 +293,7 @@ class TimetableSEPA extends SeedObject
 		// vérifier qu'on a bien l'extrafield isecheancier à true
 		if (empty($facture->array_options['options_isecheancier']))
 		{
-            $TRestrictMessage[] = $langs->trans('CheckErrorIsNotTimetible');
+            $TRestrictMessage[] = $langs->trans('CheckErrorIsNotPaymentSchedule');
 		}
 
 		// TODO à vérifier mais peut être que le test sur link contrat pas utile
@@ -317,7 +317,7 @@ class TimetableSEPA extends SeedObject
 
 		// TODO vérifier que le tiers de la facture a bien un compte bancaire avec les infos nécessaires au prélèvement
 		// IBAN valide + BIC + RUM + MODE (FRST ou RECUR)...
-        if (empty($conf->global->TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN))
+        if (empty($conf->global->PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN))
 		{
 			require_once DOL_DOCUMENT_ROOT.'/societe/class/companypaymentmode.class.php';
 			$companypaymentmode = new CompanyPaymentMode($facture->db);
@@ -380,7 +380,7 @@ class TimetableSEPA extends SeedObject
 	{
 		global $user, $conf, $langs;
 
-		$langs->load('timetablesepa@timetablesepa');
+		$langs->load('paymentschedule@paymentschedule');
 
 		$start = $this->date_start;
 
@@ -428,24 +428,24 @@ class TimetableSEPA extends SeedObject
 		// si reset à true, alors on supprime toutes les lignes avant de les recréer (uniquement celles qui sont en attente de traitement)
 		if ($reset)
 		{
-            foreach ($this->TTimetableSEPADet as $det)
+            foreach ($this->TPaymentScheduleDet as $det)
             {
-                if ($det->status == TimetableSEPADet::STATUS_WAITING) $det->delete($user);
+                if ($det->status == PaymentScheduleDet::STATUS_WAITING) $det->delete($user);
             }
         }
 
 		// on crée les lignes d'échéance SEPA (base des demandes de prélévement généré en auto)
 		foreach ($TDatesEcheance as $i => $time)
 		{
-		    $k = $this->addChild('TimetableSEPADet');
-			$det = $this->TTimetableSEPADet[$k];
-			$det->fk_timetable = $this->id;
+		    $k = $this->addChild('PaymentScheduleDet');
+			$det = $this->TPaymentScheduleDet[$k];
+			$det->fk_payment_schedule = $this->id;
 
 			$facnumber = ((float) DOL_VERSION < 9.0 ) ? $facture->facnumber : $facture->ref;
 			// {INDICE} {SOCNAME} - {FACNUMBER} {REFCLIENT}
-            if (!empty($conf->global->TIMETABLESEPA_LABEL_PATTERN))
+            if (!empty($conf->global->PAYMENTSCHEDULE_LABEL_PATTERN))
             {
-                $det->label = $conf->global->TIMETABLESEPA_LABEL_PATTERN;
+                $det->label = $conf->global->PAYMENTSCHEDULE_LABEL_PATTERN;
                 $det->label = strtr($det->label, array(
                     '{INDICE}' => $i+1
                     , '{SOCNAME}' => $facture->thirdparty->name
@@ -483,12 +483,12 @@ class TimetableSEPA extends SeedObject
             }
 		}
 
-		return count($this->TTimetableSEPADet);
+		return count($this->TPaymentScheduleDet);
 	}
 }
 
 
-class TimetableSEPADet extends SeedObject
+class PaymentScheduleDet extends SeedObject
 {
     /**
      * Waiting status
@@ -512,19 +512,19 @@ class TimetableSEPADet extends SeedObject
     const STATUS_REFUSED = -1;
 
     public static $TStatusTransKey = array(
-        self::STATUS_WAITING => 'TimetableSEPADetStatusWaiting'
-        , self::STATUS_IN_PROCESS => 'TimetableSEPADetStatusInProcess'
-        , self::STATUS_REQUESTED => 'TimetableSEPADetStatusRequested'
-        , self::STATUS_ACCEPTED => 'TimetableSEPADetStatusAccepted'
-        , self::STATUS_REFUSED => 'TimetableSEPADetStatusRefused'
+        self::STATUS_WAITING => 'PaymentScheduleDetStatusWaiting'
+        , self::STATUS_IN_PROCESS => 'PaymentScheduleDetStatusInProcess'
+        , self::STATUS_REQUESTED => 'PaymentScheduleDetStatusRequested'
+        , self::STATUS_ACCEPTED => 'PaymentScheduleDetStatusAccepted'
+        , self::STATUS_REFUSED => 'PaymentScheduleDetStatusRefused'
     );
 
-    public $table_element = 'timetablesepadet';
+    public $table_element = 'paymentscheduledet';
 
-    public $element = 'timetablesepadet';
+    public $element = 'paymentscheduledet';
 
 	public $fields = array(
-		'fk_timetable'	=>	array('type'=>'integer', 'index'=>1)
+		'fk_payment_schedule'	=>	array('type'=>'integer', 'index'=>1)
 		,'status'	    =>	array('type'=>'integer', 'notnull' => 1, 'default' => 0)
 		,'label'		=>  array('type'=>'varchar(50)', 'length'=>50)
 		,'date_demande'	=> 	array('type'=>'date')
@@ -535,7 +535,7 @@ class TimetableSEPADet extends SeedObject
 		,'amount_ttc'	=> 	array('type'=>'double')
 	);
 
-	public $fk_timetable;
+	public $fk_payment_schedule;
 	public $status;
 	public $label;
 	public $date_demande;
@@ -545,7 +545,7 @@ class TimetableSEPADet extends SeedObject
 	public $amount_ttc;
 
     /**
-     * TimetableSEPADet constructor.
+     * PaymentScheduleDet constructor.
      * @param DoliDB    $db    Database connector
      */
     public function __construct($db)
@@ -655,7 +655,7 @@ class TimetableSEPADet extends SeedObject
     {
         global $langs;
 
-        $langs->load('timetablesepa@timetablesepa');
+        $langs->load('paymentschedule@paymentschedule');
         $res = '';
 
         $statusLabel=$langs->trans(self::$TStatusTransKey[$status]);
@@ -688,7 +688,7 @@ class TimetableSEPADet extends SeedObject
 
     /**
      * @param BonPrelevement $object
-     * @return TimetableSEPADet[] array
+     * @return PaymentScheduleDet[] array
      */
     public static function getAllFromBonPrelevement($object)
     {
@@ -697,14 +697,14 @@ class TimetableSEPADet extends SeedObject
         $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
                 WHERE fk_source = '.$object->id.'
                 AND sourcetype = \''.$object->element.'\'
-                AND targettype = \'timetablesepadet\'';
+                AND targettype = \'paymentscheduledet\'';
 
         $resql = $object->db->query($sql);
         if ($resql)
         {
             while ($obj = $object->db->fetch_object($resql))
             {
-                $det = new TimetableSEPADet($object->db);
+                $det = new PaymentScheduleDet($object->db);
                 $det->fetch($obj->fk_target);
                 $TRes[] = $det;
             }

@@ -16,8 +16,8 @@
  */
 
 /**
- * 	\file		admin/timetablesepa.php
- * 	\ingroup	timetablesepa
+ * 	\file		admin/paymentschedule.php
+ * 	\ingroup	paymentschedule
  * 	\brief		This file is an example module setup page
  * 				Put some comments here
  */
@@ -29,11 +29,11 @@ if (! $res) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
-require_once '../lib/timetablesepa.lib.php';
+require_once '../lib/paymentschedule.lib.php';
 dol_include_once('abricot/includes/lib/admin.lib.php');
 
 // Translations
-$langs->loadLangs(array('timetablesepa@timetablesepa', 'admin', 'other'));
+$langs->loadLangs(array('paymentschedule@paymentschedule', 'admin', 'other'));
 
 // Access control
 if (! $user->admin) {
@@ -50,7 +50,7 @@ if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
 	$val = GETPOST($code);
-	if ($code === 'TIMETABLESEPA_MODE_REGLEMENT_TO_USE' && !empty($val))
+	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE' && !empty($val))
 	{
 		$val = implode(',', $val);
 	}
@@ -83,7 +83,7 @@ if (preg_match('/del_(.*)/', $action, $reg))
 /*
  * View
  */
-$page_name = "TimetableSEPASetup";
+$page_name = "PaymentScheduleSetup";
 llxHeader('', $langs->trans($page_name));
 
 // Subheader
@@ -92,13 +92,13 @@ $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
 print load_fiche_titre($langs->trans($page_name), $linkback);
 
 // Configuration header
-$head = timetablesepaAdminPrepareHead();
+$head = paymentscheduleAdminPrepareHead();
 dol_fiche_head(
     $head,
     'settings',
     $langs->trans("Module104077Name"),
     -1,
-    "timetablesepa@timetablesepa"
+    "paymentschedule@paymentschedule"
 );
 
 // Setup page goes here
@@ -125,24 +125,24 @@ setup_print_title("Parameters");
 
 $langs->load('bills');
 print '<tr '.$bc[$var].'>';
-print '<td>'.$langs->trans('TIMETABLESEPA_MODE_REGLEMENT_TO_USE').'</td>';
+print '<td>'.$langs->trans('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'</td>';
 print '<td align="center" width="20">&nbsp;</td>';
 print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="set_TIMETABLESEPA_MODE_REGLEMENT_TO_USE">';
+print '<input type="hidden" name="action" value="set_PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE">';
 $form->load_cache_types_paiements();
 $TPaiementId = array();
 foreach ($form->cache_types_paiements as $info)
 {
 	$TPaiementId[$info['id']] = $info['label'];
 }
-print Form::multiselectarray('TIMETABLESEPA_MODE_REGLEMENT_TO_USE', $TPaiementId, explode(',', $conf->global->TIMETABLESEPA_MODE_REGLEMENT_TO_USE), 0, 0, 'minwidth200');
+print Form::multiselectarray('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE', $TPaiementId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE), 0, 0, 'minwidth200');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
 
-setup_print_input_form_part('TIMETABLESEPA_LABEL_PATTERN', $langs->trans('TIMETABLESEPA_LABEL_PATTERN'), 'TIMETABLESEPA_LABEL_PATTERN_HELP', array('placeholder' => 'Prélèvement {SOCNAME} - {FACNUMBER}', 'size' => '40'));
+setup_print_input_form_part('PAYMENTSCHEDULE_LABEL_PATTERN', $langs->trans('PAYMENTSCHEDULE_LABEL_PATTERN'), 'PAYMENTSCHEDULE_LABEL_PATTERN_HELP', array('placeholder' => 'Prélèvement {SOCNAME} - {FACNUMBER}', 'size' => '40'));
 
 // Example with placeholder
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array('placeholder'=>'http://'),'input','ParamHelp');
@@ -150,7 +150,7 @@ setup_print_input_form_part('TIMETABLESEPA_LABEL_PATTERN', $langs->trans('TIMETA
 // Example with textarea
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array(),'textarea');
 
-setup_print_on_off('TIMETABLESEPA_DISABLE_RESTRICTION_ON_IBAN');
+setup_print_on_off('PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN');
 
 print '</table>';
 

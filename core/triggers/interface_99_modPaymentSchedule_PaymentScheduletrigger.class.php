@@ -16,12 +16,12 @@
  */
 
 /**
- * 	\file		core/triggers/interface_99_modMyodule_TimetableSEPAtrigger.class.php
- * 	\ingroup	timetablesepa
+ * 	\file		core/triggers/interface_99_modMyodule_PaymentScheduletrigger.class.php
+ * 	\ingroup	paymentschedule
  * 	\brief		Sample trigger
  * 	\remarks	You can create other triggers by copying this one
  * 				- File name should be either:
- * 					interface_99_modTimetablesepa_Mytrigger.class.php
+ * 					interface_99_modPaymentschedule_Mytrigger.class.php
  * 					interface_99_all_Mytrigger.class.php
  * 				- The file must stay in core/triggers
  * 				- The class name must be InterfaceMytrigger
@@ -32,7 +32,7 @@
 /**
  * Trigger class
  */
-class InterfaceTimetableSEPAtrigger
+class InterfacePaymentScheduletrigger
 {
 
     private $db;
@@ -53,7 +53,7 @@ class InterfaceTimetableSEPAtrigger
             . "They are provided for tutorial purpose only.";
         // 'development', 'experimental', 'dolibarr' or version
         $this->version = 'development';
-        $this->picto = 'timetablesepa@timetablesepa';
+        $this->picto = 'paymentschedule@paymentschedule';
     }
 
     /**
@@ -137,9 +137,9 @@ class InterfaceTimetableSEPAtrigger
         if ($action == 'BON_PRELEVEMENT_DELETE')
         {
             if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-            dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+            dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
-            $TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
+            $TDet = PaymentScheduleDet::getAllFromBonPrelevement($object);
             foreach ($TDet as $det)
             {
                 $det->setRequested($user);

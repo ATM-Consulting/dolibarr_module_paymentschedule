@@ -16,9 +16,9 @@
  */
 
 /**
- *      \file       admin/timetablesepa_extrafields.php
- *		\ingroup    timetablesepa
- *		\brief      Page to setup extra fields of timetablesepa
+ *      \file       admin/paymentschedule_extrafields.php
+ *		\ingroup    paymentschedule
+ *		\brief      Page to setup extra fields of paymentschedule
  */
 
 $res = @include '../../main.inc.php'; // From htdocs directory
@@ -28,22 +28,22 @@ if (! $res) {
 
 
 /*
- * Config of extrafield page for TimetableSEPA
+ * Config of extrafield page for PaymentSchedule
  */
-require_once '../lib/timetablesepa.lib.php';
-require_once '../class/timetablesepa.class.php';
-$langs->loadLangs(array('timetablesepa@timetablesepa', 'admin', 'other'));
+require_once '../lib/paymentschedule.lib.php';
+require_once '../class/paymentschedule.class.php';
+$langs->loadLangs(array('paymentschedule@paymentschedule', 'admin', 'other'));
 
-$timetablesepa = new TimetableSEPA($db);
-$elementtype=$timetablesepa->table_element;  //Must be the $table_element of the class that manage extrafield
+$paymentschedule = new PaymentSchedule($db);
+$elementtype=$paymentschedule->table_element;  //Must be the $table_element of the class that manage extrafield
 
 // Page title and texts elements
-$textobject=$langs->transnoentitiesnoconv('TimetableSEPA');
-$help_url='EN:Help TimetableSEPA|FR:Aide TimetableSEPA';
-$pageTitle = $langs->trans('TimetableSEPAExtrafieldPage');
+$textobject=$langs->transnoentitiesnoconv('PaymentSchedule');
+$help_url='EN:Help PaymentSchedule|FR:Aide PaymentSchedule';
+$pageTitle = $langs->trans('PaymentScheduleExtrafieldPage');
 
 // Configuration header
-$head = timetablesepaAdminPrepareHead();
+$head = paymentscheduleAdminPrepareHead();
 
 
 
