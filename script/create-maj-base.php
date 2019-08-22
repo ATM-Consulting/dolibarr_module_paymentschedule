@@ -27,11 +27,11 @@ if(!defined('INC_FROM_DOLIBARR')) {
 	global $db;
 }
 
-dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
-$o=new TimetableSEPA($db);
+$o=new PaymentSchedule($db);
 $o->init_db_by_vars();
 
-$o=new TimetableSEPADet($db);
+$o=new PaymentScheduleDet($db);
 $o->init_db_by_vars();
 

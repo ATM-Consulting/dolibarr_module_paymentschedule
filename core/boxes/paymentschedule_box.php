@@ -17,7 +17,7 @@
 
 /**
  * 	\file		core/boxes/mybox.php
- * 	\ingroup	timetablesepa
+ * 	\ingroup	paymentschedule
  * 	\brief		This file is a sample box definition file
  * 				Put some comments here
  */
@@ -26,13 +26,13 @@ include_once DOL_DOCUMENT_ROOT . "/core/boxes/modules_boxes.php";
 /**
  * Class to manage the box
  */
-class timetablesepabox extends ModeleBoxes
+class paymentschedulebox extends ModeleBoxes
 {
 
     public $boxcode = "mybox";
-    public $boximg = "timetablesepa@timetablesepa";
+    public $boximg = "paymentschedule@paymentschedule";
     public $boxlabel;
-    public $depends = array("timetablesepa");
+    public $depends = array("paymentschedule");
     public $db;
     public $param;
     public $info_box_head = array();
@@ -61,7 +61,7 @@ class timetablesepabox extends ModeleBoxes
 
         $this->max = $max;
 
-        //include_once DOL_DOCUMENT_ROOT . "/timetablesepa/class/timetablesepa.class.php";
+        //include_once DOL_DOCUMENT_ROOT . "/paymentschedule/class/paymentschedule.class.php";
 
         $text = $langs->trans("MyBoxDescription", $max);
         $this->info_box_head = array(

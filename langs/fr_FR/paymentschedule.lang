@@ -1,0 +1,111 @@
+Module104077Name = Echéancier SEPA
+Module104077Desc = Creation d'un échéancier de prélévement SEPA sur les factures de type "échéancier"
+
+ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+PaymentScheduleSetup = Configuration du module Echéancier SEPA
+PaymentScheduleAbout = A propos du module Echéancier SEPA
+
+PaymentSchedule=Echéancier SEPA
+AbricotNeedUpdate=Le module abricot doit être mis à jour
+
+# SETUP
+ParamLabel=Nom du paramètre
+ParamDesc=Une description si besoin
+ParamHelp=Le contenu de l'aide
+
+PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE=Mode de règlement à prendre en compte pour autoriser la création d'un échéancier depuis une facture
+PAYMENTSCHEDULE_LABEL_PATTERN=Libellé à utiliser sur la création des lignes de prélèvement
+PAYMENTSCHEDULE_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant de 1<br />{SOCNAME} = nom du tiers<br />{FACNUMBER} = référence de facture<br />{REFCLIENT} = référence client
+PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'existant d'un IBAN sur le tiers
+
+# MENU
+TopMenuPaymentSchedule=Echéancier SEPA
+
+# STATUS
+PaymentScheduleStatusDraft=Brouillon (échéancier en attente)
+PaymentScheduleStatusValidated=Validée (prêt pour prélèvement)
+
+PaymentScheduleStatusDraftShort=Brouillon
+PaymentScheduleStatusValidatedShort=Validée
+
+# LIST
+PaymentScheduleList=Liste échéanciers SEPA
+NoPaymentSchedule=(vide)
+
+# CARD
+NewPaymentSchedule=Création Echéancier SEPA
+PaymentScheduleCard=Fiche Echéancier SEPA
+bankWithdrawal=Prélèvement échéance %s
+paymentscheduleNotCreatedYet=Aucun échéancier pour cette facture
+paymentscheduleStatusBankLevy=Statut
+paymentscheduleDateDemande=Date demande
+paymentscheduleModeRglt=Mode de règlement
+
+PaymentScheduleReset=Générer
+PaymentScheduleModify=Modifier
+PaymentScheduleClone=Cloner
+PaymentScheduleValid=Valider
+PaymentScheduleAccept=Accepter
+PaymentScheduleRefuse=Refuser
+PaymentScheduleReopen=Rouvrir
+PaymentScheduleCancel=Abandonner
+PaymentScheduleDelete=Supprimer
+PaymentScheduleCreate=Créer échéancier
+
+PeriodicityUnit=Unité période
+PeriodicityValue=Valeur période (toutes les x unité)
+NbTerm=Nombre d'échéance
+paymentschedule_periodicityDay=Jour
+paymentschedule_periodicityMonth=Mois
+paymentschedule_periodicityYear=Année
+
+ConfirmCreatePaymentScheduleTitle=Création échéancier
+ConfirmCreatePaymentScheduleBody=Souhaitez vous créer l'échéancier de prélèvement SEPA ?
+paymentschedule_dateStartEcheance=Date de démarrage
+paymentschedule_numberOfEcheanceEcheance=Nombre d'échéance
+paymentschedule_dateEndPrelevement=Date prévisionnelle de dernière échéance :
+
+ConfirmValidatePaymentScheduleTitle=Validation échéancier
+ConfirmValidatePaymentScheduleBody=Souhaitez vous valider cet échéancier pour prise en compte des prélèvements aux dates indiquées ?
+
+ConfirmDeletePaymentScheduleTitle=Supprimer échéancier
+ConfirmDeletePaymentScheduleBody=Êtes-vous sûr de vouloir supprimer cet échéancier ?
+
+ConfirmResetPaymentScheduleTitle=Générer échéancier
+ConfirmResetPaymentScheduleBody=Êtes-vous sûr de vouloir générer l'échéancier ?
+paymentschedule_fullReset=Supprimer les lignes au statut "En attente de traitement"
+
+PaymentScheduleDetStatusWaiting=En attente de traitement
+PaymentScheduleDetStatusInProcess=Demande en cours
+PaymentScheduleDetStatusRequested=Bon de prélèvement en attente de retour
+PaymentScheduleDetStatusAccepted=Accepté
+PaymentScheduleDetStatusRefused=Rejeté
+
+paymentscheduleSetAccept=Passer à accepter
+paymentscheduleSetRefuse=Passer à rejeter
+
+PaymentSchedule_warningSumIsDifferent=Attention: le montant des prélèvements est différent du montant de la facture, écart de : %s
+
+NewPaymentSchedule_createRequests=Création des demandes de prélèvement
+PaymentSchedule_requestSelectDate=Date de demande recherchée
+PaymentSchedule_requestNumRowsFound=Nombre de demande trouvée pour cette date : %d
+PaymentSchedule_requestNbCreate=Demande de prélèvement créée : %d
+PaymentSchedule_requestNbError=Demande de prélèvement en erreur : %d
+PaymentSchedule_requestBack=Retour
+
+LeftMenuPaymentScheduleCreatePrevlevement=Création demande prélèvement SEPA
+
+# ERRORS
+CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
+CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture
+CheckErrorCustomerHasNoIBAN=Le client de cette facture ne possède pas d'IBAN
+CheckErrorModeRgltNotMatch=Le mode règlement de correspond pas à ce qui est renseigné en configuration
+CheckErrorIsNotPaymentSchedule=Cette facture n'est pas un échéancier
+CheckErrorIsNotLinkedToContract=Cette facture n'est pas liée à un contrat
+CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active
+CanNotRetrieveInvoice=Impossible de récupérer la facture liée
+CheckErrorInvoiceInsufficientPermission=Permission inssufisante
+
+# WARNINGS
+PaymentSchedule_Warnings_checkDateOrPaymentType=Veuillez vérifier la date saisie et/ou les types de paiements autorisés en configuration du module

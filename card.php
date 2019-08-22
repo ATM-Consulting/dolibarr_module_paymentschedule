@@ -18,14 +18,14 @@
 require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
-dol_include_once('timetablesepa/class/timetablesepa.class.php');
-dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
+dol_include_once('paymentschedule/class/paymentschedule.class.php');
+dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 
-if(empty($user->rights->timetablesepa->read)) accessforbidden();
+if(empty($user->rights->paymentschedule->read)) accessforbidden();
 
-$langs->loadLangs(array('timetablesepa@timetablesepa', 'bills', 'main'));
+$langs->loadLangs(array('paymentschedule@paymentschedule', 'bills', 'main'));
 
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
@@ -33,10 +33,10 @@ $ref = GETPOST('ref');
 $facid = GETPOST('facid', 'int');
 $lineid = GETPOST('lineid', 'int');
 
-$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'timetablesepacard';   // To manage different context of search
+$contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'paymentschedulecard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$object = new TimetableSEPA($db);
+$object = new PaymentSchedule($db);
 
 if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
 elseif (!empty($facid)) $object->fetchBy($facid, 'fk_facture');
@@ -47,10 +47,10 @@ if (!empty($object->id))
 {
     $facture->fetch($object->fk_facture);
     $facture->fetch_thirdparty();
-//    accessforbidden($langs->trans('timetablesepaNotCreatedYet'));
+//    accessforbidden($langs->trans('paymentscheduleNotCreatedYet'));
 }
 
-$hookmanager->initHooks(array('timetablesepacard', 'globalcard'));
+$hookmanager->initHooks(array('paymentschedulecard', 'globalcard'));
 
 
 if ($object->isextrafieldmanaged)
@@ -82,8 +82,8 @@ if (empty($reshook))
 {
 	$error = 0;
 	switch ($action) {
-		case 'addtimetablesepa':
-		case 'updatetimetablesepa':
+		case 'addpaymentschedule':
+		case 'updatepaymentschedule':
 			$object->setValues($_REQUEST); // Set standard attributes
 
             if ($object->isextrafieldmanaged)
@@ -105,7 +105,7 @@ if (empty($reshook))
 
 			if ($error > 0)
 			{
-				$action = 'edittimetablesepa';
+				$action = 'editpaymentschedule';
 				break;
 			}
 			
@@ -113,12 +113,12 @@ if (empty($reshook))
             if ($res < 0)
             {
                 setEventMessage($object->errors, 'errors');
-                if (empty($object->id)) $action = 'createtimetablesepa';
-                else $action = 'edittimetablesepa';
+                if (empty($object->id)) $action = 'createpaymentschedule';
+                else $action = 'editpaymentschedule';
             }
             else
             {
-                header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+                header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
                 exit;
             }
         case 'update_extras':
@@ -142,42 +142,42 @@ if (empty($reshook))
             if ($error) $action = 'edit_extras';
             else
             {
-                header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+                header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
                 exit;
             }
             break;
 
-		case 'modiftimetablesepa':
-		case 'reopentimetablesepa':
-			if (!empty($user->rights->timetablesepa->write)) $object->setDraft($user);
+		case 'modifpaymentschedule':
+		case 'reopenpaymentschedule':
+			if (!empty($user->rights->paymentschedule->write)) $object->setDraft($user);
 				
 			break;
-		case 'confirm_validatetimetablesepa':
-			if (!empty($user->rights->timetablesepa->write)) $object->setValid($user);
+		case 'confirm_validatepaymentschedule':
+			if (!empty($user->rights->paymentschedule->write)) $object->setValid($user);
 			
-			header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+			header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
 			exit;
 
-		case 'confirm_deletetimetablesepa':
-			if (!empty($user->rights->timetablesepa->delete)) $res = $object->delete($user);
+		case 'confirm_deletepaymentschedule':
+			if (!empty($user->rights->paymentschedule->delete)) $res = $object->delete($user);
 
 			header('Location: '.dol_buildpath('/compta/facture/card.php', 1).'?facid='.$facture->id);
 			exit;
 
-        case 'confirm_resettimetablesepa':
-            if (!empty($user->rights->timetablesepa->write))
+        case 'confirm_resetpaymentschedule':
+            if (!empty($user->rights->paymentschedule->write))
             {
                 $object->initDetailEcheancier(GETPOST('full_reset'));
             }
-            header('Location: '.dol_buildpath('/timetablesepa/card.php', 1).'?id='.$object->id);
+            header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
             exit;
 
-        case 'updatelinetimetablesepa':
+        case 'updatelinepaymentschedule':
 //            var_dump(GETPOST('save'), $lineid);
             if (GETPOST('save') && $lineid > 0)
             {
-                $k = $object->addChild('TimetableSEPADet', $lineid);
-                $child = &$object->TTimetableSEPADet[$k];
+                $k = $object->addChild('PaymentScheduleDet', $lineid);
+                $child = &$object->TPaymentScheduleDet[$k];
                 if (!empty($child->id))
                 {
                     $child->label = GETPOST('label');
@@ -203,10 +203,10 @@ if (empty($reshook))
 
         case 'set_accept':
         case 'set_refuse':
-            if (!empty($user->rights->timetablesepa->write))
+            if (!empty($user->rights->paymentschedule->write))
             {
-                $k = $object->addChild('TimetableSEPADet', $lineid);
-                $child = &$object->TTimetableSEPADet[$k];
+                $k = $object->addChild('PaymentScheduleDet', $lineid);
+                $child = &$object->TPaymentScheduleDet[$k];
                 if (!empty($child->id))
                 {
                     if ($action == 'set_accept') $child->setAccepted($user);
@@ -225,16 +225,16 @@ if (empty($reshook))
  */
 $form = new Form($db);
 
-$title=$langs->trans('TimetableSEPA');
+$title=$langs->trans('PaymentSchedule');
 llxHeader('', $title);
 
 if ($action == 'create')
 {
-    print load_fiche_titre($langs->trans('NewtimetableSEPA'), '', 'timetablesepa@timetablesepa');
+    print load_fiche_titre($langs->trans('NewPaymentSchedule'), '', 'paymentschedule@paymentschedule');
 
     print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-    print '<input type="hidden" name="action" value="addtimetablesepa">';
+    print '<input type="hidden" name="action" value="addpaymentschedule">';
     print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 
     dol_fiche_head(array(), '');
@@ -268,18 +268,18 @@ else
     }
     else
     {
-        if (!empty($object->id) && $action === 'edittimetablesepa')
+        if (!empty($object->id) && $action === 'editpaymentschedule')
         {
             print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
             print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-            print '<input type="hidden" name="action" value="updatetimetablesepa">';
+            print '<input type="hidden" name="action" value="updatepaymentschedule">';
             print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
             print '<input type="hidden" name="id" value="'.$object->id.'">';
 
-//            $head = timetablesepa_prepare_head($object);
+//            $head = paymentschedule_prepare_head($object);
             $head = facture_prepare_head($facture);
-            $picto = 'timetablesepa@timetablesepa';
-            dol_fiche_head($head, 'timetablesepacard', $langs->trans('TimetableSEPA'), -1, $picto);
+            $picto = 'paymentschedule@paymentschedule';
+            dol_fiche_head($head, 'paymentschedulecard', $langs->trans('PaymentSchedule'), -1, $picto);
 
             print '<table class="border centpercent">'."\n";
 
@@ -301,16 +301,16 @@ else
         }
         elseif ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
         {
-//            $head = timetablesepa_prepare_head($object);
+//            $head = paymentschedule_prepare_head($object);
             $head = facture_prepare_head($facture);
-            $picto = 'timetablesepa@timetablesepa';
-            dol_fiche_head($head, 'timetablesepacard', $langs->trans('TimetableSEPA'), -1, $picto);
+            $picto = 'paymentschedule@paymentschedule';
+            dol_fiche_head($head, 'paymentschedulecard', $langs->trans('PaymentSchedule'), -1, $picto);
 
-            $formconfirm = getFormConfirmtimetableSEPA($form, $object, $facture, $action);
+            $formconfirm = getFormConfirmPaymentSchedule($form, $object, $facture, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
 
-            $linkback = '<a href="' .dol_buildpath('/timetablesepa/list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
+            $linkback = '<a href="' .dol_buildpath('/paymentschedule/list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
 
             $morehtmlref='<div class="refidno">';
             // Ref customer
@@ -357,7 +357,7 @@ else
             {
                 print '<form id="" name="" action="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'#row-'.$lineid.'" method="POST">';
                 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
-                print '<input type="hidden" name="action" value="updatelinetimetablesepa" />';
+                print '<input type="hidden" name="action" value="updatelinepaymentschedule" />';
                 print '<input type="hidden" name="facid" value="'.$facture->id.'" />';
                 print '<input type="hidden" name="lineid" value="'.$lineid.'" />';
             }
@@ -368,7 +368,7 @@ else
             $selected = null;
 
             $parameters = array('num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-            $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+            $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
             if (empty($reshook))
             {
                 // Title line
@@ -383,10 +383,10 @@ else
                 print '<td class="linecollabel">'.$langs->trans('Label').'</td>';
 
                 // Date demande
-                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('timetablesepaDateDemande').'</td>';
+                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('paymentscheduleDateDemande').'</td>';
 
                 // Mode de règlement
-                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('timetablesepaModeRglt').'</td>';
+                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('paymentscheduleModeRglt').'</td>';
 
 //                // Amount HT
 //                print '<td class="linecolamountht" align="right" width="80">'.$langs->trans('TotalHT').'</td>';
@@ -397,7 +397,8 @@ else
                 // Amount TTC ( TotalTTCShort )
                 print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
 
-                print '<td class="linecolstatus center">'.$langs->trans('timetablesepaStatusBankLevy').'</td>';
+
+                print '<td class="linecolstatus center">'.$langs->trans('paymentscheduleStatusBankLevy').'</td>';
 
                 print '<td class="linecolupdatestatus"></td>';
 
@@ -418,19 +419,19 @@ else
             $form->load_cache_types_paiements();
 
             print "<tbody>\n";
-            foreach ($object->TTimetableSEPADet as $line)
+            foreach ($object->TPaymentScheduleDet as $line)
             {
                 if (is_object($hookmanager))   // Old code is commented on preceding line.
                 {
                     if (empty($line->fk_parent_line))
                     {
                         $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-                        $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                        $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                     else
                     {
                         $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
-                        $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $this, $action);    // Note that $action and $object may have been modified by some hooks
+                        $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                 }
                 if (empty($reshook))
@@ -490,10 +491,10 @@ else
 
                     print '<td class="linecolupdatestatus">';
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
-                    elseif (in_array($line->status, array(TimetableSEPADet::STATUS_REQUESTED, TimetableSEPADet::STATUS_ACCEPTED, TimetableSEPADet::STATUS_REFUSED)))
+                    elseif (in_array($line->status, array(PaymentScheduleDet::STATUS_REQUESTED, PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED)))
                     {
-                        if ($line->status != TimetableSEPADet::STATUS_ACCEPTED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('timetablesepaSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
-                        if ($line->status != TimetableSEPADet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('timetablesepaSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
+                        if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                        if ($line->status != PaymentScheduleDet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
                     }
                     print '</td>';
                     $coldisplay++;
@@ -508,7 +509,7 @@ else
                     else
                     {
                         print '<td class="linecoledit" width="10">';  // No width to allow autodim
-                        if ($line->status == TimetableSEPADet::STATUS_WAITING) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
+                        if ($line->status == PaymentScheduleDet::STATUS_WAITING) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
                         print '</td>';
                         $coldisplay++;
 
@@ -538,7 +539,7 @@ else
             }
             else
             {
-                if ($sum != $facture->total_ttc) print '<div class="warning">'.$langs->trans('TimetableSEPA_warningSumIsDifferent', price($sum-$facture->total_ttc)).'</div>';
+                if ($sum != $facture->total_ttc) print '<div class="warning">'.$langs->trans('PaymentSchedule_warningSumIsDifferent', price($sum-$facture->total_ttc)).'</div>';
             }
 
             print "</div>";
@@ -558,45 +559,45 @@ else
                 //        print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=presend&mode=init#formmailbeforetitle">' . $langs->trans('SendMail') . '</a>'."\n";
 
                 // Modify
-                if (!empty($user->rights->timetablesepa->write))
+                if (!empty($user->rights->paymentschedule->write))
                 {
-                    if ($object->status === TimetableSEPA::STATUS_DRAFT)
+                    if ($object->status === PaymentSchedule::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resettimetablesepa">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resetpaymentschedule">'.$langs->trans("PaymentScheduleReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edittimetablesepa">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=editpaymentschedule">'.$langs->trans("PaymentScheduleModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validtimetablesepa">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validpaymentschedule">'.$langs->trans('PaymentScheduleValid').'</a></div>'."\n";
                     }
 
 
                     // Reopen
-                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopentimetablesepa">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
+                    if ($object->status === PaymentSchedule::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopenpaymentschedule">'.$langs->trans('PaymentScheduleReopen').'</a></div>'."\n";
                 }
                 else
                 {
-                    if ($object->status === TimetableSEPA::STATUS_DRAFT)
+                    if ($object->status === PaymentSchedule::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("PaymentScheduleReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPAModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("PaymentScheduleModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('PaymentScheduleValid').'</a></div>'."\n";
                     }
 
                     // Reopen
-                    if ($object->status === TimetableSEPA::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('timetableSEPAReopen').'</a></div>'."\n";
+                    if ($object->status === PaymentSchedule::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('PaymentScheduleReopen').'</a></div>'."\n";
                 }
 
-                if (!empty($user->rights->timetablesepa->delete))
+                if (!empty($user->rights->paymentschedule->delete))
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletetimetablesepa">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
                 }
                 else
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("timetableSEPADelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
                 }
             }
             print '</div>'."\n";

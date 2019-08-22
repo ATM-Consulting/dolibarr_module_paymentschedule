@@ -16,16 +16,16 @@
  */
 
 /**
- * \file    class/actions_timetablesepa.class.php
- * \ingroup timetablesepa
+ * \file    class/actions_paymentschedule.class.php
+ * \ingroup paymentschedule
  * \brief   This file is an example hook overload class file
  *          Put some comments here
  */
 
 /**
- * Class ActionstimetableSEPA
+ * Class ActionsPaymentSchedule
  */
-class ActionstimetableSEPA
+class ActionsPaymentSchedule
 {
     /**
      * @var DoliDb		Database handler (result of a new DoliDB)
@@ -71,65 +71,80 @@ class ActionstimetableSEPA
 
 		$TContext = explode(':', $parameters['context']);
 
-		if (in_array('invoicecard', $TContext)) {
-
-			if ($action == 'confirm_createtimetablesepa') {
-
-				if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-				dol_include_once('timetablesepa/class/timetablesepa.class.php');
+		if (in_array('invoicecard', $TContext))
+		{
+			if ($action == 'confirm_createpaymentschedule')
+			{
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+				dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
 				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
 				$periodicity_unit = GETPOST('periodicity_unit');
 				$periodicity_value = GETPOST('periodicity_value', 'int');
 				$nb_term = GETPOST('nb_term', 'int');
 
-				$echeancier = new TimetableSEPA($this->db);
+				$echeancier = new PaymentSchedule($this->db);
 				$ret = $echeancier->createFromFacture($object, $date_start, $periodicity_unit, $periodicity_value, $nb_term);
-				if ($ret < 0) {
+				if ($ret < 0)
+				{
 					setEventMessage($echeancier->errors, "errors");
-				} else {
-					header('Location: ' . dol_buildpath('/timetablesepa/card.php?id=' . $echeancier->id, 1));
-					exit;
 				}
-			}
-		} elseif (in_array('directdebitcard', $TContext)) {
-			if ($action === 'delete') {
-				$did = GETPOST('did', 'int');
-				if ($did > 0) {
-					$sql = 'SELECT fk_target FROM ' . MAIN_DB_PREFIX . 'element_element 
-                        WHERE fk_source = ' . $did . ' AND sourcetype = \'prelevement_facture_demande\'
-                        AND targettype = \'timetablesepadet\'';
-
-					$resql = $this->db->query($sql);
-					if ($resql) {
-						$obj = $this->db->fetch_object($resql);
-						if ($obj) {
-							if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-							dol_include_once('timetablesepa/class/timetablesepa.class.php');
-							$det = new TimetableSEPADet($this->db);
-							$det->fetch($obj->fk_target);
-
-							$det->setWaiting($user);
-							$det->deleteObjectLinked($did, 'prelevement_facture_demande');
-						}
-					} else {
-						setEventMessage($this->db->lasterror(), 'errors');
-					}
-
-				}
-			}
-		} elseif (in_array('directdebitprevcard', $TContext)) {
-			// PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
-			if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0) {
-				if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-				dol_include_once('timetablesepa/class/timetablesepa.class.php');
-
-				$TDet = TimetableSEPADet::getAllFromBonPrelevement($object);
-				foreach ($TDet as $det) {
-					$det->setAccepted($user);
-				}
+				else
+                {
+                    header('Location: '.dol_buildpath('/paymentschedule/card.php?id='.$echeancier->id, 1));
+                    exit;
+                }
 			}
 		}
+		elseif (in_array('directdebitcard', $TContext))
+        {
+            if ($action === 'delete')
+            {
+                $did = GETPOST('did', 'int');
+                if ($did > 0)
+                {
+                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element 
+                        WHERE fk_source = '.$did.' AND sourcetype = \'prelevement_facture_demande\'
+                        AND targettype = \'paymentscheduledet\'';
+
+                    $resql = $this->db->query($sql);
+                    if ($resql)
+                    {
+                        $obj = $this->db->fetch_object($resql);
+                        if ($obj)
+                        {
+                            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                            dol_include_once('paymentschedule/class/paymentschedule.class.php');
+                            $det = new PaymentScheduleDet($this->db);
+                            $det->fetch($obj->fk_target);
+
+                            $det->setWaiting($user);
+                            $det->deleteObjectLinked($did, 'prelevement_facture_demande');
+                        }
+                    }
+                    else
+                    {
+                        setEventMessage($this->db->lasterror(), 'errors');
+                    }
+
+                }
+            }
+        }
+        elseif (in_array('directdebitprevcard', $TContext))
+        {
+            // PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
+            if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0)
+            {
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+                $TDet = PaymentScheduleDet::getAllFromBonPrelevement($object);
+                foreach ($TDet as $det)
+                {
+                    $det->setAccepted($user);
+                }
+            }
+        }
 
 		return 0;
 	}
@@ -142,15 +157,15 @@ class ActionstimetableSEPA
 
 			//AJOUT COLONNE "Prélévement prévu"
 			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-			dol_include_once('timetablesepa/class/timetablesepa.class.php');
+			dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-			$tableSEPA = new TimetableSEPA($this->db);
+			$tableSEPA = new PaymentSchedule($this->db);
 			$tableSEPA->fetchBy($object->facid, 'fk_facture');
 
 			print '<td align="right">';
 			print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
 			print '<option value="" selected data-amount="">&nbsp;</option>';
-			foreach ($tableSEPA->TTimetableSEPADet as $det) {
+			foreach ($tableSEPA->TPaymentScheduleDet as $det) {
 				if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
 					print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
 				} else {
@@ -187,19 +202,19 @@ class ActionstimetableSEPA
 			}
 
 			// vérifier qu'on a bien l'extrafield isecheancier à true
-			if (!empty($object->array_options['options_isecheancier']) && !empty($user->rights->timetablesepa->write))
+			if (!empty($object->array_options['options_isecheancier']) && !empty($user->rights->paymentschedule->write))
 			{
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-				dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+				dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
-				$TRestrictMessage = TimetableSEPA::checkFactureCondition($object);
+				$TRestrictMessage = PaymentSchedule::checkFactureCondition($object);
 				if (empty($TRestrictMessage))
 				{
-					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createtimetablesepa">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createpaymentschedule">'.$langs->trans('PaymentScheduleCreate').'</a></div>';
 				}
 				else
 				{
-					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('timetableSEPACreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('PaymentScheduleCreate').'</a></div>';
 				}
 			}
 		}
@@ -214,10 +229,10 @@ class ActionstimetableSEPA
         if (in_array('invoicecard', $TContext))
         {
             if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-            dol_include_once('timetablesepa/lib/timetablesepa.lib.php');
+            dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 
             $form = new Form($this->db);
-            $this->resprints = getFormConfirmtimetableSEPA($form, null, $object, $action);
+            $this->resprints = getFormConfirmPaymentSchedule($form, null, $object, $action);
         }
 
         return 0;
@@ -242,13 +257,13 @@ class ActionstimetableSEPA
             {
                 foreach ($head as $k => $info)
                 {
-                    if ($info[2] === 'timetablesepacard')
+                    if ($info[2] === 'paymentschedulecard')
                     {
                         if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                        dol_include_once('/timetablesepa/class/timetablesepa.class.php');
-                        $TimetableSEPA = new TimetableSEPA($this->db);
-                        $TimetableSEPA->fetchBy($parameters['object']->id, 'fk_facture');
-                        if (empty($TimetableSEPA->id))
+                        dol_include_once('/paymentschedule/class/paymentschedule.class.php');
+                        $PaymentSchedule = new PaymentSchedule($this->db);
+                        $PaymentSchedule->fetchBy($parameters['object']->id, 'fk_facture');
+                        if (empty($PaymentSchedule->id))
                         {
                             unset($head[$k]);
                             $this->results = $head;
@@ -284,16 +299,16 @@ class ActionstimetableSEPA
                             FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande pfd
                             INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
                             WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
-                            AND ee.targettype = \'timetablesepadet\'';
+                            AND ee.targettype = \'paymentscheduledet\'';
 
                     $resql = $this->db->query($sql);
                     if ($resql)
                     {
                         if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                        dol_include_once('/timetablesepa/class/timetablesepa.class.php');
+                        dol_include_once('/paymentschedule/class/paymentschedule.class.php');
                         while ($obj = $this->db->fetch_object($resql))
                         {
-                            $det = new TimetableSEPADet($this->db);
+                            $det = new PaymentScheduleDet($this->db);
                             $det->fetch($obj->fk_target);
 
                             $det->setRequested($user, $fk_prelevement_bons);
