@@ -185,7 +185,7 @@ class ActionsPaymentSchedule
 		}
 	}
 
-	public function printObjectLineTitle($parameters, &$object, &$action, $hookmanager)
+	public function printFieldListTitle($parameters, &$object, &$action, $hookmanager)
     {
         global $langs;
 
