@@ -158,6 +158,8 @@ if (empty($reshook))
 
                 if ($nb_error == 0 && !empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
                 {
+                    $langs->loadLangs(array('banks', 'categories', 'widthdrawals', 'companies', 'bills'));
+
                     require_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
                     $format = GETPOST('format');
                     $bprev = new BonPrelevement($db);
