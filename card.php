@@ -378,16 +378,16 @@ else
                 print '<tr class="liste_titre nodrag nodrop">';
 
                 // Adds a line numbering column
-                if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) print '<td class="linecolnum" align="center" width="5">&nbsp;</td>';
+                if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) print '<td class="linecolnum center" width="5">&nbsp;</td>';
 
                 // Label
                 print '<td class="linecollabel">'.$langs->trans('Label').'</td>';
 
                 // Date demande
-                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('paymentscheduleDateDemande').'</td>';
+                print '<td class="linecoldatedemande right nowrap" width="80">'.$langs->trans('paymentscheduleDateDemande').'</td>';
 
                 // Mode de règlement
-                print '<td class="linecoldatedemande nowrap" align="right" width="80">'.$langs->trans('paymentscheduleModeRglt').'</td>';
+                print '<td class="linecoldatedemande right nowrap" width="80">'.$langs->trans('paymentscheduleModeRglt').'</td>';
 
 //                // Amount HT
 //                print '<td class="linecolamountht" align="right" width="80">'.$langs->trans('TotalHT').'</td>';
@@ -396,8 +396,10 @@ else
 //                print '<td class="linecolamountvat" align="right" width="80">'.$langs->trans('TotalVAT').'</td>';
 
                 // Amount TTC ( TotalTTCShort )
-                print '<td class="linecolamountttc" align="right" width="80">'.$langs->trans('TotalTTC').'</td>';
+                print '<td class="linecolamountttc right" width="80">'.$langs->trans('TotalTTC').'</td>';
 
+                // Link to payment
+                print '<td class="linecolpayment center nowrap" width="80">'.$langs->trans('PaymentLinked').'</td>';
 
                 print '<td class="linecolstatus center">'.$langs->trans('paymentscheduleStatusBankLevy').'</td>';
 
@@ -487,12 +489,36 @@ else
                     print '</td>';
                     $coldisplay++;
 
+                    print '<td class="linecolpayment center nowrap">';
+                    if ($line->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) print 'N/A';
+                    else
+                    {
+                        $line->fetchObjectLinked(null, '', $line->id, $line->element);
+                        if (!empty($line->linkedObjectsIds['paymentdet']))
+                        {
+                            $toprint = '';
+                            foreach ($line->linkedObjectsIds['paymentdet'] as $fk_paymentdet)
+                            {
+                                $paiement = PaymentScheduleDet::getPaymentObjectFromDetId($fk_paymentdet);
+                                if ($paiement)
+                                {
+                                    if (!empty($toprint)) $toprint.= '<br />';
+                                    $toprint.= $paiement->getNomUrl(1, '', '');
+                                }
+                            }
+                            print $toprint;
+                        }
+                        else print '-';
+                    }
+                    print '</td>';
+                    $coldisplay++;
+
                     print '<td class="linecolstatus center">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;
 
                     print '<td class="linecolupdatestatus">';
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
-                    elseif (in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED)))
+                    elseif (in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED)) && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED)))
                     {
                         if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
                         if ($line->status != PaymentScheduleDet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
@@ -510,12 +536,13 @@ else
                     else
                     {
                         print '<td class="linecoledit" width="10">';  // No width to allow autodim
-                        if ($line->status == PaymentScheduleDet::STATUS_WAITING) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
+                        if ($line->status == PaymentScheduleDet::STATUS_WAITING && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED))) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
                         print '</td>';
                         $coldisplay++;
 
                         print '<td class="linecoldelete" width="10">';
-                        if (false) print img_delete();
+                        // TODO ajouter le code permettant de delete une ligne
+                        if (false && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED))) print img_delete();
                         print '</td>';
                         $coldisplay++;
                     }
