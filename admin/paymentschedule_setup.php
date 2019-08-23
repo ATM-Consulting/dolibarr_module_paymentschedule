@@ -164,6 +164,8 @@ setup_print_input_form_part('PAYMENTSCHEDULE_LABEL_PATTERN', $langs->trans('PAYM
 
 setup_print_on_off('PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN');
 
+setup_print_on_off('PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW');
+
 print '</table>';
 
 dol_fiche_end(-1);

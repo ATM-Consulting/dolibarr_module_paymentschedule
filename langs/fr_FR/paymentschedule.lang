@@ -19,6 +19,7 @@ PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND=Mode de règlement supplémentaire 
 PAYMENTSCHEDULE_LABEL_PATTERN=Libellé à utiliser sur la création des lignes de prélèvement
 PAYMENTSCHEDULE_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant de 1<br />{SOCNAME} = nom du tiers<br />{FACNUMBER} = référence de facture<br />{REFCLIENT} = référence client
 PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'existant d'un IBAN sur le tiers
+PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW=Créer en automatique le bon de prélèvement après la création des demandes via le formulaire
 
 # MENU
 TopMenuPaymentSchedule=Echéancier SEPA
@@ -100,6 +101,7 @@ LeftMenuPaymentScheduleCreatePrevlevement=Création demande prélèvement SEPA
 NotPaymentSchedule=Pas d'échéancier
 PaymentScheduleDetLinked=Ligne d'échéancier concernée
 PaymentLinked=Règlements associés
+PaymentSchedule_selectFormatForWithdraw=Format pour le bon de prélèvement
 
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon

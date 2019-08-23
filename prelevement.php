@@ -117,10 +117,10 @@ if (empty($reshook))
                         if ($old_mode_reglement_id != $facture->mode_reglement_id) $facture->setPaymentMethods($old_mode_reglement_id);
 
                         $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
-                        $resql = $db->query($sql);
-                        if ($resql)
+                        $resql2 = $db->query($sql);
+                        if ($resql2)
                         {
-                            $obj = $db->fetch_object($resql);
+                            $obj = $db->fetch_object($resql2);
                             if ($obj)
                             {
                                 $res = $det->setInProcess($user, $obj->last_id);
@@ -155,6 +155,36 @@ if (empty($reshook))
 
                 if ($nb_create > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbCreate', $nb_create));
                 if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+
+                if ($nb_error == 0 && !empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
+                {
+                    require_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
+                    $format = GETPOST('format');
+                    $bprev = new BonPrelevement($db);
+                    $executiondate = $date_demande_start;
+                    $mode = 'real';
+
+                    $result = $bprev->create($conf->global->PRELEVEMENT_CODE_BANQUE, $conf->global->PRELEVEMENT_CODE_GUICHET, $mode, $format, $executiondate);
+                    if ($result < 0)
+                    {
+                        setEventMessages($bprev->error, $bprev->errors, 'errors');
+                    }
+                    elseif ($result == 0)
+                    {
+                        $mesg=$langs->trans("NoInvoiceCouldBeWithdrawed", $format);
+                        setEventMessages($mesg, null, 'errors');
+//                        $mesg.='<br>'."\n";
+//                        foreach($bprev->invoice_in_error as $key => $val)
+//                        {
+//                            $mesg.='<span class="warning">'.$val."</span><br>\n";
+//                        }
+                    }
+                    else
+                    {
+                        setEventMessages($langs->trans("DirectDebitOrderCreated", $bprev->getNomUrl(1)), null);
+                    }
+
+                }
 
                 header('Location: '.$_SERVER['PHP_SELF']);
                 exit;
@@ -195,6 +225,24 @@ if ($action === 'searchpaymentschedule')
     print '<td class="titlefield selectdate">'.$langs->trans('PaymentSchedule_requestSelectDate').'</td>';
     print '<td>'.dol_print_date($date_demande_start, 'day').'</td>';
     print '</tr>';
+
+    if (!empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
+    {
+        global $mysoc;
+        print '<tr>';
+        if ($mysoc->isInEEC())
+        {
+            print '<td class="titlefield selectdate">'.$langs->trans('PaymentSchedule_selectFormatForWithdraw').'</td>';
+            print '<td>';
+            print '<select name="format"><option value="FRST">'.$langs->trans('SEPAFRST').'</option><option value="RCUR">'.$langs->trans('SEPARCUR').'</option></select>';
+            print '</td>';
+        }
+        else
+        {
+            print '<input type="hidden" name="format" value="ALL" />';
+        }
+        print '</tr>';
+    }
 
     print '</table>'."\n";
 
