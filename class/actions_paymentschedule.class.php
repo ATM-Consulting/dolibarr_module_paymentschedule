@@ -149,31 +149,32 @@ class ActionsPaymentSchedule
 		return 0;
 	}
 
-	public function printObjectLine($parameters, &$object, &$action, $hookmanager)
+	public function printFieldListValue($parameters, &$object, &$action, $hookmanager)
     {
-	    global $langs;
+	    global $langs, $form;
 
 		$TContext = explode(':',$parameters['context']);
-		if(in_array('paiementcard', $TContext)) {
-
+		if(in_array('paiementcard', $TContext))
+		{
 			//AJOUT COLONNE "Prélévement prévu"
 			if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 			dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
 			$tableSEPA = new PaymentSchedule($this->db);
 			$tableSEPA->fetchBy($object->facid, 'fk_facture');
+            $form->load_cache_types_paiements();
 
 			print '<td class="right">';
 			if (!empty($tableSEPA->id))
             {
-                print '<select id="" class="multiselect minwidth200" name = "det_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
-                print '<option value="" selected data-amount="">&nbsp;</option>';
-                foreach ($tableSEPA->TPaymentScheduleDet as $det) {
-                    if(GETPOST('det_'. $object->facid) && GETPOST('det_'. $object->facid) == $det->id ) {
-                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . ' " selected >' . $det->label . '</option>';
-                    } else {
-                        print '<option value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . '</option>';
-                    }
+                print '<select id="" class="paymentschedule-select2 minwidth200 maxwidth300" name="paymentscheduledet_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
+                print '<option value="" data-amount="">&nbsp;</option>';
+                foreach ($tableSEPA->TPaymentScheduleDet as $det)
+                {
+                    $selected = '';
+                    if (GETPOST('paymentscheduledet_'. $object->facid) == $det->id ) $selected = 'selected';
+
+                    print '<option '.$selected.' value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . ' ('.$form->cache_types_paiements[$det->fk_mode_reglement]['label'].')</option>';
                 }
                 print '</select>';
             }
@@ -195,6 +196,8 @@ class ActionsPaymentSchedule
 		{
 			print '<td class="right">'.$langs->trans('PaymentScheduleDetLinked').'</td>';
 		}
+
+		return 0;
 	}
 
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
@@ -333,6 +336,14 @@ class ActionsPaymentSchedule
                     setEventMessage($this->db->lasterror(), 'errors');
                 }
             }
+        }
+        elseif(in_array('paiementcard', $TContext))
+        {
+            print '<script type="text/javascript">
+                    $(function() {
+                        $(".paymentschedule-select2").select2();
+                    });
+                </script>';
         }
 
         return 0;
