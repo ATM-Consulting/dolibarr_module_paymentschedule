@@ -86,7 +86,6 @@ if (empty($reshook))
 		
 		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
 		{
-			// TODO mettre le fk_mode_reglement en conf
 			$sql = 'SELECT t.fk_facture, td.rowid
                 FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
                 INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
@@ -108,62 +107,64 @@ if (empty($reshook))
 					$det = new PaymentScheduleDet($db);
 					$det->fetch($obj->rowid);
 
-//                var_dump($facture->ref, $det->id);exit;
 					$db->begin();
 
+					$old_mode_reglement_id = $facture->mode_reglement_id;
 					$result = $facture->demande_prelevement($user, $det->amount_ttc);
-//                var_dump($result, $facture->error);exit;
 					if ($result > 0)
 					{
-						$sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
-						$resql = $db->query($sql);
-						if ($resql)
-						{
-							$obj = $db->fetch_object($resql);
-							if ($obj)
-							{
-								$res = $det->setInProcess($user, $obj->last_id);
-								if ($res > 0)
-								{
-									$nb_create++;
-									$db->commit();
-								}
-								else
-								{
-									$nb_error++;
-									$db->rollback();
-									$errors = array_merge($errors, $det->errors);
-								}
-							}
-						}
-						else
-						{
-							$nb_error++;
-							$db->rollback();
-							$errors[] = $db->lasterror();
-						}
+                        /** @see Facture::demande_prelevement() this method force payment mode with Facture::setPaymentMethods() with fk_c_paiement with code PRE */
+                        if ($old_mode_reglement_id != $facture->mode_reglement_id) $facture->setPaymentMethods($old_mode_reglement_id);
 
-					}
-					else
-					{
-						$nb_error++;
-						$db->rollback();
-						$errors[] = $facture->error;
-					}
-				}
+                        $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
+                        $resql = $db->query($sql);
+                        if ($resql)
+                        {
+                            $obj = $db->fetch_object($resql);
+                            if ($obj)
+                            {
+                                $res = $det->setInProcess($user, $obj->last_id);
+                                if ($res > 0)
+                                {
+                                    $nb_create++;
+                                    $db->commit();
+                                }
+                                else
+                                {
+                                    $nb_error++;
+                                    $db->rollback();
+                                    $errors = array_merge($errors, $det->errors);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $nb_error++;
+                            $db->rollback();
+                            $errors[] = $db->lasterror();
+                        }
 
-				if ($nb_create > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbCreate', $nb_create));
-				if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+                    }
+                    else
+                    {
+                        $nb_error++;
+                        $db->rollback();
+                        $errors[] = $facture->error;
+                    }
+                }
 
-				header('Location: '.$_SERVER['PHP_SELF']);
-				exit;
-			}
-		}
-		else
-		{
-			setEventMessage($langs->trans('PaymentSchedule_Warnings_checkDateOrPaymentType'), 'warnings');
-		}
-	}
+                if ($nb_create > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbCreate', $nb_create));
+                if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+
+                header('Location: '.$_SERVER['PHP_SELF']);
+                exit;
+            }
+        }
+        else
+        {
+            setEventMessage($langs->trans('PaymentSchedule_Warnings_checkDateOrPaymentType'), 'warnings');
+        }
+    }
 }
 
 /**
