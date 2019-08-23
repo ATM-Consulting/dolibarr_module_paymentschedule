@@ -14,7 +14,8 @@ ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
 
-PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE=Mode de règlement à prendre en compte pour autoriser la création d'un échéancier depuis une facture
+PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE=Mode de règlement à destination des bons de prélèvement Dolibarr
+PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND=Mode de règlement supplémentaire à prendre en compte pour autoriser la création d'un échéancier depuis une facture
 PAYMENTSCHEDULE_LABEL_PATTERN=Libellé à utiliser sur la création des lignes de prélèvement
 PAYMENTSCHEDULE_LABEL_PATTERN_HELP={INDICE} = numérotation des lignes en partant de 1<br />{SOCNAME} = nom du tiers<br />{FACNUMBER} = référence de facture<br />{REFCLIENT} = référence client
 PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'existant d'un IBAN sur le tiers
