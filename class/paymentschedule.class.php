@@ -31,15 +31,20 @@ class PaymentSchedule extends SeedObject
      * Draft status
      */
     const STATUS_DRAFT = 0;
-	/**
-	 * Validated status
-	 */
-	const STATUS_VALIDATED = 1;
+    /**
+     * Validated status
+     */
+    const STATUS_VALIDATED = 1;
+    /**
+     * Closed status
+     */
+    const STATUS_CLOSED = 2;
 
 	/** @var array $TStatus Array of translate key for each const */
 	public static $TStatus = array(
 		self::STATUS_DRAFT => 'PaymentScheduleStatusDraftShort'
 		,self::STATUS_VALIDATED => 'PaymentScheduleStatusValidatedShort'
+		,self::STATUS_CLOSED => 'PaymentScheduleStatusClosedShort'
 	);
 
 
@@ -197,6 +202,24 @@ class PaymentSchedule extends SeedObject
         return 0;
     }
 
+    /**
+     * @param User  $user   User object
+     * @return int
+     */
+    public function setClose($user)
+    {
+        if ($this->status === self::STATUS_VALIDATED)
+        {
+//            $this->fk_user_valid = $user->id;
+            $this->status = self::STATUS_CLOSED;
+            $this->withChild = false;
+
+            return $this->update($user);
+        }
+
+        return 0;
+    }
+
 
     /**
      * @param User  $user   User object
@@ -204,7 +227,7 @@ class PaymentSchedule extends SeedObject
      */
     public function setReopen($user)
     {
-        if ($this->status === self::STATUS_ACCEPTED || $this->status === self::STATUS_REFUSED)
+        if ($this->status === self::STATUS_VALIDATED || $this->status === self::STATUS_CLOSED)
         {
             $this->status = self::STATUS_VALIDATED;
             $this->withChild = false;
@@ -238,6 +261,7 @@ class PaymentSchedule extends SeedObject
 
         if ($status==self::STATUS_DRAFT) { $statusType='status6'; $statusLabel=$langs->trans('PaymentScheduleStatusDraft'); $statusLabelShort=$langs->trans('PaymentScheduleStatusDraftShort'); }
         elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('PaymentScheduleStatusValidated'); $statusLabelShort=$langs->trans('PaymentScheduleStatusValidateShort'); }
+        elseif ($status==self::STATUS_CLOSED) { $statusType='status6'; $statusLabel=$langs->trans('PaymentScheduleStatusClosed'); $statusLabelShort=$langs->trans('PaymentScheduleStatusClosedShort'); }
 
         if (function_exists('dolGetStatus'))
         {

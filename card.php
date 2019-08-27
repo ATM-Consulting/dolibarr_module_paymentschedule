@@ -327,6 +327,7 @@ else
 
             $fieldid = 'facnumber';
             if ((float) DOL_VERSION >= 10.0) $fieldid = 'ref';
+            $facture->totalpaye = $facture->getSommePaiement();
             dol_banner_tab($facture, 'ref', '', 1, $fieldid, 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
 
 
@@ -621,7 +622,7 @@ else
 
                 if (!empty($user->rights->paymentschedule->delete))
                 {
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
+                    if ($object->status !== PaymentSchedule::STATUS_CLOSED) print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
                 }
                 else
                 {

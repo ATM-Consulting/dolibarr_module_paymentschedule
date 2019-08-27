@@ -27,9 +27,11 @@ TopMenuPaymentSchedule=Echéancier SEPA
 # STATUS
 PaymentScheduleStatusDraft=Brouillon (échéancier en attente)
 PaymentScheduleStatusValidated=Validée (prêt pour prélèvement)
+PaymentScheduleStatusClosed=Clôturée
 
 PaymentScheduleStatusDraftShort=Brouillon
 PaymentScheduleStatusValidatedShort=Validée
+PaymentScheduleStatusClosedShort=Clôturée
 
 # LIST
 PaymentScheduleList=Liste échéanciers SEPA

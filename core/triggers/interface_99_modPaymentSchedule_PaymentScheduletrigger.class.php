@@ -413,10 +413,36 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-        } elseif ($action == 'BILL_CANCEL') {
+        } elseif ($action == 'BILL_PAYED' || $action == 'BILL_CANCEL') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+
+            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+            dol_include_once('paymentschedule/config.php');
+            dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+            $paymentschedule = new PaymentSchedule($this->db);
+            if ($paymentschedule->fetchBy($object->id, 'fk_facture') > 0)
+            {
+                $paymentschedule->setClose($user);
+            }
+
+        } elseif ($action == 'BILL_UNPAYED') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+
+            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+            dol_include_once('paymentschedule/config.php');
+            dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+            $paymentschedule = new PaymentSchedule($this->db);
+            if ($paymentschedule->fetchBy($object->id, 'fk_facture') > 0)
+            {
+                $paymentschedule->setReopen($user);
+            }
+
         } elseif ($action == 'BILL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
