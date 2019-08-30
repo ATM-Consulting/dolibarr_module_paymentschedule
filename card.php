@@ -38,8 +38,9 @@ $backtopage = GETPOST('backtopage', 'alpha');
 
 $object = new PaymentSchedule($db);
 
-if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
+if (!empty($id)) $object->fetch($id);
 elseif (!empty($facid)) $object->fetchBy($facid, 'fk_facture');
+elseif (!empty($ref)) $object->fetchByFactureRef($ref);
 
 $facture = new Facture($db);
 
@@ -491,7 +492,7 @@ else
                     $coldisplay++;
 
                     print '<td class="linecolpayment center nowrap">';
-                    if ($line->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) print 'N/A';
+                    if (false && $line->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) print 'N/A';
                     else
                     {
                         $line->fetchObjectLinked(null, '', $line->id, $line->element);

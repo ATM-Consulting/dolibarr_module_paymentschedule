@@ -183,6 +183,9 @@ if (empty($reshook))
                     }
                     else
                     {
+                        dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
+                        createLinkedBonPrelevement($db, $user, $bprev->id);
+
                         setEventMessages($langs->trans("DirectDebitOrderCreated", $bprev->getNomUrl(1)), null);
                     }
 

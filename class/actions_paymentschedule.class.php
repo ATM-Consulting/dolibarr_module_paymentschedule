@@ -135,14 +135,16 @@ class ActionsPaymentSchedule
             // PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
             if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0)
             {
-                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                dol_include_once('paymentschedule/class/paymentschedule.class.php');
+                // Théoriquement je n'ai plus besoin de ce bout code car il a été remplacé par ce qu'il y a dans le trigger PAYMENT_CUSTOMER_CREATE
+//                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+//                dol_include_once('paymentschedule/config.php');
+//                dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-                $TDet = PaymentScheduleDet::getAllFromBonPrelevement($object);
-                foreach ($TDet as $det)
-                {
-                    $det->setAccepted($user);
-                }
+//                $TDet = PaymentScheduleDet::getAllFromBonPrelevement($object);
+//                foreach ($TDet as $det)
+//                {
+//                    $det->setAccepted($user);
+//                }
             }
         }
 
@@ -151,7 +153,7 @@ class ActionsPaymentSchedule
 
 	public function printFieldListValue($parameters, &$object, &$action, $hookmanager)
     {
-	    global $langs, $form;
+	    global $langs, $form, $conf;
 
 		$TContext = explode(':',$parameters['context']);
 		if(in_array('paiementcard', $TContext))
@@ -171,10 +173,14 @@ class ActionsPaymentSchedule
                 print '<option value="" data-amount="">&nbsp;</option>';
                 foreach ($tableSEPA->TPaymentScheduleDet as $det)
                 {
+                    $disabled = '';
+                    // Si le statut de la ligne de l'échéancier est en cours
+                    if (in_array($det->status, array(PaymentScheduleDet::STATUS_IN_PROCESS, PaymentScheduleDet::STATUS_REQUESTED, PaymentScheduleDet::STATUS_ACCEPTED)) || $det->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) $disabled = 'disabled';
+
                     $selected = '';
                     if (GETPOST('paymentscheduledet_'. $object->facid) == $det->id ) $selected = 'selected';
 
-                    print '<option '.$selected.' value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . ' ('.$form->cache_types_paiements[$det->fk_mode_reglement]['label'].')</option>';
+                    print '<option '.$disabled.' '.$selected.' value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . ' ('.$form->cache_types_paiements[$det->fk_mode_reglement]['label'].' - '.dol_print_date($det->date_demande, 'day').')</option>';
                 }
                 print '</select>';
             }
@@ -300,36 +306,16 @@ class ActionsPaymentSchedule
         {
             if (GETPOST('action') === 'create')
             {
+                dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
+
                 $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_bons';
                 $resql = $this->db->query($sql);
                 if ($resql)
                 {
                     $obj = $this->db->fetch_object($resql);
                     $fk_prelevement_bons = $obj->last_id;
-                    //var_dump($fk_prelevement_bons);
-                    $sql = 'SELECT pfd.rowid, ee.fk_target
-                            FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande pfd
-                            INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
-                            WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
-                            AND ee.targettype = \'paymentscheduledet\'';
 
-                    $resql = $this->db->query($sql);
-                    if ($resql)
-                    {
-                        if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
-                        dol_include_once('/paymentschedule/class/paymentschedule.class.php');
-                        while ($obj = $this->db->fetch_object($resql))
-                        {
-                            $det = new PaymentScheduleDet($this->db);
-                            $det->fetch($obj->fk_target);
-
-                            $det->setRequested($user, $fk_prelevement_bons);
-                        }
-                    }
-                    else
-                    {
-                        setEventMessage($this->db->lasterror(), 'errors');
-                    }
+                    createLinkedBonPrelevement($this->db, $user, $fk_prelevement_bons);
                 }
                 else
                 {

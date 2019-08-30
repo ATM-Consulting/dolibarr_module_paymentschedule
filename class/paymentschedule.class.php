@@ -133,6 +133,33 @@ class PaymentSchedule extends SeedObject
     }
 
     /**
+     * @param string  $ref        facture ref
+     * @param bool    $loadChild
+     * @return int
+     */
+    public function fetchByFactureRef($ref, $loadChild = true)
+    {
+        $field = (float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref';
+        $sql = 'SELECT p.rowid FROM '.MAIN_DB_PREFIX.'facture f INNER JOIN '.MAIN_DB_PREFIX.$this->table_element.' p ON (p.fk_facture = f.rowid) WHERE f.'.$field.' = \''.$this->db->escape($ref).'\'';
+        $resql = $this->db->query($sql);
+        if ($resql)
+        {
+            if (($obj = $this->db->fetch_object($resql)))
+            {
+                return $this->fetch($obj->rowid, $loadChild);
+            }
+        }
+        else
+        {
+            $this->error = $this->db->lastqueryerror();
+            $this->errors[] = $this->error;
+            return -1;
+        }
+
+        return 0;
+    }
+
+    /**
      * @param User $user User object
      * @return int
      */
@@ -582,6 +609,36 @@ class PaymentScheduleDet extends SeedObject
         $this->init();
     }
 
+    public function fetchBySourceElement($fk_source, $sourcetype)
+    {
+        $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element';
+        $sql.= ' WHERE fk_source = '.$fk_source;
+        $sql.= ' AND sourcetype = \''.$sourcetype.'\'';
+        $sql.= ' AND targettype = \''.$this->element.'\'';
+
+        $resql = $this->db->query($sql);
+        if ($resql)
+        {
+            if (($obj = $this->db->fetch_object($resql)))
+            {
+                return $this->fetch($obj->fk_target);
+            }
+        }
+        else
+        {
+            $this->error = $this->db->lastqueryerror();
+            $this->errors[] = $this->error;
+
+            return -1;
+        }
+
+        return 0;
+    }
+
+    public function fetchByPrelevementFactureDemandeId($fk_prelevement_facture_demande)
+    {
+        return $this->fetchBySourceElement($fk_prelevement_facture_demande, 'prelevement_facture_demande');
+    }
 	/**
 	 * @param User $user User object
 	 * @return int
@@ -744,7 +801,7 @@ class PaymentScheduleDet extends SeedObject
     {
         global $conf;
 
-        foreach (array('paymentdet', 'prelevement_facture_demande', 'widthdraw') as $element)
+        foreach (array('paymentdet', 'prelevement_facture_demande', 'widthdraw', 'widthdraw_line') as $element)
         {
             if (empty($conf->{$element}))
             {
@@ -788,5 +845,131 @@ class PaymentScheduleDet extends SeedObject
         }
 
         return $TPaymentCache[$fk_paymentdet];
+    }
+}
+
+
+class PaymentScheduleUpdateStatus extends SeedObject
+{
+    public $output = '';
+
+    public function run()
+    {
+        global $user, $langs, $conf;
+
+        $this->output = $langs->trans('PaymentScheduleUpdateStatus_start', date('Y-m-d H:i:s'));
+
+        if (empty($user->rights->paymentschedule->write))
+        {
+            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnougthPermission');
+        }
+        elseif (empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
+        {
+            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorMainConfigurationMissing');
+        }
+        else
+        {
+            $today = date('Y-m-d 12:00:00');
+            $today_timestamp = strtotime($today);
+
+            $sql = 'SELECT DISTINCT pb.rowid AS fk_prelevement_bons';
+            $sql.= ' FROM '.MAIN_DB_PREFIX.'prelevement_bons pb';
+            $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pb.rowid AND ee.sourcetype = \'widthdraw\')';
+            $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet pd ON (ee.fk_target = pd.rowid AND ee.targettype = \'paymentscheduledet\')';
+            $sql.= ' WHERE statut = 1'; // 1 = En attente du passage en crédité
+            $sql.= ' AND pd.date_demande <= \''.$this->db->idate($today).'\'';
+
+            $resql = $this->db->query($sql);
+            if ($resql)
+            {
+                $num = $this->db->num_rows($resql);
+                $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_QueryFoundNum', $num);
+
+                while ($obj = $this->db->fetch_object($resql))
+                {
+                    $bonprelevement = new BonPrelevement($this->db);
+                    if ($bonprelevement->fetch($obj->fk_prelevement_bons) > 0)
+                    {
+                        $bonprelevement->set_infocredit($user, $today_timestamp);
+                    }
+                }
+            }
+            else
+            {
+                $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorQuery', $this->db->lastqueryerror());
+            }
+        }
+
+        $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_end', date('Y-m-d H:i:s'));
+
+        return 0;
+    }
+}
+
+require_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
+class PaymentScheduleBonPrelevement extends BonPrelevement
+{
+    /**
+     *	Get invoice list
+     *
+     *  @param 	int		$amounts 	If you want to get the amount of the order for each invoice
+     *	@return	array 				Id of invoices
+     */
+    public function getListInvoices($amounts=0)
+    {
+        global $conf;
+
+        $arr = array();
+
+        /*
+         * Returns all invoices presented
+         * within a withdrawal receipt
+         */
+        $sql = "SELECT fk_facture";
+        if ($amounts)
+        {
+            $sql .= ", SUM(pl.amount)";
+            $sql .= ", pf.fk_prelevement_lignes";
+        }
+        $sql.= " FROM ".MAIN_DB_PREFIX."prelevement_bons as p";
+        $sql.= " , ".MAIN_DB_PREFIX."prelevement_lignes as pl";
+        $sql.= " , ".MAIN_DB_PREFIX."prelevement_facture as pf";
+        $sql.= " WHERE pf.fk_prelevement_lignes = pl.rowid";
+        $sql.= " AND pl.fk_prelevement_bons = p.rowid";
+        $sql.= " AND p.rowid = ".$this->id;
+        $sql.= " AND p.entity = ".$conf->entity;
+        if ($amounts) $sql.= " GROUP BY fk_facture";
+
+        $resql=$this->db->query($sql);
+        if ($resql)
+        {
+            $num = $this->db->num_rows($resql);
+
+            if ($num)
+            {
+                $i = 0;
+                while ($i < $num)
+                {
+                    $row = $this->db->fetch_row($resql);
+                    if (!$amounts) $arr[$i] = $row[0];
+                    else
+                    {
+                        $arr[$i] = array(
+                            $row[0],
+                            $row[1],
+                            $row[2]
+                        );
+                    }
+                    $i++;
+                }
+            }
+            $this->db->free($resql);
+        }
+        else
+        {
+            dol_syslog(get_class($this)."::getListInvoices Erreur");
+        }
+
+        return $arr;
     }
 }

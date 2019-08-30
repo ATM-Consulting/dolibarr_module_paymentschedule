@@ -9,6 +9,11 @@ PaymentScheduleAbout = A propos du module Echéancier SEPA
 PaymentSchedule=Echéancier SEPA
 AbricotNeedUpdate=Le module abricot doit être mis à jour
 
+# PERMISSIONS
+paymentschedule_read=Consulter les échéanciers
+paymentschedule_write=Créer/modifier les échéanciers
+paymentschedule_delete=Supprimer les échéanciers
+
 # SETUP
 ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
@@ -118,3 +123,15 @@ CheckErrorInvoiceInsufficientPermission=Permission inssufisante
 
 # WARNINGS
 PaymentSchedule_Warnings_checkDateOrPaymentType=Veuillez vérifier la date saisie et/ou les types de paiements autorisés en configuration du module
+
+# CRON
+PaymentScheduleUpdateStatus=[PAYMENTSCHEDULE] - MAJ des statuts
+PaymentScheduleUpdateStatus_start=[%s] - Début
+PaymentScheduleUpdateStatus_end=[%s] - Fin
+
+PaymentScheduleUpdateStatus_ErrorNotEnougthPermission=[ERREUR] permission insufisante, l'utilisateur doit avoir le droit de "Créer/modifier les échéanciers"
+PaymentScheduleUpdateStatus_ErrorMainConfigurationMissing=[ERREUR] la configuration principale permettant d'identifier le mode de règlement par prélèvement n'est pas définie
+PaymentScheduleUpdateStatus_ErrorQuery=[ERREUR] échec de l'exécution de la requête : %s
+PaymentScheduleUpdateStatus_ErrorPaymentScheduleFetch=[ERREUR] le chargement d'un échéancier a échoué : %s
+
+PaymentScheduleUpdateStatus_QueryFoundNum=- %s bon(s) de prélèvement(s) concerné(s)

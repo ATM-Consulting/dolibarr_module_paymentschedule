@@ -137,18 +137,67 @@ class InterfacePaymentScheduletrigger
         if ($action == 'BON_PRELEVEMENT_DELETE')
         {
             if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+            dol_include_once('/paymentschedule/config.php');
             dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
             $TDet = PaymentScheduleDet::getAllFromBonPrelevement($object);
             foreach ($TDet as $det)
             {
                 $det->setRequested($user);
+                if (empty($det->linkedObjectsIds['widthdraw_line'])) $det->fetchObjectLinked();
+                if (!empty($det->linkedObjectsIds['widthdraw_line']))
+                {
+                    foreach ($det->linkedObjectsIds['widthdraw_line'] as $fk_element_element => $fk_prelevement_lignes)
+                    {
+                        $det->deleteObjectLinked(null, null, null, null, $fk_element_element);
+                    }
+                }
+
+                // TODO voir si il faut faire la suppression du paiement si faisable ou peut être delete la demande de prélèvement
             }
 
             $object->deleteObjectLinked();
+
+        } elseif ($action == 'BON_PRELEVEMENT_CREATE') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+
+            /** @var BonPrelevement $object */
+            if (!empty($object->factures_prev))
+            {
+                $sql = 'SELECT rowid AS fk_prelevement_lignes FROM '.MAIN_DB_PREFIX.'prelevement_lignes WHERE fk_prelevement_bons = '.$object->id;
+                $resql = $this->db->query($sql);
+                if ($resql)
+                {
+                    if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                    dol_include_once('paymentschedule/config.php');
+                    dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+                    $i = 0;
+                    while ($obj = $this->db->fetch_object($resql))
+                    {
+                        /** @var array $fac[x][1] = fk_prelevement_demande_facture */
+                        $fac = $object->factures_prev[$i];
+                        $fk_prelevement_demande_facture = $fac[1];
+
+                        $paymentscheduledet = new PaymentScheduleDet($this->db);
+                        if ($paymentscheduledet->fetchByPrelevementFactureDemandeId($fk_prelevement_demande_facture) > 0)
+                        {
+                            $paymentscheduledet->add_object_linked('widthdraw_line', $obj->fk_prelevement_lignes);
+                        }
+
+                        $i++;
+                    }
+                }
+                else
+                {
+                    dol_print_error($this->db);
+                }
+            }
         }
 
-        if ($action == 'USER_LOGIN') {
+        elseif ($action == 'USER_LOGIN') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
@@ -463,9 +512,41 @@ class InterfacePaymentScheduletrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
 
-            //CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA
+            if (!empty($object->id_prelevement))
+            {
+                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+                dol_include_once('paymentschedule/config.php');
+                dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-            if (GETPOSTISSET('action') && GETPOST('action') == 'confirm_paiement')
+                $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
+                $psbonprelevement->fetch($object->id_prelevement);
+                $facs = $psbonprelevement->getListInvoices(1);
+
+                // Attention, cette méthodo est border line, mais pas le choix
+                $TPaiementFacture = array();
+                $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id;
+                $resql = $this->db->query($sql);
+                if ($resql)
+                {
+                    while ($obj = $this->db->fetch_object($resql))
+                    {
+                        $TPaiementFacture[] = $obj->rowid;
+                    }
+                }
+
+                // count($facs) doit être = count($TPaiementFacture)
+                foreach ($facs as $i => $TInfo)
+                {
+                    $paymentscheduledet = new PaymentScheduleDet($this->db);
+                    if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
+                    {
+                        $paymentscheduledet->add_object_linked('paymentdet', $TPaiementFacture[$i]);
+                        $paymentscheduledet->setAccepted($user);
+                    }
+                }
+            }
+            //CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA
+            elseif (GETPOSTISSET('action') && GETPOST('action') == 'confirm_paiement')
             {
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                 dol_include_once('paymentschedule/config.php');
@@ -478,7 +559,7 @@ class InterfacePaymentScheduletrigger
                     if (empty($fk_paymentscheduledet) || $fk_paymentscheduledet <= 0) continue;
 
 					//dernier paiement associé à la facture
-					$sql = 'SELECT rowid AS fk_paiement_facture FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_facture =' . $invoice_id . ' AND amount = '.$amount;
+					$sql = 'SELECT rowid AS fk_paiement_facture FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture = '.$invoice_id.' AND amount = '.$amount;
 					$resql = $this->db->query($sql);
 					if ($resql)
                     {

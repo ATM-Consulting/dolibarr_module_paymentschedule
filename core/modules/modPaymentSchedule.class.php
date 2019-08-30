@@ -351,23 +351,23 @@ class modPaymentSchedule extends DolibarrModules
 		// $this->export_sql_order[$r] .=' ORDER BY s.nom';
 		// $r++;
 
-//        $this->cronjobs = array(
-//            0=>array(
-//                'label' => 'PaymentSchedule'
-//                ,'jobtype' => 'method'
-//                ,'class' => '/paymentschedule/class/paymentschedule.class.php'
-//                ,'objectname' => 'PaymentSchedule'
-//                ,'method' => 'cronSepa'
-//                ,'parameters' => ''
-//                ,'comment' => 'Permet de créer les prélèvement SEPA'
-//                ,'frequency' => 1
-//                ,'unitfrequency' => 86400
-//                ,'datestart' => strtotime(date('Y-m-d 00:30:00'))
-//                ,'status' => 0
-//                ,'test' => '$conf->paymentschedule->enabled'
-//                ,'priority' => 20
-//            )
-//        );
+        $this->cronjobs = array(
+            0=>array(
+                'label' => 'PaymentScheduleUpdateStatus'
+                ,'jobtype' => 'method'
+                ,'class' => '/paymentschedule/class/paymentschedule.class.php'
+                ,'objectname' => 'PaymentScheduleUpdateStatus'
+                ,'method' => 'run'
+                ,'parameters' => ''
+                ,'comment' => 'Met à jour le statut des lignes d\'échéancier qui sont en attente de retour d\'un bon de prélèvement vers le statut payé lorsque la date arrive à échéance'
+                ,'frequency' => 1
+                ,'unitfrequency' => 86400
+                ,'datestart' => strtotime(date('Y-m-d 03:00:00'))
+                ,'status' => 0
+                ,'test' => '$conf->paymentschedule->enabled'
+                ,'priority' => 20
+            )
+        );
 	}
 
 	/**

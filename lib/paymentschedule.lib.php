@@ -166,3 +166,38 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
 
     return $formconfirm;
 }
+
+
+function createLinkedBonPrelevement($db, $user, $fk_prelevement_bons)
+{
+    $sql = 'SELECT pfd.rowid, ee.fk_target
+            FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande pfd
+            INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
+            WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
+            AND ee.targettype = \'paymentscheduledet\'';
+
+    $resql = $db->query($sql);
+    if ($resql)
+    {
+        if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+        dol_include_once('paymentschedule/config.php');
+        dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
+        while ($obj = $db->fetch_object($resql))
+        {
+            $det = new PaymentScheduleDet($db);
+            $det->fetch($obj->fk_target);
+
+            $det->setRequested($user, $fk_prelevement_bons);
+        }
+
+        return 1;
+    }
+    else
+    {
+        setEventMessage($db->lasterror(), 'errors');
+        return -1;
+    }
+
+    return 0;
+}
