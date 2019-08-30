@@ -98,6 +98,8 @@ if (empty($reshook))
 			$errors = array();
 			if ($resql)
 			{
+			    $db->begin();
+
 				$nb_create = $nb_error = 0;
 				while ($obj = $db->fetch_object($resql))
 				{
@@ -169,6 +171,7 @@ if (empty($reshook))
                     $result = $bprev->create($conf->global->PRELEVEMENT_CODE_BANQUE, $conf->global->PRELEVEMENT_CODE_GUICHET, $mode, $format, $executiondate);
                     if ($result < 0)
                     {
+                        $nb_error++;
                         setEventMessages($bprev->error, $bprev->errors, 'errors');
                     }
                     elseif ($result == 0)
@@ -190,6 +193,9 @@ if (empty($reshook))
                     }
 
                 }
+
+                if ($nb_error) $db->rollback();
+                else $db->commit();
 
                 header('Location: '.$_SERVER['PHP_SELF']);
                 exit;
