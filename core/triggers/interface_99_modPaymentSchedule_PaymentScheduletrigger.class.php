@@ -164,7 +164,7 @@ class InterfacePaymentScheduletrigger
             );
 
             /** @var BonPrelevement $object */
-            if (!empty($object->factures_prev))
+            if (!empty($object->context['factures_prev']))
             {
                 $sql = 'SELECT rowid AS fk_prelevement_lignes FROM '.MAIN_DB_PREFIX.'prelevement_lignes WHERE fk_prelevement_bons = '.$object->id;
                 $resql = $this->db->query($sql);
@@ -174,11 +174,12 @@ class InterfacePaymentScheduletrigger
                     dol_include_once('paymentschedule/config.php');
                     dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
+                    $factures_prev = $object->context['factures_prev'];
                     $i = 0;
                     while ($obj = $this->db->fetch_object($resql))
                     {
                         /** @var array $fac[x][1] = fk_prelevement_demande_facture */
-                        $fac = $object->factures_prev[$i];
+                        $fac = $factures_prev[$i];
                         $fk_prelevement_demande_facture = $fac[1];
 
                         $paymentscheduledet = new PaymentScheduleDet($this->db);
