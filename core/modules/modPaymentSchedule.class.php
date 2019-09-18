@@ -334,6 +334,23 @@ class modPaymentSchedule extends DolibarrModules
         );				                // 0=Menu for internal users, 1=external users, 2=both
         $r++;
 
+        $this->menu[$r]=array(
+            'fk_menu'=>'fk_mainmenu=billing,fk_leftmenu=customers_bills',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+            'type'=>'left',			                // This is a Left menu entry
+            'titre'=>'PaymentScheduleList',
+            'mainmenu'=> 'billing',
+            'leftmenu'=>'paymentschedule_left_list',
+//            'url'=>'/paymentschedule/prelevement.php',
+            'url'=>'/paymentschedule/list_schedules.php?mainmenu=billing&leftmenu=customers_bills',
+            'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+            'position'=>100+$r,
+            'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+            'perms'=> '$user->rights->paymentschedule->read && $user->rights->prelevement->bons->creer',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'target'=>'',
+            'user'=>0
+        );				                // 0=Menu for internal users, 1=external users, 2=both
+        $r++;
+
 		// Exports
 		$r=1;
 
