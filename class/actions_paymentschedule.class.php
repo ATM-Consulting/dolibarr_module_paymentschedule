@@ -206,6 +206,13 @@ class ActionsPaymentSchedule
 		return 0;
 	}
 
+	/**
+	 * @param array $parameters
+	 * @param Facture $object
+	 * @param string $action
+	 * @param $hookmanager
+	 * @return int
+	 */
 	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager)
 	{
 		global $langs, $user;
@@ -233,6 +240,26 @@ class ActionsPaymentSchedule
 				else
 				{
 					print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#" title="'.implode('<br />', $TRestrictMessage).'">'.$langs->trans('PaymentScheduleCreate').'</a></div>';
+				}
+
+				// blocage réouverture facture si échéancier validé
+				$echeancier = new PaymentSchedule($object->db);
+				$echeancier->fetchBy($object->id, 'fk_facture');
+
+				if ($echeancier->status > PaymentSchedule::STATUS_DRAFT && $object->statut > 0)
+				{
+					?>
+					<script type="text/javascript">
+						$(document).ready(function(){
+						    console.log("a[href=\"<?php echo $_SERVER['PHP_SELF']."?facid=".$object->id."action=modif"; ?>\"]");
+							$("a[href=\"<?php echo $_SERVER['PHP_SELF']."?facid=".$object->id."&action=modif"; ?>\"]")
+								.removeClass('butAction')
+								.addClass('butActionRefused')
+								.attr('title', "<?php echo $langs->transnoentities('PaymentScheduleIsValidated'); ?>")
+								.attr('href', '#');
+						})
+					</script>
+					<?php
 				}
 			}
 		}
