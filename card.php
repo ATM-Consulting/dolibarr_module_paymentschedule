@@ -83,6 +83,8 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook))
 {
 
+	if ($action == 'builddoc') $object->ref = $facture->ref."_ps";
+
 	// Actions to build doc
 	$upload_dir = $conf->paymentschedule->dir_output;
 	$permissioncreate=$user->rights->paymentschedule->write;
@@ -647,7 +649,7 @@ else
 
 				// Documents generes
 				$filename = dol_sanitizeFileName($facture->ref.'_ps');
-				$filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref);
+				$filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref.'_ps');
 				$urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $facture->id;
 				$genallowed = $user->rights->paymentschedule->read;
 				$delallowed = $user->rights->paymentschedule->write;

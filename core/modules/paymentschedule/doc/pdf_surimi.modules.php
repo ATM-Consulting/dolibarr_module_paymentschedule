@@ -23,6 +23,7 @@
  */
 
 dol_include_once('/paymentschedule/core/modules/paymentschedule/modules_paymentschedule.php');
+require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
@@ -214,7 +215,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 	/**
      *  Function to build pdf onto disk
      *
-     *  @param		Object		$object				Object to generate
+     *  @param		PaymentSchedule		$object				Object to generate
      *  @param		Translate	$outputlangs		Lang output object
      *  @param		string		$srctemplatepath	Full path of source filename for generator using a template file
      *  @param		int			$hidedetails		Do not show line details
@@ -227,6 +228,11 @@ class pdf_surimi extends ModelePDFPaymentschedule
         // phpcs:enable
 		global $user,$langs,$conf,$mysoc,$db,$hookmanager,$nblignes;
 
+		$object->lines = $object->TPaymentScheduleDet;
+
+		$this->facture = new Facture($db);
+		$this->facture->fetch($object->fk_facture);
+
 		if (! is_object($outputlangs)) $outputlangs=$langs;
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 		if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
@@ -236,52 +242,24 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 		$nblignes = count($object->lines);
 
-		// Loop on each lines to detect if there is at least one image to show
-		$realpatharray=array();
-		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
+		if ($conf->paymentschedule->dir_output)
 		{
-			for ($i = 0 ; $i < $nblignes ; $i++)
-			{
-				if (empty($object->lines[$i]->fk_product)) continue;
+			$this->facture->fetch_thirdparty();
 
-				$objphoto = new Product($this->db);
-				$objphoto->fetch($object->lines[$i]->fk_product);
-
-				$pdir = get_exdir($object->lines[$i]->fk_product,2,0,0,$objphoto,'product') . $object->lines[$i]->fk_product ."/photos/";
-				$dir = $conf->product->dir_output.'/'.$pdir;
-
-				$realpath='';
-				foreach ($objphoto->liste_photos($dir,1) as $key => $obj)
-				{
-					$filename=$obj['photo'];
-					//if ($obj['photo_vignette']) $filename='thumbs/'.$obj['photo_vignette'];
-					$realpath = $dir.$filename;
-					break;
-				}
-
-				if ($realpath) $realpatharray[$i]=$realpath;
-			}
-		}
-		if (count($realpatharray) == 0) $this->posxpicture=$this->posxtva;
-
-		if ($conf->facture->dir_output)
-		{
-			$object->fetch_thirdparty();
-
-			$deja_regle = $object->getSommePaiement(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_credit_notes_included = $object->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_deposits_included = $object->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+			$deja_regle = $this->facture->getSommePaiement(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_credit_notes_included = $this->facture->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_deposits_included = $this->facture->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
 
 			// Definition of $dir and $file
 			if ($object->specimen)
 			{
-				$dir = $conf->facture->dir_output;
+				$dir = $conf->paymentschedule->dir_output;
 				$file = $dir . "/SPECIMEN.pdf";
 			}
 			else
 			{
 				$objectref = dol_sanitizeFileName($object->ref);
-				$dir = $conf->facture->dir_output . "/" . $objectref;
+				$dir = $conf->paymentschedule->dir_output . "/" . $objectref;
 				$file = $dir . "/" . $objectref . ".pdf";
 			}
 			if (! file_exists($dir))
@@ -308,7 +286,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 				// Set nblignes with the new facture lines content after hook
 				$nblignes = count($object->lines);
-				$nbpayments = count($object->getListOfPayments());
+				$nbpayments = count($this->facture->getListOfPayments());
 
 				// Create pdf instance
 				$pdf=pdf_getInstance($this->format);
@@ -460,37 +438,11 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
 					$pdf->SetTextColor(0,0,0);
 
-					// Define size of image if we need it
-					$imglinesize=array();
-					if (! empty($realpatharray[$i])) $imglinesize=pdf_getSizeForImage($realpatharray[$i]);
-
 					$pdf->setTopMargin($tab_top_newpage);
 					$pdf->setPageOrientation('', 1, $heightforfooter+$heightforfreetext+$heightforinfotot);	// The only function to edit the bottom margin of current page to set it.
 					$pageposbefore=$pdf->getPage();
 
 					$showpricebeforepagebreak=1;
-					$posYAfterImage=0;
-					$posYAfterDescription=0;
-
-					// We start with Photo of product line
-					if (isset($imglinesize['width']) && isset($imglinesize['height']) && ($curY + $imglinesize['height']) > ($this->page_hauteur-($heightforfooter+$heightforfreetext+$heightforinfotot)))	// If photo too high, we moved completely on new page
-					{
-						$pdf->AddPage('','',true);
-						if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
-						$pdf->setPage($pageposbefore+1);
-
-						$curY = $tab_top_newpage;
-						$showpricebeforepagebreak=0;
-					}
-
-					if (isset($imglinesize['width']) && isset($imglinesize['height']))
-					{
-						$curX = $this->posxpicture-1;
-						$pdf->Image($realpatharray[$i], $curX + (($this->posxtva-$this->posxpicture-$imglinesize['width'])/2), $curY, $imglinesize['width'], $imglinesize['height'], '', '', '', 2, 300);	// Use 300 dpi
-						// $pdf->Image does not increase value return by getY, so we save it manually
-						$posYAfterImage=$curY+$imglinesize['height'];
-					}
 
 					// Description of product line
 					$curX = $this->posxdesc-1;
@@ -591,18 +543,18 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->postotalht, 3, $total_excl_tax, 0, 'R', 0);
 
 
-					$sign=1;
-					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
-					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
-					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
-					{
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-					} else {
-						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
-						else $tvaligne= $sign * $object->lines[$i]->total_tva;
-					}
+//					$sign=1;
+//					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+//					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
+//					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
+//					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
+//					{
+//						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+//						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+//					} else {
+//						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
+//						else $tvaligne= $sign * $object->lines[$i]->total_tva;
+//					}
 
 					$localtax1ligne=$object->lines[$i]->total_localtax1;
 					$localtax2ligne=$object->lines[$i]->total_localtax2;
@@ -635,8 +587,6 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					if (($object->lines[$i]->info_bits & 0x01) == 0x01) $vatrate.='*';
 					if (! isset($this->tva[$vatrate])) 				$this->tva[$vatrate]=0;
 					$this->tva[$vatrate] += $tvaligne;
-
-					if ($posYAfterImage > $posYAfterDescription) $nexY=$posYAfterImage;
 
 					// Add line
 					if (! empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nblignes - 1))
@@ -1337,8 +1287,8 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		}
 
 		$pdf->SetTextColor(0,0,0);
-		$creditnoteamount=$object->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
-		$depositsamount=$object->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+		$creditnoteamount=$this->facture->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
+		$depositsamount=$this->facture->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
 		//print "x".$creditnoteamount."-".$depositsamount;exit;
 		$resteapayer = price2num($total_ttc - $deja_regle - $creditnoteamount - $depositsamount, 'MT');
 		if ($object->paye) $resteapayer=0;
@@ -1536,7 +1486,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		pdf_pagehead($pdf,$outputlangs,$this->page_hauteur);
 
 		// Show Draft Watermark
-		if($object->statut==Facture::STATUS_DRAFT && (! empty($conf->global->FACTURE_DRAFT_WATERMARK)) )
+		if($this->facture->statut==Facture::STATUS_DRAFT && (! empty($conf->global->FACTURE_DRAFT_WATERMARK)) )
         {
 		      pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',$conf->global->FACTURE_DRAFT_WATERMARK);
         }
@@ -1577,6 +1527,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			}
 		}
 
+		// title ------
 		$pdf->SetFont('','B', $default_font_size + 3);
 		$pdf->SetXY($posx,$posy);
 		$pdf->SetTextColor(0,0,60);
@@ -1587,14 +1538,15 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		if ($object->type == 4) $title=$outputlangs->transnoentities("InvoiceProForma");
 		if ($this->situationinvoice) $title=$outputlangs->transnoentities("InvoiceSituation");
 		$pdf->MultiCell($w, 3, $title, '', 'R');
+		// end title --------
 
 		$pdf->SetFont('','B',$default_font_size);
 
 		$posy+=5;
 		$pdf->SetXY($posx,$posy);
 		$pdf->SetTextColor(0,0,60);
-		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($object->ref);
-		if ($object->statut == Facture::STATUS_DRAFT)
+		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($this->facture->ref);
+		if ($this->facture->statut == Facture::STATUS_DRAFT)
 		{
 			$pdf->SetTextColor(128,0,0);
 			$textref.=' - '.$outputlangs->transnoentities("NotValidated");
@@ -1604,16 +1556,16 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$posy+=1;
 		$pdf->SetFont('','', $default_font_size - 2);
 
-		if ($object->ref_client)
+		if ($this->facture->ref_client)
 		{
 			$posy+=4;
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($object->ref_client), '', 'R');
+			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($this->facture->ref_client), '', 'R');
 		}
 
-		$objectidnext=$object->getIdReplacingInvoice('validated');
-		if ($object->type == 0 && $objectidnext)
+		$objectidnext=$this->facture->getIdReplacingInvoice('validated');
+		if ($this->facture->type == 0 && $objectidnext)
 		{
 			$objectreplacing=new Facture($this->db);
 			$objectreplacing->fetch($objectidnext);
@@ -1623,20 +1575,20 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$pdf->SetTextColor(0,0,60);
 			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementByInvoice").' : '.$outputlangs->convToOutputCharset($objectreplacing->ref), '', 'R');
 		}
-		if ($object->type == 1)
+		if ($this->facture->type == 1)
 		{
 			$objectreplaced=new Facture($this->db);
-			$objectreplaced->fetch($object->fk_facture_source);
+			$objectreplaced->fetch($this->facture->fk_facture_source);
 
 			$posy+=4;
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetTextColor(0,0,60);
 			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
 		}
-		if ($object->type == 2 && !empty($object->fk_facture_source))
+		if ($this->facture->type == 2 && !empty($this->facture->fk_facture_source))
 		{
 			$objectreplaced=new Facture($this->db);
-			$objectreplaced->fetch($object->fk_facture_source);
+			$objectreplaced->fetch($this->facture->fk_facture_source);
 
 			$posy+=3;
 			$pdf->SetXY($posx,$posy);
@@ -1647,36 +1599,36 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$posy+=4;
 		$pdf->SetXY($posx,$posy);
 		$pdf->SetTextColor(0,0,60);
-		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($object->date,"day",false,$outputlangs), '', 'R');
+		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($this->facture->date,"day",false,$outputlangs), '', 'R');
 
 		if (! empty($conf->global->INVOICE_POINTOFTAX_DATE))
 		{
 			$posy+=4;
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePointOfTax")." : " . dol_print_date($object->date_pointoftax,"day",false,$outputlangs), '', 'R');
+			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePointOfTax")." : " . dol_print_date($this->facture->date_pointoftax,"day",false,$outputlangs), '', 'R');
 		}
 
-		if ($object->type != 2)
+		if ($this->facture->type != 2)
 		{
 			$posy+=3;
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateDue")." : " . dol_print_date($object->date_lim_reglement,"day",false,$outputlangs,true), '', 'R');
+			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateDue")." : " . dol_print_date($this->facture->date_lim_reglement,"day",false,$outputlangs,true), '', 'R');
 		}
 
-		if ($object->thirdparty->code_client)
+		if ($this->facture->thirdparty->code_client)
 		{
 			$posy+=3;
 			$pdf->SetXY($posx,$posy);
 			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($object->thirdparty->code_client), '', 'R');
+			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($this->facture->thirdparty->code_client), '', 'R');
 		}
 
 		// Get contact
 		if (!empty($conf->global->DOC_SHOW_FIRST_SALES_REP))
 		{
-		    $arrayidcontact=$object->getIdContact('internal','SALESREPFOLL');
+		    $arrayidcontact=$this->facture->getIdContact('internal','SALESREPFOLL');
 		    if (count($arrayidcontact) > 0)
 		    {
 		        $usertmp=new User($this->db);
@@ -1693,7 +1645,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$top_shift = 0;
 		// Show list of linked objects
 		$current_y = $pdf->getY();
-		$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
+		$posy = pdf_writeLinkedObjects($pdf, $this->facture, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
 		if ($current_y < $pdf->getY())
 		{
 			$top_shift = $pdf->getY() - $current_y;
@@ -1702,7 +1654,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		if ($showaddress)
 		{
 			// Sender properties
-			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty, '', 0, 'source', $object);
+			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
 
 			// Show sender
 			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
@@ -1739,24 +1691,24 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 			// If BILLING contact defined on invoice, we use it
 			$usecontact=false;
-			$arrayidcontact=$object->getIdContact('external','BILLING');
+			$arrayidcontact=$this->facture->getIdContact('external','BILLING');
 			if (count($arrayidcontact) > 0)
 			{
 				$usecontact=true;
-				$result=$object->fetch_contact($arrayidcontact[0]);
+				$result=$this->facture->fetch_contact($arrayidcontact[0]);
 			}
 
 			//Recipient name
 			// On peut utiliser le nom de la societe du contact
 			if ($usecontact && !empty($conf->global->MAIN_USE_COMPANY_NAME_OF_CONTACT)) {
-				$thirdparty = $object->contact;
+				$thirdparty = $this->facture->contact;
 			} else {
-				$thirdparty = $object->thirdparty;
+				$thirdparty = $this->facture->thirdparty;
 			}
 
 			$carac_client_name= pdfBuildThirdpartyName($thirdparty, $outputlangs);
 
-			$carac_client=pdf_build_address($outputlangs,$this->emetteur,$object->thirdparty,($usecontact?$object->contact:''),$usecontact,'target',$object);
+			$carac_client=pdf_build_address($outputlangs,$this->emetteur,$this->facture->thirdparty,($usecontact?$this->facture->contact:''),$usecontact,'target',$this->facture);
 
 			// Show recipient
 			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 100;
