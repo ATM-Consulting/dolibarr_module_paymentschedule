@@ -18,6 +18,7 @@
 require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
 dol_include_once('paymentschedule/class/paymentschedule.class.php');
 dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
@@ -226,6 +227,7 @@ if (empty($reshook))
  * View
  */
 $form = new Form($db);
+$formfile = new FormFile($db);
 
 $title=$langs->trans('PaymentSchedule');
 llxHeader('', $title);
@@ -631,6 +633,23 @@ else
                 }
             }
             print '</div>'."\n";
+
+			if ($action != "editline")
+			{
+				print '<div class="fichecenter"><div class="fichehalfleft">';
+				print '<a name="builddoc"></a>'; // ancre
+
+				// Documents generes
+				$filename = dol_sanitizeFileName($facture->ref.'_ps');
+				$filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref);
+				$urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $facture->id;
+				$genallowed = $user->rights->paymentschedule->read;
+				$delallowed = $user->rights->paymentschedule->write;
+
+				print $formfile->showdocuments('paymentschedule', $filename, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', $soc->default_lang);
+
+				print '</div>';
+			}
 
         }
     }
