@@ -133,7 +133,7 @@ $hookmanager->initHooks(array('paymentschedulelist'));
 $extrafields = new ExtraFields($db);
 
 // fetch optionals attributes and labels
-$extralabels = $extrafields->fetch_name_optionals_label('facture');
+$extralabels = $extrafields->fetch_name_optionals_label('paymentschedule');
 $search_array_options=$extrafields->getOptionalsFromPost($object->table_element,'','search_');
 
 // List of fields to search into when doing a "search in all"
@@ -293,7 +293,7 @@ if (! empty($search_categ_cus)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_s
 
 $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facture as f ON (f.fk_soc = s.rowid AND f.entity IN ('.getEntity('facture').'))';
 $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule as ps ON (f.rowid = ps.fk_facture)';
-if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."facture_extrafields as ef on (f.rowid = ef.fk_object)";
+if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paymentschedule_extrafields as ef on (f.rowid = ef.fk_object)";
 if (! $sall) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON pf.fk_facture = f.rowid';
 if ($sall || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as pd ON f.rowid=pd.fk_facture';
 if ($search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'categorie_product as cp ON cp.fk_product=pd.fk_product';
@@ -793,6 +793,7 @@ if ($resql)
 		print '</td>';
 	}
 	// Extra fields
+	$extrafieldsobjectkey='paymentschedule';
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_input.tpl.php';
 
 	// Fields from hook
