@@ -1,14 +1,5 @@
 <?php
-/* Copyright (C) 2004-2014	Laurent Destailleur	<eldy@users.sourceforge.net>
- * Copyright (C) 2005-2012	Regis Houssin		<regis.houssin@inodbox.com>
- * Copyright (C) 2008		Raphael Bertrand		<raphael.bertrand@resultic.fr>
- * Copyright (C) 2010-2014	Juanjo Menent		<jmenent@2byte.es>
- * Copyright (C) 2012		Christophe Battarel	<christophe.battarel@altairis.fr>
- * Copyright (C) 2012		Cédric Salvador		<csalvador@gpcsolutions.fr>
- * Copyright (C) 2012-2014	Raphaël Doursenaud	<rdoursenaud@gpcsolutions.fr>
- * Copyright (C) 2015		Marcos García		<marcosgdf@gmail.com>
- * Copyright (C) 2017-2018	Ferran Marcet		<fmarcet@2byte.es>
- * Copyright (C) 2018       Frédéric France     <frederic.france@netlogic.fr>
+/* Copyright (C) 2019	Grégory Blémand	<gregory.blemand@atm-consulting.fr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +17,9 @@
  */
 
 /**
- *	\file       htdocs/core/modules/facture/doc/pdf_surimi.modules.php
- *	\ingroup    facture
- *	\brief      File of class to generate customers invoices from surimi model
+ *	\file       paymentschedule/core/modules/paymentschedule/doc/pdf_surimi.modules.php
+ *	\ingroup    paymentschedule
+ *	\brief      File of class to generate customers payment schedule from surimi model
  */
 
 dol_include_once('/paymentschedule/core/modules/paymentschedule/modules_paymentschedule.php');
