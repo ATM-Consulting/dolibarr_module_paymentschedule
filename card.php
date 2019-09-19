@@ -49,6 +49,8 @@ if (!empty($object->id))
 {
     $facture->fetch($object->fk_facture);
     $facture->fetch_thirdparty();
+
+    $object->fetch_optionals();
 //    accessforbidden($langs->trans('paymentscheduleNotCreatedYet'));
 }
 
@@ -62,6 +64,10 @@ if ($object->isextrafieldmanaged)
     $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
     $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 }
+
+$det = new PaymentScheduleDet($db);
+$linesExtrafields = new ExtraFields($db);
+$linesExtralabels = $linesExtrafields->fetch_name_optionals_label($det->table_element);
 
 // Initialize array of search criterias
 //$search_all=trim(GETPOST("search_all",'alpha'));
@@ -196,6 +202,8 @@ if (empty($reshook))
 
                     $old_amount_ttc = $child->amount_ttc;
                     $child->amount_ttc = price2num(GETPOST('amount_ttc'));
+
+					$linesExtrafields->setOptionalsFromPost($linesExtralabels, $child);
 
                     $res = $child->update($user);
 
@@ -413,6 +421,12 @@ else
                 // Link to payment
                 print '<td class="linecolpayment center nowrap" width="80">'.$langs->trans('PaymentLinked').'</td>';
 
+                // lines extrafields
+				if (!empty($linesExtralabels))
+				{
+					foreach ($linesExtralabels as $extra => $label) print '<td class="'.$label.'">'.$label.'</td>';
+				}
+
                 print '<td class="linecolstatus center">'.$langs->trans('paymentscheduleStatusBankLevy').'</td>';
 
                 print '<td class="linecolupdatestatus"></td>';
@@ -524,6 +538,16 @@ else
                     }
                     print '</td>';
                     $coldisplay++;
+
+					// lines extrafields
+					if (!empty($linesExtralabels))
+					{
+						$line->fetch_optionals();
+						foreach ($linesExtralabels as $extra => $label){
+							if ($action == 'editline' && $line->id == $lineid) print '<td class="'.$label.'">'.$linesExtrafields->showInputField($extra, $line->array_options['options_'.$extra]).'</td>';
+							else print '<td class="'.$label.'">'.$linesExtrafields->showOutputField($extra, $line->array_options['options_'.$extra]).'</td>';
+						}
+					}
 
                     print '<td class="linecolstatus center">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;

@@ -55,7 +55,7 @@ class PaymentSchedule extends SeedObject
 	public $element = 'paymentschedule';
 
 	/** @var int $isextrafieldmanaged Enable the fictionalises of extrafields */
-    public $isextrafieldmanaged = 0;
+    public $isextrafieldmanaged = 1;
 
     /** @var int $ismultientitymanaged 0=No test on entity, 1=Test with field entity, 2=Test with link by societe */
     public $ismultientitymanaged = 1;
@@ -607,6 +607,9 @@ class PaymentScheduleDet extends SeedObject
         , self::STATUS_ACCEPTED => 'PaymentScheduleDetStatusAccepted'
         , self::STATUS_REFUSED => 'PaymentScheduleDetStatusRefused'
     );
+
+	/** @var int $isextrafieldmanaged Enable the fictionalises of extrafields */
+	public $isextrafieldmanaged = 1;
 
     public $table_element = 'paymentscheduledet';
 

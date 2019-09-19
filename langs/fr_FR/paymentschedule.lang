@@ -18,6 +18,9 @@ paymentschedule_delete=Supprimer les échéanciers
 ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
+PaymentScheduleExtrafieldPage=Attributs complémentaires des échéanciers
+PaymentScheduleDetExtrafieldPage=Attributs complémentaires des lignes d'échéancier
+PaymentScheduleDet=lignes d'échéancier
 PaymentschedulesPDFModules=Modèle d'échéancier de paiement
 PDFSurimiDescription=Modèle de PDF d'échéancier de paiement
 
@@ -125,7 +128,8 @@ CheckErrorIsNotPaymentSchedule=Cette facture n'est pas un échéancier
 CheckErrorIsNotLinkedToContract=Cette facture n'est pas liée à un contrat
 CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active
 CanNotRetrieveInvoice=Impossible de récupérer la facture liée
-CheckErrorInvoiceInsufficientPermission=Permission inssufisante
+CheckErrorInvoiceInsufficientPermission=Permission insuffisante
+PaymentScheduleIsValidated=L'échéancier est au statut validé
 
 # WARNINGS
 PaymentSchedule_Warnings_checkDateOrPaymentType=Veuillez vérifier la date saisie et/ou les types de paiements autorisés en configuration du module
