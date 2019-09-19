@@ -59,6 +59,7 @@ if ($object->isextrafieldmanaged)
     $extrafields = new ExtraFields($db);
 
     $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
+    var_dump($extralabels);
     $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 }
 

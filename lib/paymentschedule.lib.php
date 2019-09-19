@@ -38,10 +38,17 @@ function paymentscheduleAdminPrepareHead()
     $head[$h][1] = $langs->trans("Parameters");
     $head[$h][2] = 'settings';
     $h++;
+
     $head[$h][0] = dol_buildpath("/paymentschedule/admin/paymentschedule_extrafields.php", 1);
     $head[$h][1] = $langs->trans("ExtraFields");
     $head[$h][2] = 'extrafields';
     $h++;
+
+	$head[$h][0] = dol_buildpath("/paymentschedule/admin/paymentscheduledet_extrafields.php", 1);
+	$head[$h][1] = $langs->trans("ExtraFieldsLines");
+	$head[$h][2] = 'extrafieldslines';
+	$h++;
+
     $head[$h][0] = dol_buildpath("/paymentschedule/admin/paymentschedule_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
@@ -128,6 +135,14 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
                         }
                         
                         $("#date_last_prelevement").text(("0" + jsDate.getDate()).slice(-2) + "/" + ("0" + (jsDate.getMonth() + 1)).slice(-2) + "/" + jsDate.getFullYear());
+                        let input_periodicity_value = $("#periodicity_value")
+                        if (input_periodicity_value.attr("type") == "text") {
+                            input_periodicity_value.attr("type", "number").attr("min", "1")
+                        }
+                        let input_nb_term = $("#nb_term")
+                        if (input_nb_term.attr("type") == "text") {
+                            input_nb_term.attr("type", "number").attr("min", "1")
+                        }
                     } else {
                         setTimeout(refreshDateEndPrelevement, 150, event);
                     }
