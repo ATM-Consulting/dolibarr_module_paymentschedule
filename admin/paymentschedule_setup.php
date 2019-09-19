@@ -107,18 +107,18 @@ else if ($action == 'del')
 	$ret = delDocumentModel($value, $type);
 	if ($ret > 0)
 	{
-		if ($conf->global->FACTURE_ADDON_PDF == "$value") dolibarr_del_const($db, 'FACTURE_ADDON_PDF',$conf->entity);
+		if ($conf->global->PAYMENTSCHEDULE_ADDON_PDF == "$value") dolibarr_del_const($db, 'PAYMENTSCHEDULE_ADDON_PDF',$conf->entity);
 	}
 }
 
 // Set default model
 else if ($action == 'setdoc')
 {
-	if (dolibarr_set_const($db, "FACTURE_ADDON_PDF",$value,'chaine',0,'',$conf->entity))
+	if (dolibarr_set_const($db, "PAYMENTSCHEDULE_ADDON_PDF",$value,'chaine',0,'',$conf->entity))
 	{
 		// La constante qui a ete lue en avant du nouveau set
 		// on passe donc par une variable pour avoir un affichage coherent
-		$conf->global->FACTURE_ADDON_PDF = $value;
+		$conf->global->PAYMENTSCHEDULE_ADDON_PDF = $value;
 	}
 
 	// On active le modele
@@ -294,7 +294,7 @@ foreach ($dirmodels as $reldir)
 
 								// Defaut
 								print "<td align=\"center\">";
-								if ($conf->global->FACTURE_ADDON_PDF == "$name")
+								if ($conf->global->PAYMENTSCHEDULE_ADDON_PDF == "$name")
 								{
 									print img_picto($langs->trans("Default"),'on');
 								}

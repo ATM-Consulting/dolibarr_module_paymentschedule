@@ -79,6 +79,7 @@ class PaymentSchedule extends SeedObject
         ,'periodicity_value' => array('type' => 'integer', 'label' => 'PeriodicityValue', 'visible' => 1, 'notnull' => 1)
         ,'nb_term' => array('type' => 'integer', 'label' => 'NbTerm', 'visible' => 1, 'notnull' => 1)
         //,'fk_user_valid' => array('type'=>'integer', 'label'=>'UserValidation', 'enabled'=>1, 'visible'=>-1, 'position'=>512)
+		,'model_pdf'=>array('type' => 'varchar(255)', 'length' => 255, 'label' => 'model_pdf', 'visible' => 0)
         ,'import_key' => array('type' => 'varchar(14)', 'length' => 14, 'label' => 'ImportId', 'enabled' => 1, 'visible' => -2, 'notnull' => -1, 'index' => 0, 'position' => 1000)
     );
 

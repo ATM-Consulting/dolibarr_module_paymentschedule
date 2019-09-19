@@ -82,6 +82,12 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 // Si vide alors le comportement n'est pas remplacé
 if (empty($reshook))
 {
+
+	// Actions to build doc
+	$upload_dir = $conf->paymentschedule->dir_output;
+	$permissioncreate=$user->rights->paymentschedule->write;
+	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
+
 	$error = 0;
 	switch ($action) {
 		case 'addpaymentschedule':
