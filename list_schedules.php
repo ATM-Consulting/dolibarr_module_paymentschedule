@@ -133,8 +133,8 @@ $hookmanager->initHooks(array('paymentschedulelist'));
 $extrafields = new ExtraFields($db);
 
 // fetch optionals attributes and labels
-$extralabels = $extrafields->fetch_name_optionals_label('facture');
-$search_array_options=$extrafields->getOptionalsFromPost($object->table_element,'','search_');
+$extralabels = $extrafields->fetch_name_optionals_label('paymentschedule');
+$search_array_options=$extrafields->getOptionalsFromPost('paymentschedule','','search_');
 
 // List of fields to search into when doing a "search in all"
 $fieldstosearchall = array(
@@ -293,7 +293,7 @@ if (! empty($search_categ_cus)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_s
 
 $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facture as f ON (f.fk_soc = s.rowid AND f.entity IN ('.getEntity('facture').'))';
 $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule as ps ON (f.rowid = ps.fk_facture)';
-if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."facture_extrafields as ef on (f.rowid = ef.fk_object)";
+if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paymentschedule_extrafields as ef on (ps.rowid = ef.fk_object)";
 if (! $sall) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON pf.fk_facture = f.rowid';
 if ($sall || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as pd ON f.rowid=pd.fk_facture';
 if ($search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'categorie_product as cp ON cp.fk_product=pd.fk_product';
@@ -404,6 +404,7 @@ if ($search_user > 0)
 	$sql.= " AND ec.fk_c_type_contact = tc.rowid AND tc.element='facture' AND tc.source='internal' AND ec.element_id = f.rowid AND ec.fk_socpeople = ".$search_user;
 }
 // Add where from extra fields
+$extrafieldsobjectkey='paymentschedule';
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
 // Add where from hooks
 $parameters=array();
@@ -453,7 +454,7 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
 }
 
 $sql.= $db->plimit($limit+1,$offset);
-
+//print $sql;
 $resql = $db->query($sql);
 
 if ($resql)
