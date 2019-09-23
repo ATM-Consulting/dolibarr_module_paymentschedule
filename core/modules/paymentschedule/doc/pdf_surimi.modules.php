@@ -373,40 +373,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$tab_top = 90+$top_shift;
 				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42+$top_shift:10);
 
-				// Incoterm
-				if ($conf->incoterm->enabled)
-				{
-					$desc_incoterms = $object->getIncotermsForPDF();
-					if ($desc_incoterms)
-					{
-						$tab_top -= 2;
-
-						$pdf->SetFont('','', $default_font_size - 1);
-						$pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top-1, dol_htmlentitiesbr($desc_incoterms), 0, 1);
-						$nexY = $pdf->GetY();
-						$height_incoterms=$nexY-$tab_top;
-
-						// Rect prend une longueur en 3eme param
-						$pdf->SetDrawColor(192,192,192);
-						$pdf->Rect($this->marge_gauche, $tab_top-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_incoterms+1);
-
-						$tab_top = $nexY+6;
-					}
-				}
-
 				// Affiche notes
-				$notetoshow=empty($object->note_public)?'':$object->note_public;
-				if (! empty($conf->global->MAIN_ADD_SALE_REP_SIGNATURE_IN_NOTE))
-				{
-					// Get first sale rep
-					if (is_object($object->thirdparty))
-					{
-						$salereparray=$object->thirdparty->getSalesRepresentatives($user);
-						$salerepobj=new User($this->db);
-						$salerepobj->fetch($salereparray[0]['id']);
-						if (! empty($salerepobj->signature)) $notetoshow=dol_concatdesc($notetoshow, $salerepobj->signature);
-					}
-				}
+				$notetoshow=$outputlangs->trans("PDFSheduleStartDate", dol_print_date($object->lines[0]->date_demande, "%d %B %Y"));//empty($object->note_public)?'':$object->note_public;
+
 				if ($notetoshow)
 				{
 					$tab_top -= 2;
@@ -415,7 +384,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					complete_substitutions_array($substitutionarray, $outputlangs, $object);
 					$notetoshow = make_substitutions($notetoshow, $substitutionarray, $outputlangs);
 
-					$pdf->SetFont('', '', $default_font_size - 1);
+					$pdf->SetFont('', 'B', $default_font_size - 1);
 					$pdf->writeHTMLCell(190, 3, $this->posxdesc-1, $tab_top-1, dol_htmlentitiesbr($notetoshow), 0, 1);
 					$nexY = $pdf->GetY();
 					$height_note=$nexY-$tab_top;
@@ -427,6 +396,39 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$tab_top = $nexY+6;
 				}
 
+				$tab_top = $pdf->GetY();
+				$curY = $tab_top + 4;
+				$curX = $this->posxdesc-1;
+				$pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
+				$pdf->SetTextColor(0,0,0);
+
+				// ref facture
+				$pdf->SetXY($curX, $curY);
+				$text = $outputlangs->transnoentities('Invoice')." : ".$this->facture->ref;
+				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+
+				$curY = $pdf->GetY();
+				$curX = $this->posxdesc-1;
+				$pdf->SetXY($curX, $curY);
+
+				// ref contrat
+				$this->facture->fetchObjectLinked();
+				$contratsLinked = array_keys($this->facture->linkedObjects['contrat']);
+				$refContrat = $this->facture->linkedObjects['contrat'][$contratsLinked[0]]->ref;
+				$text = $outputlangs->transnoentities('Contrat')." : ".$refContrat;
+				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+
+				$curY = $pdf->GetY();
+				$curX = $this->posxdesc-1;
+				$pdf->SetXY($curX, $curY);
+
+				// Code client
+				$text = $outputlangs->transnoentities('CustomerCode') . " : " . $this->facture->thirdparty->code_client;
+				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+
+//				var_dump($refContrat); exit;
+
+				$tab_top = $pdf->GetY() + 4;
 				$iniY = $tab_top + 7;
 				$curY = $tab_top + 7;
 				$nexY = $tab_top + 7;
@@ -495,66 +497,15 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 					$pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
 
-					// VAT Rate
-					/*if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
-					{
-						$vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
-						$pdf->SetXY($this->posxtva-5, $curY);
-						$pdf->MultiCell($this->posxup-$this->posxtva+4, 3, $vat_rate, 0, 'R');
-					}*/
-
 					// Date demande
 					$up_excl_tax = dol_print_date($object->lines[$i]->date_demande);
 					$pdf->SetXY($this->posxup, $curY);
 					$pdf->MultiCell($this->postotalht-$this->posxup-0.8, 3, $up_excl_tax, 0, 'C', 0);
 
-					// Quantity
-					/*$qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
-					$pdf->SetXY($this->posxqty, $curY);
-					$pdf->MultiCell($this->posxunit-$this->posxqty-0.8, 4, $qty, 0, 'R'); */ // Enough for 6 chars
-
-					/*// Unit
-					if (! empty($conf->global->PRODUCT_USE_UNITS))
-					{
-						$unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
-						$pdf->SetXY($this->posxunit, $curY);
-						$pdf->MultiCell($this->posxdiscount-$this->posxunit-0.8, 4, $unit, 0, 'L');
-					}
-
-					// Discount on line
-					if ($object->lines[$i]->remise_percent)
-					{
-                        $pdf->SetXY($this->posxdiscount-2, $curY);
-					    $remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails);
-					    $pdf->MultiCell($this->posxprogress-$this->posxdiscount+2, 3, $remise_percent, 0, 'R');
-					}
-
-					// Situation progress
-					if ($this->situationinvoice)
-					{
-					    $progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
-					    $pdf->SetXY($this->posxprogress, $curY);
-				        $pdf->MultiCell($this->postotalht-$this->posxprogress-1, 3, $progress, 0, 'R');
-					}*/
-
 					// Total HT line
 					$total_excl_tax = price($object->lines[$i]->amount_ttc);//pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
 					$pdf->SetXY($this->postotalht, $curY);
 					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->postotalht, 3, $total_excl_tax, 0, 'R', 0);
-
-
-//					$sign=1;
-//					if (isset($object->type) && $object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
-//					// Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-//					$prev_progress = $object->lines[$i]->get_prev_progress($object->id);
-//					if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) // Compute progress from previous situation
-//					{
-//						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-//						else $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-//					} else {
-//						if ($conf->multicurrency->enabled && $object->multicurrency_tx != 1) $tvaligne= $sign * $object->lines[$i]->multicurrency_total_tva;
-//						else $tvaligne= $sign * $object->lines[$i]->total_tva;
-//					}
 
 					$localtax1ligne=$object->lines[$i]->total_localtax1;
 					$localtax2ligne=$object->lines[$i]->total_localtax2;
@@ -650,16 +601,16 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				}
 
 				// Affiche zone infos
-				$posy=$this->_tableau_info($pdf, $object, $bottomlasttab, $outputlangs);
+//				$posy=$this->_tableau_info($pdf, $object, $bottomlasttab, $outputlangs);
 
-				// Affiche zone totaux
-				$posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
-
-				// Affiche zone versements
-				if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
-				{
-					$posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs, $heightforfooter);
-				}
+//				// Affiche zone totaux
+//				$posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
+//
+//				// Affiche zone versements
+//				if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
+//				{
+//					$posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs, $heightforfooter);
+//				}
 
 				// Pied de page
 				$this->_pagefoot($pdf,$object,$outputlangs);
@@ -900,141 +851,143 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 		$pdf->SetFont('','', $default_font_size - 1);
 
+		$pdf->SetXY($this->marge_gauche, $posy);
+
 		// If France, show VAT mention if not applicable
-		if ($this->emetteur->country_code == 'FR' && $this->franchise == 1)
-		{
-			$pdf->SetFont('','B', $default_font_size - 2);
-			$pdf->SetXY($this->marge_gauche, $posy);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
-
-			$posy=$pdf->GetY()+4;
-		}
-
-		$posxval=52;
-
-		// Show payments conditions
-		if ($object->type != 2 && ($object->cond_reglement_code || $object->cond_reglement))
-		{
-			$pdf->SetFont('','B', $default_font_size - 2);
-			$pdf->SetXY($this->marge_gauche, $posy);
-			$titre = $outputlangs->transnoentities("PaymentConditions").':';
-			$pdf->MultiCell(43, 4, $titre, 0, 'L');
-
-			$pdf->SetFont('','', $default_font_size - 2);
-			$pdf->SetXY($posxval, $posy);
-			$lib_condition_paiement=$outputlangs->transnoentities("PaymentCondition".$object->cond_reglement_code)!=('PaymentCondition'.$object->cond_reglement_code)?$outputlangs->transnoentities("PaymentCondition".$object->cond_reglement_code):$outputlangs->convToOutputCharset($object->cond_reglement_doc);
-			$lib_condition_paiement=str_replace('\n',"\n",$lib_condition_paiement);
-			$pdf->MultiCell(67, 4, $lib_condition_paiement,0,'L');
-
-			$posy=$pdf->GetY()+3;
-		}
-
-		if ($object->type != 2)
-		{
-			// Check a payment mode is defined
-			if (empty($object->mode_reglement_code)
-			&& empty($conf->global->FACTURE_CHQ_NUMBER)
-			&& empty($conf->global->FACTURE_RIB_NUMBER))
-			{
-				$this->error = $outputlangs->transnoentities("ErrorNoPaiementModeConfigured");
-			}
-			// Avoid having any valid PDF with setup that is not complete
-			elseif (($object->mode_reglement_code == 'CHQ' && empty($conf->global->FACTURE_CHQ_NUMBER) && empty($object->fk_account) && empty($object->fk_bank))
-				|| ($object->mode_reglement_code == 'VIR' && empty($conf->global->FACTURE_RIB_NUMBER) && empty($object->fk_account) && empty($object->fk_bank)))
-			{
-				$outputlangs->load("errors");
-
-				$pdf->SetXY($this->marge_gauche, $posy);
-				$pdf->SetTextColor(200,0,0);
-				$pdf->SetFont('','B', $default_font_size - 2);
-				$this->error = $outputlangs->transnoentities("ErrorPaymentModeDefinedToWithoutSetup",$object->mode_reglement_code);
-				$pdf->MultiCell(80, 3, $this->error,0,'L',0);
-				$pdf->SetTextColor(0,0,0);
-
-				$posy=$pdf->GetY()+1;
-			}
-
-			// Show payment mode
-			if ($object->mode_reglement_code
-			&& $object->mode_reglement_code != 'CHQ'
-			&& $object->mode_reglement_code != 'VIR')
-			{
-				$pdf->SetFont('','B', $default_font_size - 2);
-				$pdf->SetXY($this->marge_gauche, $posy);
-				$titre = $outputlangs->transnoentities("PaymentMode").':';
-				$pdf->MultiCell(80, 5, $titre, 0, 'L');
-
-				$pdf->SetFont('','', $default_font_size - 2);
-				$pdf->SetXY($posxval, $posy);
-				$lib_mode_reg=$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code)!=('PaymentType'.$object->mode_reglement_code)?$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code):$outputlangs->convToOutputCharset($object->mode_reglement);
-				$pdf->MultiCell(80, 5, $lib_mode_reg,0,'L');
-
-				$posy=$pdf->GetY()+2;
-			}
-
-			// Show payment mode CHQ
-			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'CHQ')
-			{
-				// Si mode reglement non force ou si force a CHQ
-				if (! empty($conf->global->FACTURE_CHQ_NUMBER))
-				{
-					$diffsizetitle=(empty($conf->global->PDF_DIFFSIZE_TITLE)?3:$conf->global->PDF_DIFFSIZE_TITLE);
-
-					if ($conf->global->FACTURE_CHQ_NUMBER > 0)
-					{
-						$account = new Account($this->db);
-						$account->fetch($conf->global->FACTURE_CHQ_NUMBER);
-
-						$pdf->SetXY($this->marge_gauche, $posy);
-						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
-						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$account->proprio),0,'L',0);
-						$posy=$pdf->GetY()+1;
-
-			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
-			            {
-							$pdf->SetXY($this->marge_gauche, $posy);
-							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
-							$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($account->owner_address), 0, 'L', 0);
-							$posy=$pdf->GetY()+2;
-			            }
-					}
-					if ($conf->global->FACTURE_CHQ_NUMBER == -1)
-					{
-						$pdf->SetXY($this->marge_gauche, $posy);
-						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
-						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
-						$posy=$pdf->GetY()+1;
-
-			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
-			            {
-							$pdf->SetXY($this->marge_gauche, $posy);
-							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
-							$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($this->emetteur->getFullAddress()), 0, 'L', 0);
-							$posy=$pdf->GetY()+2;
-			            }
-					}
-				}
-			}
-
-			// If payment mode not forced or forced to VIR, show payment with BAN
-			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'VIR')
-			{
-				if (! empty($object->fk_account) || ! empty($object->fk_bank) || ! empty($conf->global->FACTURE_RIB_NUMBER))
-				{
-					$bankid=(empty($object->fk_account)?$conf->global->FACTURE_RIB_NUMBER:$object->fk_account);
-					if (! empty($object->fk_bank)) $bankid=$object->fk_bank;   // For backward compatibility when object->fk_account is forced with object->fk_bank
-					$account = new Account($this->db);
-					$account->fetch($bankid);
-
-					$curx=$this->marge_gauche;
-					$cury=$posy;
-
-					$posy=pdf_bank($pdf,$outputlangs,$curx,$cury,$account,0,$default_font_size);
-
-					$posy+=2;
-				}
-			}
-		}
+//		if ($this->emetteur->country_code == 'FR' && $this->franchise == 1)
+//		{
+//			$pdf->SetFont('','B', $default_font_size - 2);
+//			$pdf->SetXY($this->marge_gauche, $posy);
+//			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("VATIsNotUsedForInvoice"), 0, 'L', 0);
+//
+//			$posy=$pdf->GetY()+4;
+//		}
+//
+//		$posxval=52;
+//
+//		// Show payments conditions
+//		if ($object->type != 2 && ($object->cond_reglement_code || $object->cond_reglement))
+//		{
+//			$pdf->SetFont('','B', $default_font_size - 2);
+//			$pdf->SetXY($this->marge_gauche, $posy);
+//			$titre = $outputlangs->transnoentities("PaymentConditions").':';
+//			$pdf->MultiCell(43, 4, $titre, 0, 'L');
+//
+//			$pdf->SetFont('','', $default_font_size - 2);
+//			$pdf->SetXY($posxval, $posy);
+//			$lib_condition_paiement=$outputlangs->transnoentities("PaymentCondition".$object->cond_reglement_code)!=('PaymentCondition'.$object->cond_reglement_code)?$outputlangs->transnoentities("PaymentCondition".$object->cond_reglement_code):$outputlangs->convToOutputCharset($object->cond_reglement_doc);
+//			$lib_condition_paiement=str_replace('\n',"\n",$lib_condition_paiement);
+//			$pdf->MultiCell(67, 4, $lib_condition_paiement,0,'L');
+//
+//			$posy=$pdf->GetY()+3;
+//		}
+//
+//		if ($object->type != 2)
+//		{
+//			// Check a payment mode is defined
+//			if (empty($object->mode_reglement_code)
+//			&& empty($conf->global->FACTURE_CHQ_NUMBER)
+//			&& empty($conf->global->FACTURE_RIB_NUMBER))
+//			{
+//				$this->error = $outputlangs->transnoentities("ErrorNoPaiementModeConfigured");
+//			}
+//			// Avoid having any valid PDF with setup that is not complete
+//			elseif (($object->mode_reglement_code == 'CHQ' && empty($conf->global->FACTURE_CHQ_NUMBER) && empty($object->fk_account) && empty($object->fk_bank))
+//				|| ($object->mode_reglement_code == 'VIR' && empty($conf->global->FACTURE_RIB_NUMBER) && empty($object->fk_account) && empty($object->fk_bank)))
+//			{
+//				$outputlangs->load("errors");
+//
+//				$pdf->SetXY($this->marge_gauche, $posy);
+//				$pdf->SetTextColor(200,0,0);
+//				$pdf->SetFont('','B', $default_font_size - 2);
+//				$this->error = $outputlangs->transnoentities("ErrorPaymentModeDefinedToWithoutSetup",$object->mode_reglement_code);
+//				$pdf->MultiCell(80, 3, $this->error,0,'L',0);
+//				$pdf->SetTextColor(0,0,0);
+//
+//				$posy=$pdf->GetY()+1;
+//			}
+//
+//			// Show payment mode
+//			if ($object->mode_reglement_code
+//			&& $object->mode_reglement_code != 'CHQ'
+//			&& $object->mode_reglement_code != 'VIR')
+//			{
+//				$pdf->SetFont('','B', $default_font_size - 2);
+//				$pdf->SetXY($this->marge_gauche, $posy);
+//				$titre = $outputlangs->transnoentities("PaymentMode").':';
+//				$pdf->MultiCell(80, 5, $titre, 0, 'L');
+//
+//				$pdf->SetFont('','', $default_font_size - 2);
+//				$pdf->SetXY($posxval, $posy);
+//				$lib_mode_reg=$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code)!=('PaymentType'.$object->mode_reglement_code)?$outputlangs->transnoentities("PaymentType".$object->mode_reglement_code):$outputlangs->convToOutputCharset($object->mode_reglement);
+//				$pdf->MultiCell(80, 5, $lib_mode_reg,0,'L');
+//
+//				$posy=$pdf->GetY()+2;
+//			}
+//
+//			// Show payment mode CHQ
+//			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'CHQ')
+//			{
+//				// Si mode reglement non force ou si force a CHQ
+//				if (! empty($conf->global->FACTURE_CHQ_NUMBER))
+//				{
+//					$diffsizetitle=(empty($conf->global->PDF_DIFFSIZE_TITLE)?3:$conf->global->PDF_DIFFSIZE_TITLE);
+//
+//					if ($conf->global->FACTURE_CHQ_NUMBER > 0)
+//					{
+//						$account = new Account($this->db);
+//						$account->fetch($conf->global->FACTURE_CHQ_NUMBER);
+//
+//						$pdf->SetXY($this->marge_gauche, $posy);
+//						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
+//						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$account->proprio),0,'L',0);
+//						$posy=$pdf->GetY()+1;
+//
+//			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+//			            {
+//							$pdf->SetXY($this->marge_gauche, $posy);
+//							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
+//							$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($account->owner_address), 0, 'L', 0);
+//							$posy=$pdf->GetY()+2;
+//			            }
+//					}
+//					if ($conf->global->FACTURE_CHQ_NUMBER == -1)
+//					{
+//						$pdf->SetXY($this->marge_gauche, $posy);
+//						$pdf->SetFont('','B', $default_font_size - $diffsizetitle);
+//						$pdf->MultiCell(100, 3, $outputlangs->transnoentities('PaymentByChequeOrderedTo',$this->emetteur->name),0,'L',0);
+//						$posy=$pdf->GetY()+1;
+//
+//			            if (empty($conf->global->MAIN_PDF_HIDE_CHQ_ADDRESS))
+//			            {
+//							$pdf->SetXY($this->marge_gauche, $posy);
+//							$pdf->SetFont('','', $default_font_size - $diffsizetitle);
+//							$pdf->MultiCell(100, 3, $outputlangs->convToOutputCharset($this->emetteur->getFullAddress()), 0, 'L', 0);
+//							$posy=$pdf->GetY()+2;
+//			            }
+//					}
+//				}
+//			}
+//
+//			// If payment mode not forced or forced to VIR, show payment with BAN
+//			if (empty($object->mode_reglement_code) || $object->mode_reglement_code == 'VIR')
+//			{
+//				if (! empty($object->fk_account) || ! empty($object->fk_bank) || ! empty($conf->global->FACTURE_RIB_NUMBER))
+//				{
+//					$bankid=(empty($object->fk_account)?$conf->global->FACTURE_RIB_NUMBER:$object->fk_account);
+//					if (! empty($object->fk_bank)) $bankid=$object->fk_bank;   // For backward compatibility when object->fk_account is forced with object->fk_bank
+//					$account = new Account($this->db);
+//					$account->fetch($bankid);
+//
+//					$curx=$this->marge_gauche;
+//					$cury=$posy;
+//
+//					$posy=pdf_bank($pdf,$outputlangs,$curx,$cury,$account,0,$default_font_size);
+//
+//					$posy+=2;
+//				}
+//			}
+//		}
 
 		return $posy;
 	}
@@ -1395,31 +1348,31 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$pdf->MultiCell(108,2, $outputlangs->transnoentities("Designation"),'','L');
 		}
 
-		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
-		{
-			$pdf->line($this->posxpicture-1, $tab_top, $this->posxpicture-1, $tab_top + $tab_height);
-			if (empty($hidetop))
-			{
-				//$pdf->SetXY($this->posxpicture-1, $tab_top+1);
-				//$pdf->MultiCell($this->posxtva-$this->posxpicture-1,2, $outputlangs->transnoentities("Photo"),'','C');
-			}
-		}
-
-		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
-		{
-			$pdf->line($this->posxtva-1, $tab_top, $this->posxtva-1, $tab_top + $tab_height);
-			if (empty($hidetop))
-			{
-				$pdf->SetXY($this->posxtva-3, $tab_top+1);
-				$pdf->MultiCell($this->posxup-$this->posxtva+3,2, $outputlangs->transnoentities("VAT"),'','C');
-			}
-		}
+//		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
+//		{
+//			$pdf->line($this->posxpicture-1, $tab_top, $this->posxpicture-1, $tab_top + $tab_height);
+//			if (empty($hidetop))
+//			{
+//				//$pdf->SetXY($this->posxpicture-1, $tab_top+1);
+//				//$pdf->MultiCell($this->posxtva-$this->posxpicture-1,2, $outputlangs->transnoentities("Photo"),'','C');
+//			}
+//		}
+//
+//		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
+//		{
+//			$pdf->line($this->posxtva-1, $tab_top, $this->posxtva-1, $tab_top + $tab_height);
+//			if (empty($hidetop))
+//			{
+//				$pdf->SetXY($this->posxtva-3, $tab_top+1);
+//				$pdf->MultiCell($this->posxup-$this->posxtva+3,2, $outputlangs->transnoentities("VAT"),'','C');
+//			}
+//		}
 
 		$pdf->line($this->posxup-1, $tab_top, $this->posxup-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxup-1, $tab_top+1);
-			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("Date"),'','C');
+			$pdf->MultiCell($this->postotalht-$this->posxup-1,2, $outputlangs->transnoentities("Date"),'','C');
 		}
 
 		/*$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
@@ -1527,103 +1480,103 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			}
 		}
 
-		// title ------
-		$pdf->SetFont('','B', $default_font_size + 3);
-		$pdf->SetXY($posx,$posy);
-		$pdf->SetTextColor(0,0,60);
-		$title=$outputlangs->transnoentities("PdfInvoiceTitle");
-		if ($object->type == 1) $title=$outputlangs->transnoentities("InvoiceReplacement");
-		if ($object->type == 2) $title=$outputlangs->transnoentities("InvoiceAvoir");
-		if ($object->type == 3) $title=$outputlangs->transnoentities("InvoiceDeposit");
-		if ($object->type == 4) $title=$outputlangs->transnoentities("InvoiceProForma");
-		if ($this->situationinvoice) $title=$outputlangs->transnoentities("InvoiceSituation");
-		$pdf->MultiCell($w, 3, $title, '', 'R');
-		// end title --------
-
-		$pdf->SetFont('','B',$default_font_size);
-
-		$posy+=5;
-		$pdf->SetXY($posx,$posy);
-		$pdf->SetTextColor(0,0,60);
-		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($this->facture->ref);
-		if ($this->facture->statut == Facture::STATUS_DRAFT)
-		{
-			$pdf->SetTextColor(128,0,0);
-			$textref.=' - '.$outputlangs->transnoentities("NotValidated");
-		}
-		$pdf->MultiCell($w, 4, $textref, '', 'R');
-
-		$posy+=1;
+//		// title ------
+//		$pdf->SetFont('','B', $default_font_size + 3);
+//		$pdf->SetXY($posx,$posy);
+//		$pdf->SetTextColor(0,0,60);
+//		$title=$outputlangs->transnoentities("PdfInvoiceTitle");
+//		if ($object->type == 1) $title=$outputlangs->transnoentities("InvoiceReplacement");
+//		if ($object->type == 2) $title=$outputlangs->transnoentities("InvoiceAvoir");
+//		if ($object->type == 3) $title=$outputlangs->transnoentities("InvoiceDeposit");
+//		if ($object->type == 4) $title=$outputlangs->transnoentities("InvoiceProForma");
+//		if ($this->situationinvoice) $title=$outputlangs->transnoentities("InvoiceSituation");
+//		$pdf->MultiCell($w, 3, $title, '', 'R');
+//		// end title --------
+//
+//		$pdf->SetFont('','B',$default_font_size);
+//
+//		$posy+=5;
+//		$pdf->SetXY($posx,$posy);
+//		$pdf->SetTextColor(0,0,60);
+//		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($this->facture->ref);
+//		if ($this->facture->statut == Facture::STATUS_DRAFT)
+//		{
+//			$pdf->SetTextColor(128,0,0);
+//			$textref.=' - '.$outputlangs->transnoentities("NotValidated");
+//		}
+//		$pdf->MultiCell($w, 4, $textref, '', 'R');
+//
+//		$posy+=1;
 		$pdf->SetFont('','', $default_font_size - 2);
 
-		if ($this->facture->ref_client)
-		{
-			$posy+=4;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($this->facture->ref_client), '', 'R');
-		}
+//		if ($this->facture->ref_client)
+//		{
+//			$posy+=4;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($this->facture->ref_client), '', 'R');
+//		}
+//
+//		$objectidnext=$this->facture->getIdReplacingInvoice('validated');
+//		if ($this->facture->type == 0 && $objectidnext)
+//		{
+//			$objectreplacing=new Facture($this->db);
+//			$objectreplacing->fetch($objectidnext);
+//
+//			$posy+=3;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementByInvoice").' : '.$outputlangs->convToOutputCharset($objectreplacing->ref), '', 'R');
+//		}
+//		if ($this->facture->type == 1)
+//		{
+//			$objectreplaced=new Facture($this->db);
+//			$objectreplaced->fetch($this->facture->fk_facture_source);
+//
+//			$posy+=4;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
+//		}
+//		if ($this->facture->type == 2 && !empty($this->facture->fk_facture_source))
+//		{
+//			$objectreplaced=new Facture($this->db);
+//			$objectreplaced->fetch($this->facture->fk_facture_source);
+//
+//			$posy+=3;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CorrectionInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
+//		}
 
-		$objectidnext=$this->facture->getIdReplacingInvoice('validated');
-		if ($this->facture->type == 0 && $objectidnext)
-		{
-			$objectreplacing=new Facture($this->db);
-			$objectreplacing->fetch($objectidnext);
+//		$posy+=4;
+//		$pdf->SetXY($posx,$posy);
+//		$pdf->SetTextColor(0,0,60);
+//		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($this->facture->date,"day",false,$outputlangs), '', 'R');
+//
+//		if (! empty($conf->global->INVOICE_POINTOFTAX_DATE))
+//		{
+//			$posy+=4;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePointOfTax")." : " . dol_print_date($this->facture->date_pointoftax,"day",false,$outputlangs), '', 'R');
+//		}
 
-			$posy+=3;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementByInvoice").' : '.$outputlangs->convToOutputCharset($objectreplacing->ref), '', 'R');
-		}
-		if ($this->facture->type == 1)
-		{
-			$objectreplaced=new Facture($this->db);
-			$objectreplaced->fetch($this->facture->fk_facture_source);
+//		if ($this->facture->type != 2)
+//		{
+//			$posy+=3;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateDue")." : " . dol_print_date($this->facture->date_lim_reglement,"day",false,$outputlangs,true), '', 'R');
+//		}
 
-			$posy+=4;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ReplacementInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
-		}
-		if ($this->facture->type == 2 && !empty($this->facture->fk_facture_source))
-		{
-			$objectreplaced=new Facture($this->db);
-			$objectreplaced->fetch($this->facture->fk_facture_source);
-
-			$posy+=3;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CorrectionInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
-		}
-
-		$posy+=4;
-		$pdf->SetXY($posx,$posy);
-		$pdf->SetTextColor(0,0,60);
-		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($this->facture->date,"day",false,$outputlangs), '', 'R');
-
-		if (! empty($conf->global->INVOICE_POINTOFTAX_DATE))
-		{
-			$posy+=4;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePointOfTax")." : " . dol_print_date($this->facture->date_pointoftax,"day",false,$outputlangs), '', 'R');
-		}
-
-		if ($this->facture->type != 2)
-		{
-			$posy+=3;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateDue")." : " . dol_print_date($this->facture->date_lim_reglement,"day",false,$outputlangs,true), '', 'R');
-		}
-
-		if ($this->facture->thirdparty->code_client)
-		{
-			$posy+=3;
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetTextColor(0,0,60);
-			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($this->facture->thirdparty->code_client), '', 'R');
-		}
+//		if ($this->facture->thirdparty->code_client)
+//		{
+//			$posy+=3;
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetTextColor(0,0,60);
+//			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($this->facture->thirdparty->code_client), '', 'R');
+//		}
 
 		// Get contact
 		if (!empty($conf->global->DOC_SHOW_FIRST_SALES_REP))
@@ -1640,16 +1593,16 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		    }
 		}
 
-		$posy+=1;
-
-		$top_shift = 0;
-		// Show list of linked objects
-		$current_y = $pdf->getY();
-		$posy = pdf_writeLinkedObjects($pdf, $this->facture, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
-		if ($current_y < $pdf->getY())
-		{
-			$top_shift = $pdf->getY() - $current_y;
-		}
+//		$posy+=1;
+//
+//		$top_shift = 0;
+//		// Show list of linked objects
+//		$current_y = $pdf->getY();
+//		$posy = pdf_writeLinkedObjects($pdf, $this->facture, $outputlangs, $posx, $posy, $w, 3, 'R', $default_font_size);
+//		if ($current_y < $pdf->getY())
+//		{
+//			$top_shift = $pdf->getY() - $current_y;
+//		}
 
 		if ($showaddress)
 		{
@@ -1714,7 +1667,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 100;
 			if ($this->page_largeur < 210) $widthrecbox=84;	// To work with US executive format
 			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
-			$posy+=$top_shift;
+//			$posy+=$top_shift;
 			$posx=$this->page_largeur-$this->marge_droite-$widthrecbox;
 			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
 
@@ -1755,6 +1708,6 @@ class pdf_surimi extends ModelePDFPaymentschedule
 	{
 		global $conf;
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
-		return pdf_pagefoot($pdf,$outputlangs,'INVOICE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
+		return pdf_pagefoot($pdf,$outputlangs,'PAYMENTSCHEDULE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
 }

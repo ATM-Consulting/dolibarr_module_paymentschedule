@@ -349,9 +349,41 @@ foreach ($dirmodels as $reldir)
 }
 print '</table>';
 
-print '<br>';
+print "<br>";
 print load_fiche_titre($langs->trans("OtherOptions"),'','');
 $var=false;
+print '<table class="noborder" width="100%">';
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("Parameter").'</td>';
+print '<td align="center" width="60">'.$langs->trans("Value").'</td>';
+print '<td width="80">&nbsp;</td>';
+print "</tr>\n";
+
+print '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
+print '<input type="hidden" name="action" value="set_PAYMENTSCHEDULE_FREE_TEXT" />';
+print '<tr class="oddeven"><td colspan="2">';
+print $langs->trans("FreeLegalTextOnPaymentShedule").'<br>';
+$variablename='PAYMENTSCHEDULE_FREE_TEXT';
+if (empty($conf->global->PDF_ALLOW_HTML_FOR_FREE_TEXT))
+{
+	print '<textarea name="'.$variablename.'" class="flat" cols="120">'.$conf->global->$variablename.'</textarea>';
+}
+else
+{
+	include_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
+	$doleditor=new DolEditor($variablename, $conf->global->$variablename,'',80,'dolibarr_notes');
+	print $doleditor->Create();
+}
+print '</td><td align="right">';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'" />';
+print "</td></tr>\n";
+print '</form>';
+print '</table>';
+
+
+print '<br>';
+print load_fiche_titre($langs->trans("OtherOptions"),'','');
 print '<table class="noborder" width="100%">';
 
 

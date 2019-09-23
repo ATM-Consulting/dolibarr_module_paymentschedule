@@ -145,3 +145,5 @@ PaymentScheduleUpdateStatus_ErrorQuery=[ERREUR] échec de l'exécution de la req
 PaymentScheduleUpdateStatus_ErrorPaymentScheduleFetch=[ERREUR] le chargement d'un échéancier a échoué : %s
 
 PaymentScheduleUpdateStatus_QueryFoundNum=- %s bon(s) de prélèvement(s) concerné(s)
+PDFSheduleStartDate=FACTURE UNIQUE/ECHEANCIER A COMPTER DU <u>%s</u><br />(A conserver pendant toute la durée du contrat)
+FreeLegalTextOnPaymentShedule=Mention complémentaire sur les échéanciers
