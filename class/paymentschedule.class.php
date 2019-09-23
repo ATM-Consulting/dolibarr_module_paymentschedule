@@ -189,7 +189,33 @@ class PaymentSchedule extends SeedObject
      */
     public function delete(User &$user)
     {
+    	global $conf;
+
         $this->deleteObjectLinked();
+
+		require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
+		$fac = new Facture($this->db);
+		$fac->fetch($this->fk_facture);
+
+		$ref = dol_sanitizeFileName($fac->ref)."_ps";
+		if ($conf->paymentschedule->dir_output)
+		{
+			require_once DOL_DOCUMENT_ROOT."/core/lib/files.lib.php";
+
+			$dir = $conf->paymentschedule->dir_output . "/" . $ref;
+			$file = $conf->paymentschedule->dir_output . "/" . $ref . "/" . $ref . ".pdf";
+			if (file_exists($file))	// We must delete all files before deleting directory
+			{
+
+				$ret=dol_delete_preview($this);
+				dol_delete_file($file,0,0,0,$this); // For triggers
+			}
+
+			if (file_exists($dir))
+			{
+				dol_delete_dir_recursive($dir); // For remove dir and meta
+			}
+		}
 
         unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
         return parent::delete($user);
