@@ -173,17 +173,17 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$this->posxdesc=$this->marge_gauche+1;
 		if (!empty($conf->global->PRODUCT_USE_UNITS))
 		{
-			$this->posxtva=101;
-			$this->posxup=118;
-			$this->posxqty=135;
-			$this->posxunit=151;
+			$this->posxtva=81;
+			$this->posxup=98;
+			$this->posxqty=115;
+			$this->posxunit=131;
 		}
 		else
 		{
-			$this->posxtva=110;
-			$this->posxup=126;
-			$this->posxqty=145;
-			$this->posxunit=162;
+			$this->posxtva=90;
+			$this->posxup=106;
+			$this->posxqty=135;
+			$this->posxunit=152;
 		}
 		$this->posxdiscount=162;
 		$this->posxprogress=174;
@@ -496,24 +496,24 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$pdf->SetFont('','', $default_font_size - 1);   // On repositionne la police par defaut
 
 					// VAT Rate
-					if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
+					/*if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
 					{
 						$vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
 						$pdf->SetXY($this->posxtva-5, $curY);
 						$pdf->MultiCell($this->posxup-$this->posxtva+4, 3, $vat_rate, 0, 'R');
-					}
+					}*/
 
-					// Unit price before discount
-					$up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
+					// Date demande
+					$up_excl_tax = dol_print_date($object->lines[$i]->date_demande);
 					$pdf->SetXY($this->posxup, $curY);
-					$pdf->MultiCell($this->posxqty-$this->posxup-0.8, 3, $up_excl_tax, 0, 'R', 0);
+					$pdf->MultiCell($this->postotalht-$this->posxup-0.8, 3, $up_excl_tax, 0, 'C', 0);
 
 					// Quantity
-					$qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
+					/*$qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
 					$pdf->SetXY($this->posxqty, $curY);
-					$pdf->MultiCell($this->posxunit-$this->posxqty-0.8, 4, $qty, 0, 'R');  // Enough for 6 chars
+					$pdf->MultiCell($this->posxunit-$this->posxqty-0.8, 4, $qty, 0, 'R'); */ // Enough for 6 chars
 
-					// Unit
+					/*// Unit
 					if (! empty($conf->global->PRODUCT_USE_UNITS))
 					{
 						$unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
@@ -535,10 +535,10 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					    $progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
 					    $pdf->SetXY($this->posxprogress, $curY);
 				        $pdf->MultiCell($this->postotalht-$this->posxprogress-1, 3, $progress, 0, 'R');
-					}
+					}*/
 
 					// Total HT line
-					$total_excl_tax = pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
+					$total_excl_tax = price($object->lines[$i]->amount_ttc);//pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
 					$pdf->SetXY($this->postotalht, $curY);
 					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->postotalht, 3, $total_excl_tax, 0, 'R', 0);
 
@@ -1419,10 +1419,10 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxup-1, $tab_top+1);
-			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("PriceUHT"),'','C');
+			$pdf->MultiCell($this->posxqty-$this->posxup-1,2, $outputlangs->transnoentities("Date"),'','C');
 		}
 
-		$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
+		/*$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->posxqty-1, $tab_top+1);
@@ -1454,14 +1454,14 @@ class pdf_surimi extends ModelePDFPaymentschedule
                 $pdf->SetXY($this->posxprogress, $tab_top+1);
                 $pdf->MultiCell($this->postotalht-$this->posxprogress, 2, $outputlangs->transnoentities("ProgressShort"), '', 'C');
             }
-        }
+        }*/
 
         $pdf->line($this->postotalht, $tab_top, $this->postotalht, $tab_top + $tab_height);
 
 		if (empty($hidetop))
 		{
 			$pdf->SetXY($this->postotalht-1, $tab_top+1);
-			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalHT"),'','C');
+			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalTTC"),'','C');
 		}
 	}
 
@@ -1654,38 +1654,38 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		if ($showaddress)
 		{
 			// Sender properties
-			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
-
-			// Show sender
-			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
-			$posy+=$top_shift;
-			$posx=$this->marge_gauche;
-			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
+//			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
+//
+//			// Show sender
+//			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
+//			$posy+=$top_shift;
+//			$posx=$this->marge_gauche;
+//			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
 
 			$hautcadre=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 38 : 40;
 			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 82;
 
 
 			// Show sender frame
-			$pdf->SetTextColor(0,0,0);
-			$pdf->SetFont('','', $default_font_size - 2);
-			$pdf->SetXY($posx,$posy-5);
-			$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
-			$pdf->SetXY($posx,$posy);
-			$pdf->SetFillColor(230,230,230);
-			$pdf->MultiCell($widthrecbox, $hautcadre, "", 0, 'R', 1);
-			$pdf->SetTextColor(0,0,60);
+//			$pdf->SetTextColor(0,0,0);
+//			$pdf->SetFont('','', $default_font_size - 2);
+//			$pdf->SetXY($posx,$posy-5);
+//			$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
+//			$pdf->SetXY($posx,$posy);
+//			$pdf->SetFillColor(230,230,230);
+//			$pdf->MultiCell($widthrecbox, $hautcadre, "", 0, 'R', 1);
+//			$pdf->SetTextColor(0,0,60);
 
 			// Show sender name
-			$pdf->SetXY($posx+2,$posy+3);
-			$pdf->SetFont('','B', $default_font_size);
-			$pdf->MultiCell($widthrecbox-2, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
-			$posy=$pdf->getY();
+//			$pdf->SetXY($posx+2,$posy+3);
+//			$pdf->SetFont('','B', $default_font_size);
+//			$pdf->MultiCell($widthrecbox-2, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
+//			$posy=$pdf->getY();
 
 			// Show sender information
-			$pdf->SetXY($posx+2,$posy);
-			$pdf->SetFont('','', $default_font_size - 1);
-			$pdf->MultiCell($widthrecbox-2, 4, $carac_emetteur, 0, 'L');
+//			$pdf->SetXY($posx+2,$posy);
+//			$pdf->SetFont('','', $default_font_size - 1);
+//			$pdf->MultiCell($widthrecbox-2, 4, $carac_emetteur, 0, 'L');
 
 
 
