@@ -79,6 +79,8 @@ class PaymentSchedule extends SeedObject
         ,'periodicity_value' => array('type' => 'integer', 'label' => 'PeriodicityValue', 'visible' => 1, 'notnull' => 1)
         ,'nb_term' => array('type' => 'integer', 'label' => 'NbTerm', 'visible' => 1, 'notnull' => 1)
         //,'fk_user_valid' => array('type'=>'integer', 'label'=>'UserValidation', 'enabled'=>1, 'visible'=>-1, 'position'=>512)
+		,'model_pdf'=>array('type' => 'varchar(255)', 'length' => 255, 'label' => 'model_pdf', 'visible' => 0)
+		,'last_main_doc'=>array('type' => 'varchar(255)', 'length' => 255, 'label' => 'last_main_doc', 'visible' => 0)
         ,'import_key' => array('type' => 'varchar(14)', 'length' => 14, 'label' => 'ImportId', 'enabled' => 1, 'visible' => -2, 'notnull' => -1, 'index' => 0, 'position' => 1000)
     );
 
@@ -187,7 +189,33 @@ class PaymentSchedule extends SeedObject
      */
     public function delete(User &$user)
     {
+    	global $conf;
+
         $this->deleteObjectLinked();
+
+		require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
+		$fac = new Facture($this->db);
+		$fac->fetch($this->fk_facture);
+
+		$ref = dol_sanitizeFileName($fac->ref)."_ps";
+		if ($conf->paymentschedule->dir_output)
+		{
+			require_once DOL_DOCUMENT_ROOT."/core/lib/files.lib.php";
+
+			$dir = $conf->paymentschedule->dir_output . "/" . $ref;
+			$file = $conf->paymentschedule->dir_output . "/" . $ref . "/" . $ref . ".pdf";
+			if (file_exists($file))	// We must delete all files before deleting directory
+			{
+
+				$ret=dol_delete_preview($this);
+				dol_delete_file($file,0,0,0,$this); // For triggers
+			}
+
+			if (file_exists($dir))
+			{
+				dol_delete_dir_recursive($dir); // For remove dir and meta
+			}
+		}
 
         unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
         return parent::delete($user);
@@ -538,6 +566,39 @@ class PaymentSchedule extends SeedObject
 		}
 
 		return count($this->TPaymentScheduleDet);
+	}
+
+	/**
+	 *  Create a document onto disk according to template module.
+	 *
+	 *	@param	string		$modele			Generator to use. Caller must set it to obj->modelpdf or GETPOST('modelpdf') for example.
+	 *	@param	Translate	$outputlangs	objet lang a utiliser pour traduction
+	 *  @param  int			$hidedetails    Hide details of lines
+	 *  @param  int			$hidedesc       Hide description
+	 *  @param  int			$hideref        Hide ref
+	 *  @param   null|array  $moreparams     Array to provide more information
+	 *	@return int        					<0 if KO, >0 if OK
+	 */
+	public function generateDocument($modele, $outputlangs, $hidedetails=0, $hidedesc=0, $hideref=0, $moreparams=null)
+	{
+		global $conf,$langs;
+
+		$langs->loadLangs(array("bills", "paymentschedule@paymentschedule"));
+
+		if (! dol_strlen($modele))
+		{
+			$modele = 'surimi';
+
+			if ($this->modelpdf) {
+				$modele = $this->modelpdf;
+			} elseif (! empty($conf->global->PARMENTSCHEDULE_ADDON_PDF)) {
+				$modele = $conf->global->PARMENTSCHEDULE_ADDON_PDF;
+			}
+		}
+
+		$modelpath = "core/modules/paymentschedule/doc/";
+
+		return $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 	}
 }
 
