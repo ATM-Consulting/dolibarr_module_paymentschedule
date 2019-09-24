@@ -118,11 +118,6 @@ class pdf_surimi extends ModelePDFPaymentschedule
 	 */
 	public $situationinvoice;
 
-	/**
-	 * @var float X position for the situation progress column
-	 */
-	public $posxprogress;
-
 
 	/**
 	 *	Constructor
@@ -173,33 +168,18 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$this->posxdesc=$this->marge_gauche+1;
 		if (!empty($conf->global->PRODUCT_USE_UNITS))
 		{
-			$this->posxtva=81;
-			$this->posxup=98;
-			$this->posxqty=115;
-			$this->posxunit=131;
+			$this->posxdate=106;
 		}
 		else
 		{
-			$this->posxtva=90;
-			$this->posxup=106;
-			$this->posxqty=135;
-			$this->posxunit=152;
+			$this->posxdate=114;
 		}
-		$this->posxdiscount=162;
-		$this->posxprogress=174;
-		$this->postotalht=174;
-		if (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) || ! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN)) $this->posxtva=$this->posxup;
-		$this->posxpicture=$this->posxtva - (empty($conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH)?20:$conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH);	// width of images
+		$this->posxtotalttc=174;
+
 		if ($this->page_largeur < 210) // To work with US executive format
 		{
-		    $this->posxpicture-=20;
-		    $this->posxtva-=20;
-		    $this->posxup-=20;
-		    $this->posxqty-=20;
-		    $this->posxunit-=20;
-		    $this->posxdiscount-=20;
-		    $this->posxprogress-=20;
-		    $this->postotalht-=20;
+		    $this->posxdate-=20;
+		    $this->posxtotalttc-=20;
 		}
 
 		$this->tva=array();
@@ -325,41 +305,6 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
 
-				// Positionne $this->atleastonediscount si on a au moins une remise
-				for ($i = 0 ; $i < $nblignes ; $i++)
-				{
-					if ($object->lines[$i]->remise_percent)
-					{
-						$this->atleastonediscount++;
-					}
-				}
-				if (empty($this->atleastonediscount))    // retreive space not used by discount
-				{
-				    $delta = ($this->posxprogress - $this->posxdiscount);
-				    $this->posxpicture+=$delta;
-				    $this->posxtva+=$delta;
-				    $this->posxup+=$delta;
-				    $this->posxqty+=$delta;
-				    $this->posxunit+=$delta;
-				    $this->posxdiscount+=$delta;
-				    // post of fields after are not modified, stay at same position
-				}
-
-				$progress_width = 0;
-				// Situation invoice handling
-				if ($object->situation_cycle_ref && empty($conf->global->MAIN_PDF_HIDE_SITUATION))
-				{
-					$this->situationinvoice = true;
-					$progress_width = 10;
-					$this->posxpicture -= $progress_width;
-					$this->posxtva -= $progress_width;
-					$this->posxup -= $progress_width;
-					$this->posxqty -= $progress_width;
-					$this->posxunit -= $progress_width;
-					$this->posxdiscount -= $progress_width;
-					$this->posxprogress -= $progress_width;
-				}
-
 				// New page
 				$pdf->AddPage();
 				if (! empty($tplidx)) $pdf->useTemplate($tplidx);
@@ -405,7 +350,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				// ref facture
 				$pdf->SetXY($curX, $curY);
 				$text = $outputlangs->transnoentities('Invoice')." : ".$this->facture->ref;
-				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+				$pdf->MultiCell($this->posxdesc-$this->posxdate-0.8, 3, $text, 0, 'L', 0);
 
 				$curY = $pdf->GetY();
 				$curX = $this->posxdesc-1;
@@ -416,7 +361,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$contratsLinked = array_keys($this->facture->linkedObjects['contrat']);
 				$refContrat = $this->facture->linkedObjects['contrat'][$contratsLinked[0]]->ref;
 				$text = $outputlangs->transnoentities('Contrat')." : ".$refContrat;
-				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+				$pdf->MultiCell($this->posxdesc-$this->posxdate-0.8, 3, $text, 0, 'L', 0);
 
 				$curY = $pdf->GetY();
 				$curX = $this->posxdesc-1;
@@ -424,7 +369,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 				// Code client
 				$text = $outputlangs->transnoentities('CustomerCode') . " : " . $this->facture->thirdparty->code_client;
-				$pdf->MultiCell($this->posxdesc-$this->posxup-0.8, 3, $text, 0, 'L', 0);
+				$pdf->MultiCell($this->posxdesc-$this->posxdate-0.8, 3, $text, 0, 'L', 0);
 
 //				var_dump($refContrat); exit;
 
@@ -450,7 +395,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$curX = $this->posxdesc-1;
 
 					$pdf->startTransaction();
-					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxpicture-$curX-$progress_width,3,$curX,$curY,$hideref,$hidedesc);
+					pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxdate-$curX,3,$curX,$curY,$hideref,$hidedesc);
 					$pageposafter=$pdf->getPage();
 					if ($pageposafter > $pageposbefore)	// There is a pagebreak
 					{
@@ -458,7 +403,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 						$pageposafter=$pageposbefore;
 						//print $pageposafter.'-'.$pageposbefore;exit;
 						$pdf->setPageOrientation('', 1, $heightforfooter);	// The only function to edit the bottom margin of current page to set it.
-						pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxpicture-$curX-$progress_width,3,$curX,$curY,$hideref,$hidedesc);
+						pdf_writelinedesc($pdf,$object,$i,$outputlangs,$this->posxdate-$curX,3,$curX,$curY,$hideref,$hidedesc);
 						$pageposafter=$pdf->getPage();
 						$posyafter=$pdf->GetY();
 						//var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
@@ -499,13 +444,13 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 					// Date demande
 					$up_excl_tax = dol_print_date($object->lines[$i]->date_demande);
-					$pdf->SetXY($this->posxup, $curY);
-					$pdf->MultiCell($this->postotalht-$this->posxup-0.8, 3, $up_excl_tax, 0, 'C', 0);
+					$pdf->SetXY($this->posxdate, $curY);
+					$pdf->MultiCell($this->posxtotalttc-$this->posxdate-0.8, 3, $up_excl_tax, 0, 'C', 0);
 
 					// Total HT line
 					$total_excl_tax = price($object->lines[$i]->amount_ttc);//pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
-					$pdf->SetXY($this->postotalht, $curY);
-					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->postotalht, 3, $total_excl_tax, 0, 'R', 0);
+					$pdf->SetXY($this->posxtotalttc, $curY);
+					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->posxtotalttc, 3, $total_excl_tax, 0, 'R', 0);
 
 					$localtax1ligne=$object->lines[$i]->total_localtax1;
 					$localtax2ligne=$object->lines[$i]->total_localtax2;
@@ -1348,72 +1293,18 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$pdf->MultiCell(108,2, $outputlangs->transnoentities("Designation"),'','L');
 		}
 
-//		if (! empty($conf->global->MAIN_GENERATE_INVOICES_WITH_PICTURE))
-//		{
-//			$pdf->line($this->posxpicture-1, $tab_top, $this->posxpicture-1, $tab_top + $tab_height);
-//			if (empty($hidetop))
-//			{
-//				//$pdf->SetXY($this->posxpicture-1, $tab_top+1);
-//				//$pdf->MultiCell($this->posxtva-$this->posxpicture-1,2, $outputlangs->transnoentities("Photo"),'','C');
-//			}
-//		}
-//
-//		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN))
-//		{
-//			$pdf->line($this->posxtva-1, $tab_top, $this->posxtva-1, $tab_top + $tab_height);
-//			if (empty($hidetop))
-//			{
-//				$pdf->SetXY($this->posxtva-3, $tab_top+1);
-//				$pdf->MultiCell($this->posxup-$this->posxtva+3,2, $outputlangs->transnoentities("VAT"),'','C');
-//			}
-//		}
-
-		$pdf->line($this->posxup-1, $tab_top, $this->posxup-1, $tab_top + $tab_height);
+		$pdf->line($this->posxdate-1, $tab_top, $this->posxdate-1, $tab_top + $tab_height);
 		if (empty($hidetop))
 		{
-			$pdf->SetXY($this->posxup-1, $tab_top+1);
-			$pdf->MultiCell($this->postotalht-$this->posxup-1,2, $outputlangs->transnoentities("Date"),'','C');
+			$pdf->SetXY($this->posxdate-1, $tab_top+1);
+			$pdf->MultiCell($this->posxtotalttc-$this->posxdate-1,2, $outputlangs->transnoentities("Date"),'','C');
 		}
 
-		/*$pdf->line($this->posxqty-1, $tab_top, $this->posxqty-1, $tab_top + $tab_height);
-		if (empty($hidetop))
-		{
-			$pdf->SetXY($this->posxqty-1, $tab_top+1);
-			$pdf->MultiCell($this->posxunit-$this->posxqty-1,2, $outputlangs->transnoentities("Qty"),'','C');
-		}
-
-		if (! empty($conf->global->PRODUCT_USE_UNITS))
-		{
-			$pdf->line($this->posxunit - 1, $tab_top, $this->posxunit - 1, $tab_top + $tab_height);
-			if (empty($hidetop)) {
-				$pdf->SetXY($this->posxunit - 1, $tab_top + 1);
-				$pdf->MultiCell($this->posxdiscount - $this->posxunit - 1, 2, $outputlangs->transnoentities("Unit"), '', 'C');
-			}
-		}
-
-		if ($this->atleastonediscount)
-		{
-		    $pdf->line($this->posxdiscount-1, $tab_top, $this->posxdiscount-1, $tab_top + $tab_height);
-    		if (empty($hidetop))
-    		{
-   			    $pdf->SetXY($this->posxdiscount-1, $tab_top+1);
-   				$pdf->MultiCell($this->posxprogress-$this->posxdiscount+1,2, $outputlangs->transnoentities("ReductionShort"),'','C');
-    		}
-        }
-
-        if ($this->situationinvoice) {
-            $pdf->line($this->posxprogress - 1, $tab_top, $this->posxprogress - 1, $tab_top + $tab_height);
-            if (empty($hidetop)) {
-                $pdf->SetXY($this->posxprogress, $tab_top+1);
-                $pdf->MultiCell($this->postotalht-$this->posxprogress, 2, $outputlangs->transnoentities("ProgressShort"), '', 'C');
-            }
-        }*/
-
-        $pdf->line($this->postotalht, $tab_top, $this->postotalht, $tab_top + $tab_height);
+        $pdf->line($this->posxtotalttc, $tab_top, $this->posxtotalttc, $tab_top + $tab_height);
 
 		if (empty($hidetop))
 		{
-			$pdf->SetXY($this->postotalht-1, $tab_top+1);
+			$pdf->SetXY($this->posxtotalttc-1, $tab_top+1);
 			$pdf->MultiCell(30,2, $outputlangs->transnoentities("TotalTTC"),'','C');
 		}
 	}
