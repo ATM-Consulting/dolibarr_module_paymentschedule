@@ -615,8 +615,8 @@ class PaymentSchedule extends SeedObject
 
 			if ($this->modelpdf) {
 				$modele = $this->modelpdf;
-			} elseif (! empty($conf->global->PARMENTSCHEDULE_ADDON_PDF)) {
-				$modele = $conf->global->PARMENTSCHEDULE_ADDON_PDF;
+			} elseif (! empty($conf->global->PAYMENTSCHEDULE_ADDON_PDF)) {
+				$modele = $conf->global->PAYMENTSCHEDULE_ADDON_PDF;
 			}
 		}
 
