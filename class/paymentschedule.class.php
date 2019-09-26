@@ -134,6 +134,20 @@ class PaymentSchedule extends SeedObject
         );
     }
 
+    public function fetch($id=0, $loadChild = true, $ref='')
+	{
+		$ret = parent::fetch($id, $loadChild, $ref);
+		if ($ret > 0)
+		{
+			$this->facture = new facture($this->db);
+			$this->facture->fetch($this->fk_facture);
+			$this->ref = $this->facture->ref."_ps";
+			$this->socid = $this->facture->socid;
+		}
+
+		return $ret;
+	}
+
     /**
      * @param string  $ref        facture ref
      * @param bool    $loadChild
@@ -256,6 +270,17 @@ class PaymentSchedule extends SeedObject
 
         return 0;
     }
+
+	/**
+	 * function for massaction compatibility
+	 *
+	 * @param User $user
+	 * @return int
+	 */
+    public function validate($user)
+	{
+		return $this->setValid($user);
+	}
 
     /**
      * @param User  $user   User object
@@ -591,14 +616,118 @@ class PaymentSchedule extends SeedObject
 
 			if ($this->modelpdf) {
 				$modele = $this->modelpdf;
-			} elseif (! empty($conf->global->PARMENTSCHEDULE_ADDON_PDF)) {
-				$modele = $conf->global->PARMENTSCHEDULE_ADDON_PDF;
+			} elseif (! empty($conf->global->PAYMENTSCHEDULE_ADDON_PDF)) {
+				$modele = $conf->global->PAYMENTSCHEDULE_ADDON_PDF;
 			}
 		}
 
 		$modelpath = "core/modules/paymentschedule/doc/";
 
 		return $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+	}
+
+	/**
+	 *  Return clicable link of object (with eventually picto)
+	 *
+	 *  @param	int		$withpicto       			Add picto into link
+	 *  @param  string	$option          			Where point the link
+	 *  @param  int		$max             			Maxlength of ref
+	 *  @param  int		$short           			1=Return just URL
+	 *  @param  string  $moretitle       			Add more text to title tooltip
+	 *  @param	int  	$notooltip		 			1=Disable tooltip
+	 *  @param  int     $addlinktonotes  			1=Add link to notes
+	 *  @param  int     $save_lastsearch_value		-1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @return string 			         			String with URL
+	 */
+	function getNomUrl($withpicto=0, $option='', $max=0, $short=0, $moretitle='', $notooltip=0, $addlinktonotes=0, $save_lastsearch_value=-1)
+	{
+		global $langs, $conf, $user, $form;
+
+		if (! empty($conf->dol_no_mouse_hover)) $notooltip=1;   // Force disable tooltips
+
+		$result='';
+
+		$url = dol_buildpath("/paymentschedule/card.php?facid=".$this->fk_facture, 2);//DOL_URL_ROOT.'/compta/facture/card.php?facid='.$this->id;
+
+		if (!$user->rights->facture->lire)
+			$option = 'nolink';
+
+		if ($option !== 'nolink')
+		{
+			// Add param to save lastsearch_values or not
+			$add_save_lastsearch_values=($save_lastsearch_value == 1 ? 1 : 0);
+			if ($save_lastsearch_value == -1 && preg_match('/list\.php/',$_SERVER["PHP_SELF"])) $add_save_lastsearch_values=1;
+			if ($add_save_lastsearch_values) $url.='&save_lastsearch_values=1';
+		}
+
+		if ($short) return $url;
+
+		$picto='bill';
+
+		$label='';
+
+		if ($user->rights->paymentschedule->read) {
+			$label = '<u>' . $langs->trans("ShowInvoice") . '</u>';
+			if (! empty($this->ref))
+				$label .= '<br><b>'.$langs->trans('Ref') . ':</b> ' . $this->ref;
+			if (! empty($this->ref_client))
+				$label .= '<br><b>' . $langs->trans('RefCustomer') . ':</b> ' . $this->ref_client;
+			if (! empty($this->total_ht))
+				$label.= '<br><b>' . $langs->trans('AmountHT') . ':</b> ' . price($this->total_ht, 0, $langs, 0, -1, -1, $conf->currency);
+			if (! empty($this->total_tva))
+				$label.= '<br><b>' . $langs->trans('VAT') . ':</b> ' . price($this->total_tva, 0, $langs, 0, -1, -1, $conf->currency);
+			if (! empty($this->total_localtax1) && $this->total_localtax1 != 0)		// We keep test != 0 because $this->total_localtax1 can be '0.00000000'
+				$label.= '<br><b>' . $langs->trans('LT1') . ':</b> ' . price($this->total_localtax1, 0, $langs, 0, -1, -1, $conf->currency);
+			if (! empty($this->total_localtax2) && $this->total_localtax2 != 0)
+				$label.= '<br><b>' . $langs->trans('LT2') . ':</b> ' . price($this->total_localtax2, 0, $langs, 0, -1, -1, $conf->currency);
+			if (! empty($this->total_ttc))
+				$label.= '<br><b>' . $langs->trans('AmountTTC') . ':</b> ' . price($this->total_ttc, 0, $langs, 0, -1, -1, $conf->currency);
+			if ($moretitle) $label.=' - '.$moretitle;
+		}
+
+		$linkclose='';
+		if (empty($notooltip) && $user->rights->facture->lire)
+		{
+			if (! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER))
+			{
+				$label=$langs->trans("ShowInvoice");
+				$linkclose.=' alt="'.dol_escape_htmltag($label, 1).'"';
+			}
+			$linkclose.= ' title="'.dol_escape_htmltag($label, 1).'"';
+			$linkclose.=' class="classfortooltip"';
+		}
+
+		$linkstart='<a href="'.$url.'"';
+		$linkstart.=$linkclose.'>';
+		$linkend='</a>';
+
+		if ($option == 'nolink') {
+			$linkstart = '';
+			$linkend = '';
+		}
+
+		$result .= $linkstart;
+		if ($withpicto) $result.=img_object(($notooltip?'':$label), $picto, ($notooltip?(($withpicto != 2) ? 'class="paddingright"' : ''):'class="'.(($withpicto != 2) ? 'paddingright ' : '').'classfortooltip"'), 0, 0, $notooltip?0:1);
+		if ($withpicto != 2) $result.= ($max?dol_trunc($this->ref,$max):$this->ref);
+		$result .= $linkend;
+
+		if ($addlinktonotes)
+		{
+			$txttoshow=($user->socid > 0 ? $this->note_public : $this->note_private);
+			if ($txttoshow)
+			{
+				$notetoshow=$langs->trans("ViewPrivateNote").':<br>'.dol_string_nohtmltag($txttoshow,1);
+				$result.=' <span class="note inline-block">';
+				$result.='<a href="'.DOL_URL_ROOT.'/compta/facture/note.php?id='.$this->id.'" class="classfortooltip" title="'.dol_escape_htmltag($notetoshow).'">';
+				$result.=img_picto('','note');
+				$result.='</a>';
+				//$result.=img_picto($langs->trans("ViewNote"),'object_generic');
+				//$result.='</a>';
+				$result.='</span>';
+			}
+		}
+
+		return $result;
 	}
 }
 

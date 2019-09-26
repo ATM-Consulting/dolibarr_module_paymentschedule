@@ -347,7 +347,9 @@ else
             $fieldid = 'facnumber';
             if ((float) DOL_VERSION >= 10.0) $fieldid = 'ref';
             $facture->totalpaye = $facture->getSommePaiement();
-            dol_banner_tab($facture, 'ref', '', 1, $fieldid, 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+
+			$linkback = '<a href="' . dol_buildpath('/paymentschedule/list_schedules.php', 2) . '">' . $langs->trans("BackToList") . '</a>';
+            dol_banner_tab($facture, 'ref', $linkback, 1, $fieldid, 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
 
 
             print '<div class="fichecenter">';

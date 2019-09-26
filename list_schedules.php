@@ -123,7 +123,7 @@ $fieldid = (! empty($ref)?'facnumber':'rowid');
 if (! empty($user->societe_id)) $socid=$user->societe_id;
 $result = restrictedArea($user, 'facture', $id,'','','fk_soc',$fieldid);
 
-$diroutputmassaction=$conf->facture->dir_output . '/temp/massgeneration/'.$user->id;
+$diroutputmassaction=$conf->paymentschedule->dir_output . '/temp/massgeneration/'.$user->id;
 
 $now=dol_now();
 
@@ -240,12 +240,12 @@ if (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter','a
 
 if (empty($reshook))
 {
-	$objectclass='Facture';
-	$objectlabel='Invoices';
-	$permtoread = $user->rights->facture->lire;
-	$permtocreate = $user->rights->facture->creer;
-	$permtodelete = $user->rights->facture->supprimer;
-	$uploaddir = $conf->facture->dir_output;
+	$objectclass='PaymentSchedule';
+	$objectlabel='PaymentSchedule';
+	$permtoread = $user->rights->paymentschedule->read;
+	$permtocreate = $user->rights->paymentschedule->write;
+	$permtodelete = $user->rights->paymentschedule->delete;
+	$uploaddir = $conf->paymentschedule->dir_output;
 	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
@@ -520,29 +520,13 @@ if ($resql)
 		'validate'=>$langs->trans("Validate"),
 		'presend'=>$langs->trans("SendByMail"),
 		'builddoc'=>$langs->trans("PDFMerge"),
+		'generate_doc'=>$langs->trans('Generate')
 	);
-	/*if ($conf->prelevement->enabled) {
-		$langs->load("withdrawals");
-		$arrayofmassactions['withdrawrequest'] = $langs->trans("MakeWithdrawRequest");
-	}*/
-	if ($user->rights->facture->supprimer) {
-		if (!empty($conf->global->INVOICE_CAN_REMOVE_DRAFT_ONLY)) {
-			$arrayofmassactions['predeletedraft'] = $langs->trans("Deletedraft");
-		}
-		elseif (!empty($conf->global->INVOICE_CAN_ALWAYS_BE_REMOVED)) {	// mass deletion never possible on invoices on such situation
-			$arrayofmassactions['predelete'] = $langs->trans("Delete");
-		}
-	}
+
 	if (in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = array();
 	$massactionbutton=$form->selectMassAction('', $arrayofmassactions);
 
 	$newcardbutton='';
-	if($user->rights->facture->creer)
-	{
-		$newcardbutton='<a class="butActionNew" href="'.DOL_URL_ROOT.'/compta/facture/card.php?action=create"><span class="valignmiddle">'.$langs->trans('NewBill').'</span>';
-		$newcardbutton.= '<span class="fa fa-plus-circle valignmiddle"></span>';
-		$newcardbutton.= '</a>';
-	}
 
 	$i = 0;
 	print '<form method="POST" name="searchFormList" action="'.$_SERVER["PHP_SELF"].'">'."\n";
@@ -561,7 +545,7 @@ if ($resql)
 
 	$topicmail="SendBillRef";
 	$modelmail="facture_send";
-	$objecttmp=new Facture($db);
+	$objecttmp=new PaymentSchedule($db);
 	$trackid='inv'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
@@ -914,6 +898,8 @@ if ($resql)
 				$totalpay = $facturestatic->total_ttc - $remaintopay;
 			}
 
+			$scheduleStatic->fetchBy($facturestatic->id, 'fk_facture');
+
 			print '<tr class="oddeven">';
 			if (! empty($arrayfields['f.facnumber']['checked']))
 			{
@@ -922,13 +908,14 @@ if ($resql)
 				print '<table class="nobordernopadding"><tr class="nocellnopadd">';
 
 				print '<td class="nobordernopadding nowraponall">';
-				print $facturestatic->getNomUrl(1,'',200,0,'',0,1);
+				$scheduleStatic->ref = $facturestatic->ref;
+				print $scheduleStatic->getNomUrl(1,'',200,0,'',0,1);
 				print empty($obj->increment)?'':' ('.$obj->increment.')';
 
-				$filename=dol_sanitizeFileName($obj->ref);
-				$filedir=$conf->facture->dir_output . '/' . dol_sanitizeFileName($obj->ref);
+				$filename=dol_sanitizeFileName($obj->ref)."_ps";
+				$filedir=$conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($obj->ref)."_ps";
 				$urlsource=$_SERVER['PHP_SELF'].'?id='.$obj->id;
-				print $formfile->getDocumentsLink($facturestatic->element, $filename, $filedir);
+				print $formfile->getDocumentsLink($scheduleStatic->element, $filename, $filedir);
 				print '</td>';
 				print '</tr>';
 				print '</table>';
@@ -1187,7 +1174,7 @@ if ($resql)
 			{
 				$selected=0;
 				if (in_array($obj->id, $arrayofselected)) $selected=1;
-				print '<input id="cb'.$obj->id.'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$obj->id.'"'.($selected?' checked="checked"':'').'>';
+				print '<input id="cb'.$scheduleStatic->id.'" class="flat checkforselect" type="checkbox" name="toselect[]" value="'.$scheduleStatic->id.'"'.($selected?' checked="checked"':'').'>';
 			}
 			print '</td>' ;
 			if (! $i) $totalarray['nbfield']++;
@@ -1249,10 +1236,23 @@ if ($resql)
 	$urlsource.=str_replace('&amp;','&',$param);
 
 	$filedir=$diroutputmassaction;
-	$genallowed=$user->rights->facture->lire;
-	$delallowed=$user->rights->facture->creer;
+	$genallowed=$user->rights->paymentschedule->read;
+	$delallowed=$user->rights->paymentschedule->write;
 
-	print $formfile->showdocuments('massfilesarea_invoices','',$filedir,$urlsource,0,$delallowed,'',1,1,0,48,1,$param,$title,'','','',null,$hidegeneratedfilelistifempty);
+	print $formfile->showdocuments('paymentschedule','/temp/massgeneration/'.$conf->entity,$filedir,$urlsource,0,$delallowed,'',1,1,0,48,1,$param,$title,'','','',null,$hidegeneratedfilelistifempty);
+
+	?>
+	<script type="text/javascript">
+        $('.fa-trash').each(function (i, el) {
+            var href = $(el).parent().attr('href');
+            var toreplace = "<?php echo urlencode('/temp/massgeneration/'.$conf->entity."/"); ?>"
+            var len = toreplace.length;
+            var index = href.indexOf(toreplace);
+            var newhref = href.substring(0, index) + href.substring(href.indexOf(toreplace)+len, href.length);
+            $(el).parent().attr('href', newhref)
+        })
+	</script>
+	<?php
 }
 else
 {
