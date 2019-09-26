@@ -1244,13 +1244,11 @@ if ($resql)
 	?>
 	<script type="text/javascript">
         $('.fa-trash').each(function (i, el) {
-            href = $(el).parent().attr('href');
-            //regex = "<?php //echo urlencode('/temp/massaction/'.$conf->entity."/"); ?>";
-            toreplace = "<?php echo urlencode('/temp/massgeneration/'.$conf->entity."/"); ?>"
-            len = toreplace.length;
-            index = href.indexOf(toreplace);
-            console.log(toreplace, len, index);
-            newhref =href.substring(0, index) + href.substring(href.indexOf(toreplace)+len, href.length);
+            var href = $(el).parent().attr('href');
+            var toreplace = "<?php echo urlencode('/temp/massgeneration/'.$conf->entity."/"); ?>"
+            var len = toreplace.length;
+            var index = href.indexOf(toreplace);
+            var newhref = href.substring(0, index) + href.substring(href.indexOf(toreplace)+len, href.length);
             $(el).parent().attr('href', newhref)
         })
 	</script>
