@@ -142,6 +142,7 @@ class PaymentSchedule extends SeedObject
 			$this->facture = new facture($this->db);
 			$this->facture->fetch($this->fk_facture);
 			$this->ref = $this->facture->ref."_ps";
+			$this->socid = $this->facture->socid;
 		}
 
 		return $ret;

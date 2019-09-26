@@ -545,7 +545,7 @@ if ($resql)
 
 	$topicmail="SendBillRef";
 	$modelmail="facture_send";
-	$objecttmp=new Facture($db);
+	$objecttmp=new PaymentSchedule($db);
 	$trackid='inv'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
