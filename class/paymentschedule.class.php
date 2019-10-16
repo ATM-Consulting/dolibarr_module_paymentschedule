@@ -60,6 +60,7 @@ class PaymentSchedule extends SeedObject
     /** @var int $ismultientitymanaged 0=No test on entity, 1=Test with field entity, 2=Test with link by societe */
     public $ismultientitymanaged = 1;
 
+    // periodicity unit
     const PERIODICITY_VALUE_DAY = 'day';
     const PERIODICITY_VALUE_MONTH = 'month';
     const PERIODICITY_VALUE_YEAR = 'year';

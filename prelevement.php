@@ -155,9 +155,6 @@ if (empty($reshook))
                     }
                 }
 
-                if ($nb_create > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbCreate', $nb_create));
-                if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
-
                 if ($nb_error == 0 && !empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
                 {
                     $langs->loadLangs(array('banks', 'categories', 'widthdrawals', 'companies', 'bills'));
@@ -176,6 +173,7 @@ if (empty($reshook))
                     }
                     elseif ($result == 0)
                     {
+                        $nb_error++;
                         $mesg=$langs->trans("NoInvoiceCouldBeWithdrawed", $format);
                         setEventMessages($mesg, null, 'errors');
 //                        $mesg.='<br>'."\n";
@@ -194,8 +192,16 @@ if (empty($reshook))
 
                 }
 
-                if ($nb_error) $db->rollback();
-                else $db->commit();
+                if ($nb_error)
+                {
+                    $db->rollback();
+                    if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+                }
+                else
+                {
+                    $db->commit();
+                    if ($nb_create > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbCreate', $nb_create));
+                }
 
                 header('Location: '.$_SERVER['PHP_SELF']);
                 exit;
