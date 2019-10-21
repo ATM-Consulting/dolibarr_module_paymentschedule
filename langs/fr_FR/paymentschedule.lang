@@ -32,7 +32,7 @@ PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'ex
 PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW=Créer en automatique le bon de prélèvement après la création des demandes via le formulaire
 
 # MENU
-TopMenuPaymentSchedule=Echéancier SEPA
+TopMenuPaymentSchedule=Echéancier
 
 # STATUS
 PaymentScheduleStatusDraft=Brouillon (échéancier en attente)
@@ -48,12 +48,12 @@ InvoicePaymentMode=Mode de règlement de la facture
 PaymentScheduleStatus=Status de l'échéancier
 
 # LIST
-PaymentScheduleList=Liste échéanciers SEPA
+PaymentScheduleList=Liste échéanciers
 NoPaymentSchedule=(vide)
 
 # CARD
-NewPaymentSchedule=Création Echéancier SEPA
-PaymentScheduleCard=Fiche Echéancier SEPA
+NewPaymentSchedule=Création Echéancier
+PaymentScheduleCard=Fiche Echéancier
 bankWithdrawal=Prélèvement échéance %s
 paymentscheduleNotCreatedYet=Aucun échéancier pour cette facture
 paymentscheduleStatusBankLevy=Statut
