@@ -44,7 +44,7 @@ class modPaymentSchedule extends DolibarrModules
 
 		$this->editor_name = 'ATM-Consulting';
 		$this->editor_url = 'https://www.atm-consulting.fr';
-		
+
 		// Id for module (must be unique).
 		// Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
 		$this->numero = 104077; // 104000 to 104999 for ATM CONSULTING
@@ -68,7 +68,7 @@ class modPaymentSchedule extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		$this->picto='paymentschedule@paymentschedule';
-		
+
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
 		// for default path (eg: /paymentschedule/core/xxxxx) (0=disable, 1=enable)
 		// for specific path of parts (eg: /paymentschedule/core/modules/barcode)
@@ -115,7 +115,7 @@ class modPaymentSchedule extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(10,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(9,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("paymentschedule@paymentschedule");
 
 		// Constants
@@ -201,7 +201,7 @@ class modPaymentSchedule extends DolibarrModules
 		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
-		
+
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'paymentschedule_write';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
@@ -252,7 +252,7 @@ class modPaymentSchedule extends DolibarrModules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
-		
+
 /*
 		$this->menu[$r]=array(
 			'fk_menu'=>0,			                // Put 0 if this is a top menu
@@ -403,7 +403,7 @@ class modPaymentSchedule extends DolibarrModules
 		global $db;
 
 		$sql = array();
-		
+
 		define('INC_FROM_DOLIBARR', true);
 
 		require dol_buildpath('/paymentschedule/script/create-maj-base.php');
