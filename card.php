@@ -348,7 +348,7 @@ else
             if ((float) DOL_VERSION >= 10.0) $fieldid = 'ref';
             $facture->totalpaye = $facture->getSommePaiement();
 
-			$linkback = '<a href="' . dol_buildpath('/paymentschedule/list_schedules.php', 2) . '">' . $langs->trans("BackToList") . '</a>';
+			$linkback = '<a href="' . dol_buildpath('/paymentschedule/list.php', 1) . '">' . $langs->trans("BackToList") . '</a>';
             dol_banner_tab($facture, 'ref', $linkback, 1, $fieldid, 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
 
 
