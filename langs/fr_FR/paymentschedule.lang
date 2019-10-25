@@ -54,7 +54,7 @@ NoPaymentSchedule=(vide)
 
 # REPPORT
 PaymentSchedulePcaRepportList=Liste des montants PCA par client
-PaymentScheduleSearchDate=Année fiscale
+PaymentScheduleSearchDate=Date de prélèvement à partir de :
 
 # CARD
 NewPaymentSchedule=Création Echéancier

@@ -29,18 +29,19 @@ $search_nom = GETPOST('Listview_paymentschedulerepport_search_nom', 'alpha');
 $search_code_client = GETPOST('Listview_paymentschedulerepport_search_code_client', 'alpha');
 $search_code_compta = GETPOST('Listview_paymentschedulerepport_search_code_compta', 'alpha');
 
-$year = date('Y');
-$month = date('m');
+$time_demande = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+if (empty($time_demande)) $time_demande = dol_mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 
-
-if ($month < $conf->global->SOCIETE_FISCAL_MONTH_START)
-{
-    $date_fiscal_start = strtotime(date(($year-1).'-'.str_pad($conf->global->SOCIETE_FISCAL_MONTH_START, 2, '0', STR_PAD_LEFT).'-01 00:00:00'));
-}
-else
-{
-    $date_fiscal_start = strtotime(date($year.'-'.str_pad($conf->global->SOCIETE_FISCAL_MONTH_START, 2, '0', STR_PAD_LEFT).'-01 00:00:00'));
-}
+//$year = date('Y');
+//$month = date('m');
+//if ($month < $conf->global->SOCIETE_FISCAL_MONTH_START)
+//{
+//    $date_fiscal_start = strtotime(date(($year-1).'-'.str_pad($conf->global->SOCIETE_FISCAL_MONTH_START, 2, '0', STR_PAD_LEFT).'-01 00:00:00'));
+//}
+//else
+//{
+//    $date_fiscal_start = strtotime(date($year.'-'.str_pad($conf->global->SOCIETE_FISCAL_MONTH_START, 2, '0', STR_PAD_LEFT).'-01 00:00:00'));
+//}
 
 //$fiscal_year_month = GETPOST('fiscal_year_month');
 //if (empty($fiscal_year_month)) $fiscal_year_month = date('Y').'-'.str_pad($conf->global->SOCIETE_FISCAL_MONTH_START, 2, '0', STR_PAD_LEFT)
@@ -72,19 +73,11 @@ llxHeader('', $langs->trans('PaymentSchedulePcaRepport'), '', '');
 
 
 
-$date_fiscal_end = strtotime('+1 year -1 day', $date_fiscal_start);
+//$date_fiscal_end = strtotime('+1 year -1 day', $date_fiscal_start);
+//
+//$date_fiscal_start_pca = strtotime('+1 year', $date_fiscal_start);
+//$date_fiscal_end_pca = strtotime('+1 year', $date_fiscal_end);
 
-$date_fiscal_start_pca = strtotime('+1 year', $date_fiscal_start);
-$date_fiscal_end_pca = strtotime('+1 year', $date_fiscal_end);
-
-//var_dump(
-//    $date_fiscal_start
-//    , date('Y-m-d H:i:s', $date_fiscal_start)
-//    , date('Y-m-d H:i:s', $date_fiscal_start_pca)
-//    , $date_fiscal_end
-//    , date('Y-m-d H:i:s', $date_fiscal_end)
-//    , date('Y-m-d H:i:s', $date_fiscal_end_pca)
-//);exit;
 
 $sql = 'SELECT s.rowid AS fk_soc, s.nom, s.code_client, s.code_compta, SUM(psd.amount_ttc) AS amount_pca';
 
@@ -98,16 +91,14 @@ $sql.= ' FROM '.MAIN_DB_PREFIX.'societe s ';
 // TODO faire une jointure pour que ce soit uniquement les factures associées à un contrat de type S+
 $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'facture f ON (f.fk_soc = s.rowid)';
 $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule ps ON (ps.fk_facture = f.rowid AND ps.status = 1)'; // status = 1 : pour validé
-//$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet psd ON (psd.fk_payment_schedule = ps.rowid AND psd.date_demande >= \''.$db->idate($date_fiscal_start_pca).'\')';
-$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet psd ON (psd.fk_payment_schedule = ps.rowid)';
+$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet psd ON (psd.fk_payment_schedule = ps.rowid AND psd.date_demande >= \''.$db->idate($time_demande).'\')';
 
 $sql.= ' WHERE 1=1';
 
 if (!empty($search_nom)) $sql.= natural_search('nom', $search_nom);
 if (!empty($search_code_client)) $sql.= ' AND code_client LIKE \'%'.$db->escape($search_code_client).'%\'';
 if (!empty($search_code_compta)) $sql.= ' AND code_compta LIKE \'%'.$db->escape($search_code_compta).'%\'';
-//$sql.= ' AND t.entity IN ('.getEntity('PaymentSchedule', 1).')';
-//if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
+$sql.= ' AND f.entity IN ('.getEntity('facture', 1).')';
 
 // Add where from hooks
 $parameters=array('sql' => $sql);
@@ -138,10 +129,10 @@ else
     exit;
 }
 
+$form = new Form($db);
 $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_paymentschedule', 'GET');
 
-//$html_select_fiscal = '<select name="test"><options value=""></options></select>';
-$html_select_fiscal = '';
+$html_select_fiscal = $form->selectDate($time_demande, 're');
 
 if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
@@ -158,7 +149,7 @@ echo $r->renderArray($db, $TData, array(
             ,'noheader' => 0
             ,'messageNothing' => $langs->trans('NoPaymentSchedule')
             ,'picto_search' => img_picto('', 'search.png', '', 0)
-            ,'head_search' => '' // '<div class="divsearchfield">'.$langs->trans('PaymentScheduleSearchDate').' '.$html_select_fiscal.'</div>'
+            ,'head_search' => '<div class="divsearchfield">'.$langs->trans('PaymentScheduleSearchDate').' '.$html_select_fiscal.'</div>'
             ,'haveTotal' => true
         )
         ,'link' => array(
@@ -192,53 +183,6 @@ echo $r->renderArray($db, $TData, array(
     )
 );
 
-//echo $r->render($sql, array(
-//    'view_type' => 'list' // default = [list], [raw], [chart]
-//    ,'allow-fields-select' => true
-//    ,'limit'=>array(
-//        'nbLine' => $nbLine
-//    )
-//    ,'list' => array(
-//        'title' => $langs->trans('PaymentScheduleList')
-//        ,'image' => 'title_generic.png'
-//        ,'picto_precedent' => '<'
-//        ,'picto_suivant' => '>'
-//        ,'noheader' => 0
-//        ,'messageNothing' => $langs->trans('NoPaymentSchedule')
-//        ,'picto_search' => img_picto('', 'search.png', '', 0)
-//        ,'massactions'=>array(
-//            'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
-//        )
-//    )
-//    ,'subQuery' => array()
-//    ,'link' => array()
-//    ,'type' => array(
-//        'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
-//        ,'tms' => 'date'
-//    )
-//    ,'search' => array(
-//        'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
-//        ,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
-//        ,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
-//        ,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-//        ,'status' => array('search_type' => PaymentSchedule::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
-//    )
-//    ,'translate' => array()
-//    ,'hide' => array(
-//        'rowid' // important : rowid doit exister dans la query sql pour les checkbox de massaction
-//    )
-//    ,'title'=>array(
-//        'ref' => $langs->trans('Ref.')
-//        ,'label' => $langs->trans('Label')
-//        ,'date_creation' => $langs->trans('DateCre')
-//        ,'tms' => $langs->trans('DateMaj')
-//    )
-//    ,'eval'=>array(
-//        'ref' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'
-////		,'fk_user' => '_getUserNomUrl(@val@)' // Si on a un fk_user dans notre requête
-//    )
-//));
-
 $parameters=array('sql'=>$sql);
 $reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $object);    // Note that $action and $object may have been modified by hook
 print $hookmanager->resPrint;
@@ -247,36 +191,3 @@ $formcore->end_form();
 
 llxFooter('');
 $db->close();
-
-/**
- * TODO remove if unused
- */
-function _getObjectNomUrl($id, $ref)
-{
-    global $db;
-
-    $o = new PaymentSchedule($db);
-    $res = $o->fetch($id, false, $ref);
-    if ($res > 0)
-    {
-        return $o->getNomUrl(1);
-    }
-
-    return '';
-}
-
-/**
- * TODO remove if unused
- */
-function _getUserNomUrl($fk_user)
-{
-    global $db;
-
-    $u = new User($db);
-    if ($u->fetch($fk_user) > 0)
-    {
-        return $u->getNomUrl(1);
-    }
-
-    return '';
-}
