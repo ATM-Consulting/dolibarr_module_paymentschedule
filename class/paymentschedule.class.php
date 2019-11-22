@@ -359,7 +359,7 @@ class PaymentSchedule extends SeedObject
             elseif ($mode == 5) $res = $statusLabelShort.img_picto($statusLabel, $statusType);
             elseif ($mode == 6) $res = $statusLabel.img_picto($statusLabel, $statusType);
         }
-        
+
         return $res;
     }
 
@@ -774,7 +774,7 @@ class PaymentScheduleDet extends SeedObject
 	public $fields = array(
 		'fk_payment_schedule'	=>	array('type'=>'integer', 'index'=>1)
 		,'status'	    =>	array('type'=>'integer', 'notnull' => 1, 'default' => 0)
-		,'label'		=>  array('type'=>'varchar(50)', 'length'=>50)
+		,'label'		=>  array('type'=>'varchar(255)', 'length'=>255)
 		,'date_demande'	=> 	array('type'=>'date')
 		,'fk_mode_reglement'	=> 	array('type'=>'integer')
 		,'tva_tx'	    => 	array('type'=>'double')

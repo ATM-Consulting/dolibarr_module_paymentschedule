@@ -430,7 +430,6 @@ class modPaymentSchedule extends DolibarrModules
 		$e = new ExtraFields($db);
 		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
 
-
 		return $this->_init($sql, $options);
 	}
 
