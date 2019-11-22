@@ -44,9 +44,9 @@ PaymentScheduleStatusDraftShort=Brouillon
 PaymentScheduleStatusValidatedShort=Validée
 PaymentScheduleStatusClosedShort=Clôturée
 
-InvoiceStatus=Status de la facture
+InvoiceStatus=Statut de la facture
 InvoicePaymentMode=Mode de règlement de la facture
-PaymentScheduleStatus=Status de l'échéancier
+PaymentScheduleStatus=Statut de l'échéancier
 
 # LIST
 PaymentScheduleList=Liste échéanciers
