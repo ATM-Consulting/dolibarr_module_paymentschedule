@@ -492,7 +492,7 @@ class PaymentSchedule extends SeedObject
 
 		$start = $this->date_start;
 
-		if ((empty($this->date_start) && $this->date_start !== 0) || empty($this->fk_facture) || $this->fk_facture < 0)
+		if ((empty($this->date_start) && $this->date_start !== 0) || empty($this->fk_facture) || $this->fk_facture < 0 || empty($this->nb_term))
         {
 			$this->error = "initDetail : missing parameters";
 			$this->errors[] = $this->error;
