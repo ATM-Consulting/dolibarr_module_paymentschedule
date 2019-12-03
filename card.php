@@ -605,7 +605,8 @@ else
             }
             else
             {
-                if ($sum != $facture->total_ttc) print '<div class="warning">'.$langs->trans('PaymentSchedule_warningSumIsDifferent', price($sum-$facture->total_ttc)).'</div>';
+                $delta = $sum - $facture->total_ttc;
+                if ($delta > 0.001) print '<div class="warning">'.$langs->trans('PaymentSchedule_warningSumIsDifferent', price($delta)).'</div>';
             }
 
             print "</div>";
