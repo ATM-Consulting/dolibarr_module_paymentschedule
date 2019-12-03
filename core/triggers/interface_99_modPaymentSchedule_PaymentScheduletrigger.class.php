@@ -147,6 +147,7 @@ class InterfacePaymentScheduletrigger
                 if (empty($det->linkedObjectsIds['widthdraw_line'])) $det->fetchObjectLinked();
                 if (!empty($det->linkedObjectsIds['widthdraw_line']))
                 {
+                    // Delete seulement le lien entre la ligne échéancier et la ligne de bon de prélèvement, car le paiment et le reste ne sont delete
                     foreach ($det->linkedObjectsIds['widthdraw_line'] as $fk_element_element => $fk_prelevement_lignes)
                     {
                         $det->deleteObjectLinked(null, null, null, null, $fk_element_element);
@@ -515,35 +516,45 @@ class InterfacePaymentScheduletrigger
 
             if (!empty($object->id_prelevement))
             {
+                global $paymentschedule_facs, $paymentschedule_facs_index;
+
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                 dol_include_once('paymentschedule/config.php');
                 dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-                $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
-                $psbonprelevement->fetch($object->id_prelevement);
-                $facs = $psbonprelevement->getListInvoices(1);
+                if (empty($paymentschedule_facs))
+                {
+                    $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
+                    $psbonprelevement->fetch($object->id_prelevement);
 
-                // Attention, cette méthodo est border line, mais pas le choix
-                $TPaiementFacture = array();
-                $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id;
+                    $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
+                    $paymentschedule_facs_index = 0;
+                }
+
+                // C'est pas terrible mais pas trop le choix, je récupère la dernière entrée pour l'utiliser et faire le lien
+                $fk_paiement_facture = null;
+                $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id.' ORDER BY rowid DESC LIMIT 1';
                 $resql = $this->db->query($sql);
                 if ($resql)
                 {
                     while ($obj = $this->db->fetch_object($resql))
                     {
-                        $TPaiementFacture[] = $obj->rowid;
+                        $fk_paiement_facture = $obj->rowid;
                     }
                 }
 
-                // count($facs) doit être = count($TPaiementFacture)
-                foreach ($facs as $i => $TInfo)
+                $TInfo = $paymentschedule_facs[$paymentschedule_facs_index];
+                if (!empty($TInfo) && !empty($fk_paiement_facture))
                 {
                     $paymentscheduledet = new PaymentScheduleDet($this->db);
+                    // [2] = fk_prelevement_lignes
                     if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
                     {
-                        $paymentscheduledet->add_object_linked('paymentdet', $TPaiementFacture[$i]);
+                        $paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
                         $paymentscheduledet->setAccepted($user);
                     }
+
+                    $paymentschedule_facs_index++;
                 }
             }
             //CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA
