@@ -1371,33 +1371,28 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			}
 		}
 
-//		// title ------
-//		$pdf->SetFont('','B', $default_font_size + 3);
-//		$pdf->SetXY($posx,$posy);
-//		$pdf->SetTextColor(0,0,60);
-//		$title=$outputlangs->transnoentities("PdfInvoiceTitle");
-//		if ($object->type == 1) $title=$outputlangs->transnoentities("InvoiceReplacement");
-//		if ($object->type == 2) $title=$outputlangs->transnoentities("InvoiceAvoir");
-//		if ($object->type == 3) $title=$outputlangs->transnoentities("InvoiceDeposit");
-//		if ($object->type == 4) $title=$outputlangs->transnoentities("InvoiceProForma");
-//		if ($this->situationinvoice) $title=$outputlangs->transnoentities("InvoiceSituation");
-//		$pdf->MultiCell($w, 3, $title, '', 'R');
-//		// end title --------
-//
-//		$pdf->SetFont('','B',$default_font_size);
-//
-//		$posy+=5;
-//		$pdf->SetXY($posx,$posy);
-//		$pdf->SetTextColor(0,0,60);
-//		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($this->facture->ref);
-//		if ($this->facture->statut == Facture::STATUS_DRAFT)
-//		{
-//			$pdf->SetTextColor(128,0,0);
-//			$textref.=' - '.$outputlangs->transnoentities("NotValidated");
-//		}
-//		$pdf->MultiCell($w, 4, $textref, '', 'R');
-//
-//		$posy+=1;
+		// title ------
+		$pdf->SetFont('','B', $default_font_size + 3);
+		$pdf->SetXY($posx,$posy);
+		$pdf->SetTextColor(0,0,60);
+		$title=$outputlangs->transnoentities("PdfPaymentScheduleTitle");
+		$pdf->MultiCell($w, 3, $title, '', 'R');
+		// end title --------
+
+		$pdf->SetFont('','B',$default_font_size);
+
+		$posy+=5;
+		$pdf->SetXY($posx,$posy);
+		$pdf->SetTextColor(0,0,60);
+		$textref=$outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($this->facture->ref);
+		if ($this->facture->statut == Facture::STATUS_DRAFT)
+		{
+			$pdf->SetTextColor(128,0,0);
+			$textref.=' - '.$outputlangs->transnoentities("NotValidated");
+		}
+		$pdf->MultiCell($w, 4, $textref, '', 'R');
+
+		$posy+=1;
 		$pdf->SetFont('','', $default_font_size - 2);
 
 //		if ($this->facture->ref_client)
@@ -1440,10 +1435,10 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //			$pdf->MultiCell($w, 3, $outputlangs->transnoentities("CorrectionInvoice").' : '.$outputlangs->convToOutputCharset($objectreplaced->ref), '', 'R');
 //		}
 
-//		$posy+=4;
-//		$pdf->SetXY($posx,$posy);
-//		$pdf->SetTextColor(0,0,60);
-//		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DateInvoice")." : " . dol_print_date($this->facture->date,"day",false,$outputlangs), '', 'R');
+		$posy+=4;
+		$pdf->SetXY($posx,$posy);
+		$pdf->SetTextColor(0,0,60);
+		$pdf->MultiCell($w, 3, $outputlangs->transnoentities("DatePaymentSchedule")." : " . dol_print_date($this->facture->date,"day",false,$outputlangs), '', 'R');
 //
 //		if (! empty($conf->global->INVOICE_POINTOFTAX_DATE))
 //		{

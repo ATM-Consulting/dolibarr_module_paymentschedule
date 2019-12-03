@@ -152,3 +152,6 @@ PaymentScheduleUpdateStatus_ErrorPaymentScheduleFetch=[ERREUR] le chargement d'u
 PaymentScheduleUpdateStatus_QueryFoundNum=- %s bon(s) de prélèvement(s) concerné(s)
 PDFSheduleStartDate=FACTURE UNIQUE/ECHEANCIER A COMPTER DU <u>%s</u><br />(A conserver pendant toute la durée du contrat)
 FreeLegalTextOnPaymentShedule=Mention complémentaire sur les échéanciers
+
+PdfPaymentScheduleTitle=Échéancier
+DatePaymentSchedule=Date échéancier
