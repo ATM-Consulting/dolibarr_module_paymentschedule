@@ -611,9 +611,6 @@ else
 
             print "</div>";
 
-            dol_fiche_end();
-
-
 
             print '<div class="tabsAction">'."\n";
             $parameters=array();
@@ -685,6 +682,9 @@ else
 
 				print '</div>';
 			}
+
+
+            dol_fiche_end();
 
         }
     }
