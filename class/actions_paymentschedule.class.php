@@ -294,8 +294,7 @@ class ActionsPaymentSchedule
 	public function completeTabsHead($parameters, &$object, &$action, $hookmanager)
     {
         $TContext = explode(':',$parameters['context']);
-
-        if (in_array('invoicecard', $TContext) && $parameters['mode'] == 'remove')
+        if (array_intersect(array('invoicecard', 'directdebitcard', 'paymentschedulecard'), $TContext) && $parameters['mode'] == 'remove')
         {
             $head = $parameters['head'];
             if (!empty($head))
@@ -306,11 +305,18 @@ class ActionsPaymentSchedule
                     {
                         if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                         dol_include_once('/paymentschedule/class/paymentschedule.class.php');
-                        $PaymentSchedule = new PaymentSchedule($this->db);
-                        $PaymentSchedule->fetchBy($parameters['object']->id, 'fk_facture');
-                        if (empty($PaymentSchedule->id))
+                        $paymentSchedule = new PaymentSchedule($this->db);
+                        $paymentSchedule->fetchBy($parameters['object']->id, 'fk_facture');
+
+                        if (empty($paymentSchedule->id))
                         {
                             unset($head[$k]);
+                            $this->results = $head;
+                            return 1;
+                        }
+                        elseif (count($paymentSchedule->TPaymentScheduleDet) > 0)
+                        {
+                            $head[$k][1].= ' <span class="badge">'.count($paymentSchedule->TPaymentScheduleDet).'</span>';
                             $this->results = $head;
                             return 1;
                         }

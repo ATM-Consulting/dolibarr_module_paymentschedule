@@ -95,6 +95,8 @@ class modPaymentSchedule extends DolibarrModules
                         ,'directdebitcreatecard'
                         ,'directdebitprevcard'
                         ,'paiementcard'
+
+                        ,'paymentschedulecard' // only to add badge
                     )
                     ,'triggers' => 1
 					,'models' => 1
