@@ -97,6 +97,7 @@ class modPaymentSchedule extends DolibarrModules
                         ,'paiementcard'
 
                         ,'paymentschedulecard' // only to add badge
+                        ,'formmail'
                     )
                     ,'triggers' => 1
 					,'models' => 1

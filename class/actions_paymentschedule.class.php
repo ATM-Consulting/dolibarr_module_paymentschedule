@@ -330,6 +330,14 @@ class ActionsPaymentSchedule
         return 0;
     }
 
+    /**
+     * Permet de retirer l'onglet "Echéancier" sur la fiche d'une facture s'il n'en a pas de créé pour éviter à l'utilisateur de cliquer dessus
+     * @param $parameters
+     * @param $object
+     * @param $action
+     * @param $hookmanager
+     * @return int
+     */
     public function printCommonFooter($parameters, &$object, &$action, $hookmanager)
     {
         global $user;
@@ -363,6 +371,55 @@ class ActionsPaymentSchedule
                         $(".paymentschedule-select2").select2();
                     });
                 </script>';
+        }
+
+        return 0;
+    }
+
+    /**
+     * Permet de retirer l'onglet "Echéancier" sur la fiche d'une facture s'il n'en a pas de créé pour éviter à l'utilisateur de cliquer dessus
+     * @param $parameters
+     * @param $object
+     * @param $action
+     * @param $hookmanager
+     * @return int
+     */
+    public function getFormMail($parameters, &$object, &$action, $hookmanager)
+    {
+        if ($parameters['currentcontext'] === 'invoicecard')
+        {
+            if (GETPOST('action') === 'presend' && GETPOST('from') === 'paymentschedule')
+            {
+                $fk_facture = GETPOST('facid');
+                if ($fk_facture > 0)
+                {
+                    global $conf;
+
+                    $listofpaths = array();
+                    $listofnames = array();
+                    $listofmimes = array();
+                    $keytoavoidconflict = empty($object->trackid)?'':'-'.$object->trackid;
+
+                    if (! empty($_SESSION["listofpaths".$keytoavoidconflict])) $listofpaths=explode(';', $_SESSION["listofpaths".$keytoavoidconflict]);
+                    if (! empty($_SESSION["listofnames".$keytoavoidconflict])) $listofnames=explode(';', $_SESSION["listofnames".$keytoavoidconflict]);
+                    if (! empty($_SESSION["listofmimes".$keytoavoidconflict])) $listofmimes=explode(';', $_SESSION["listofmimes".$keytoavoidconflict]);
+
+
+                    $facture = new Facture($this->db);
+                    $facture->fetch($fk_facture);
+
+                    $filename = dol_sanitizeFileName($facture->ref.'_ps');
+                    $filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref.'_ps');
+
+                    $listofpaths[] = $filedir.'/'.$filename.'.pdf';
+                    $listofnames[] = $filename.'.pdf';
+                    $listofmimes[] = mime_content_type($filedir.'/'.$filename.'.pdf');
+
+                    $_SESSION["listofpaths".$keytoavoidconflict] = implode(';', $listofpaths);
+                    $_SESSION["listofnames".$keytoavoidconflict] = implode(';', $listofnames);
+                    $_SESSION["listofmimes".$keytoavoidconflict] = implode(';', $listofmimes);
+                }
+            }
         }
 
         return 0;

@@ -37,6 +37,8 @@ $lineid = GETPOST('lineid', 'int');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'paymentschedulecard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
+$usercansend = (empty($conf->global->MAIN_USE_ADVANCED_PERMS) || $user->rights->facture->invoice_advance->send);
+
 $object = new PaymentSchedule($db);
 
 if (!empty($id)) $object->fetch($id);
@@ -53,6 +55,8 @@ if (!empty($object->id))
     $object->fetch_optionals();
 //    accessforbidden($langs->trans('paymentscheduleNotCreatedYet'));
 }
+
+$objectidnext = $facture->getIdReplacingInvoice();
 
 $hookmanager->initHooks(array('paymentschedulecard', 'globalcard'));
 
@@ -653,6 +657,20 @@ else
 
                     // Reopen
                     if ($object->status === PaymentSchedule::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('PaymentScheduleReopen').'</a></div>'."\n";
+                }
+
+                // Send by mail
+                if (($object->status == PaymentSchedule::STATUS_VALIDATED || $object->statut == PaymentSchedule::STATUS_CLOSED) || !empty($conf->global->FACTURE_SENDBYEMAIL_FOR_ALL_STATUS))
+                {
+                    if ($objectidnext)
+                    {
+                        print '<div class="inline-block divButAction"><span class="butActionRefused classfortooltip" title="'.$langs->trans("DisabledBecauseReplacedInvoice").'">'.$langs->trans('SendMail').'</span></div>';
+                    }
+                    else
+                    {
+                        if ($usercansend) print '<div class="inline-block divButAction"><a class="butAction" href="'.dol_buildpath('compta/facture/card.php', 1).'?facid='.$facture->id.'&action=presend&mode=init&from=paymentschedule#formmailbeforetitle">'.$langs->trans('SendMail').'</a></div>';
+                        else print '<div class="inline-block divButAction"><a class="butActionRefused classfortooltip" href="#">'.$langs->trans('SendMail').'</a></div>';
+                    }
                 }
 
                 if (!empty($user->rights->paymentschedule->delete))
