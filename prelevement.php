@@ -151,7 +151,7 @@ if (empty($reshook))
                     {
                         $nb_error++;
                         $db->rollback();
-                        $errors[] = $facture->error;
+                        $errors[] = '['.$facture->getNomUrl().'] - '.$facture->error;
                     }
                 }
 
@@ -195,7 +195,11 @@ if (empty($reshook))
                 if ($nb_error)
                 {
                     $db->rollback();
-                    if ($nb_error > 0) setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+                    if ($nb_error > 0)
+                    {
+                        setEventMessage($langs->trans('PaymentSchedule_requestNbError', $nb_error), 'errors');
+                        setEventMessage($errors, 'errors');
+                    }
                 }
                 else
                 {
