@@ -114,6 +114,9 @@ class PaymentSchedule extends SeedObject
     /** @var PaymentScheduleDet[] $TPaymentScheduleDet */
     public $TPaymentScheduleDet = array();
 
+    /** @var Facture $facture Object */
+    public $facture;
+
     /**
      * PaymentSchedule constructor.
      * @param DoliDB    $db    Database connector
@@ -150,6 +153,37 @@ class PaymentSchedule extends SeedObject
 	}
 
     /**
+     *	Get object and children from database on custom field
+     *
+     *	@param      string		$key       		key of object to load
+     *	@param      string		$field       	field of object used to load
+     * 	@param		bool		$loadChild		used to load children from database
+     *	@return     int         				>0 if OK, <0 if KO, 0 if not found
+     */
+    public function fetchBy($key, $field, $loadChild = true)
+    {
+
+        if (empty($this->fields[$field])) return false;
+
+        $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
+        if ($resql)
+        {
+            if (($obj = $this->db->fetch_object($resql)))
+            {
+                return $this->fetch($obj->rowid, $loadChild);
+            }
+        }
+        else
+        {
+            $this->error = $this->db->lastqueryerror();
+            $this->errors[] = $this->error;
+            return -1;
+        }
+
+        return 0;
+    }
+
+        /**
      * @param string  $ref        facture ref
      * @param bool    $loadChild
      * @return int
@@ -730,6 +764,121 @@ class PaymentSchedule extends SeedObject
 
 		return $result;
 	}
+
+    /**
+     * @param User  $user   User object
+     * @param int   $fk_payment_schedule_det   id
+     * @param bool  $create_payment   create payment object
+     * @return int
+     */
+    public function setLineAccepted($user, $fk_payment_schedule_det, $create_payment = false)
+    {
+        $res = 0;
+        foreach ($this->TPaymentScheduleDet as $paymentScheduleDet)
+        {
+            if ($paymentScheduleDet->id == $fk_payment_schedule_det)
+            {
+                $res = $paymentScheduleDet->setAccepted($user);
+                if ($res && $create_payment)
+                {
+                    include_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
+                    include_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+
+                    $thirdparty = new Societe($this->db);
+                    if ($this->socid > 0) $thirdparty->fetch($this->socid);
+
+                    $paiement = new Paiement($this->db);
+                    $paiement->datepaye     = dol_now();
+                    $paiement->amounts      = array($this->fk_facture => $paymentScheduleDet->amount_ttc);   // Array with all payments dispatching with invoice id
+                    $paiement->multicurrency_amounts = array();   // Array with all payments dispatching
+                    $paiement->paiementid   = $paymentScheduleDet->fk_mode_reglement;
+                    $paiement->num_paiement = '';
+                    $paiement->note         = '';
+
+                    $fk_paiement = $paiement->create($user, 1, $thirdparty);    // This include closing invoices and regenerating documents
+                    if ($fk_paiement > 0)
+                    {
+                        $sql = 'SELECT rowid AS fk_paiement_facture FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_paiement = '.$fk_paiement;
+                        $resql = $this->db->query($sql);
+                        if ($resql)
+                        {
+                            $obj = $this->db->fetch_object($resql);
+                            if ($obj)
+                            {
+                                $paymentScheduleDet->add_object_linked('paymentdet', $obj->fk_paiement_facture);
+                            }
+                        }
+
+                        $label='(CustomerInvoicePayment)';
+                        if ($this->facture->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
+                        $paiement->addPaymentToBank($user, 'payment', $label, $this->facture->fk_account, '', '');
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param User  $user   User object
+     * @param int   $fk_payment_schedule_det   id
+     * @param bool  $create_reject   create reject object
+     * @return int
+     */
+    public function setLineRefused($user, $fk_payment_schedule_det, $create_reject = false)
+    {
+        $res = 0;
+
+        foreach ($this->TPaymentScheduleDet as $paymentScheduleDet)
+        {
+            if ($paymentScheduleDet->id == $fk_payment_schedule_det)
+            {
+                $res = $paymentScheduleDet->setRefused($user);
+                if ($res && $create_reject)
+                {
+                    $paymentScheduleDet->fetchObjectLinked();
+                    if (!empty($paymentScheduleDet->linkedObjectsIds['widthdraw_line']))
+                    {
+                        $daterej = dol_now();
+
+                        reset($paymentScheduleDet->linkedObjectsIds['widthdraw_line']);
+                        $k = key($paymentScheduleDet->linkedObjectsIds['widthdraw_line']);
+                        $fk_widthdraw_line = $paymentScheduleDet->linkedObjectsIds['widthdraw_line'][$k];
+
+                        include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/ligneprelevement.class.php';
+                        include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/rejetprelevement.class.php';
+
+                        $lipre = new LignePrelevement($this->db, $user);
+                        $lipre->fetch($fk_widthdraw_line);
+                        if ($lipre->id > 0)
+                        {
+                            $rej = new RejetPrelevement($this->db, $user);
+                            /** @see RejetPrelevement::motifs 1 = Provision insuffisante; 2 = Prélèvement contesté; ...*/
+                            $rej->create($user, $lipre->id, 2, $daterej, $lipre->bon_rowid, 0);
+
+                            $sql = 'SELECT MAX(rowid) as fk_paiement_facture FROM '.MAIN_DB_PREFIX.'paiement_facture';
+                            $resql = $this->db->query($sql);
+                            if ($resql)
+                            {
+                                $obj = $this->db->fetch_object($resql);
+                                if ($obj)
+                                {
+                                    $paymentScheduleDet->add_object_linked('paymentdet', $obj->fk_paiement_facture);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return $res;
+    }
 }
 
 

@@ -155,3 +155,5 @@ FreeLegalTextOnPaymentShedule=Mention complémentaire sur les échéanciers
 
 PdfPaymentScheduleTitle=Échéancier
 DatePaymentSchedule=Date échéancier
+
+paymentscheduleSetAcceptNeedToSetBankAccountId=Vous devez renseigner une banque par défaut sur votre facture

@@ -557,7 +557,7 @@ class InterfacePaymentScheduletrigger
                     $paymentschedule_facs_index++;
                 }
             }
-            //CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA
+            // CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA en provenance du formulaire de création de réglement standard Dolibarr
             elseif (GETPOSTISSET('action') && GETPOST('action') == 'confirm_paiement')
             {
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);

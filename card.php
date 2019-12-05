@@ -227,14 +227,8 @@ if (empty($reshook))
         case 'set_refuse':
             if (!empty($user->rights->paymentschedule->write))
             {
-                $k = $object->addChild('PaymentScheduleDet', $lineid);
-                $child = &$object->TPaymentScheduleDet[$k];
-                if (!empty($child->id))
-                {
-                    // TODO ajouter la gestion de l'ajout/suppression du réglement
-                    if ($action == 'set_accept') $child->setAccepted($user);
-                    elseif ($action == 'set_refuse') $child->setRefused($user);
-                }
+                if ($action == 'set_accept') $object->setLineAccepted($user, $lineid, true);
+                elseif ($action == 'set_refuse') $object->setLineRefused($user, $lineid, true);
             }
 
             header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
@@ -562,7 +556,11 @@ else
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
                     elseif (in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED)) && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED)))
                     {
-                        if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                        if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED)
+                        {
+                            if (!empty($object->facture->fk_account)) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                            else print '<a style="margin-right:8px; color:#888" href="#" title="'.$langs->trans('paymentscheduleSetAcceptNeedToSetBankAccountId').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                        }
                         if ($line->status != PaymentScheduleDet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
                     }
                     print '</td>';
