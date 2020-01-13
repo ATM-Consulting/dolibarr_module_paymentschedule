@@ -273,7 +273,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
                 $default_font_size = pdf_getPDFFontSize($outputlangs);	// Must be after pdf_getInstance
                 $pdf->SetAutoPageBreak(1,0);
 
-                $heightforinfotot = 50+(4*$nbpayments);	// Height reserved to output the info and total part and payment part
+				$heightforinfotot= 4*6; // 4 * number of max index in tot (+1 for marge) : Already paid, Deposits, Credit note, Escompte, RemainderToPay
+				$heightforinfotot+= 4*$nbpayments; // Height reserved to output the info and total part and payment part
+
 		        $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
 	            if ($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS >0) $heightforfooter+= 6;
@@ -1191,7 +1193,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$resteapayer = price2num($total_ttc - $deja_regle - $creditnoteamount - $depositsamount, 'MT');
 		if ($this->facture->paye) $resteapayer=0;
 
-		if (($deja_regle > 0 || $creditnoteamount > 0 || $depositsamount > 0) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
+		if (empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
 		{
 			// Already paid + Deposits
 			$index++;
@@ -1596,4 +1598,5 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
 		return pdf_pagefoot($pdf,$outputlangs,'PAYMENTSCHEDULE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
+
 }
