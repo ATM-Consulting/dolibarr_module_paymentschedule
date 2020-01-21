@@ -120,7 +120,7 @@ if (empty($reshook))
 //				$error++;
 //				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
 //			}
-			
+
 			// ...
 
 			if ($error > 0)
@@ -128,7 +128,7 @@ if (empty($reshook))
 				$action = 'editpaymentschedule';
 				break;
 			}
-			
+
 			$res = $object->save($user);
             if ($res < 0)
             {
@@ -170,11 +170,11 @@ if (empty($reshook))
 		case 'modifpaymentschedule':
 		case 'reopenpaymentschedule':
 			if (!empty($user->rights->paymentschedule->write)) $object->setDraft($user);
-				
+
 			break;
 		case 'confirm_validatepaymentschedule':
 			if (!empty($user->rights->paymentschedule->write)) $object->setValid($user);
-			
+
 			header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
 			exit;
 
@@ -383,6 +383,7 @@ else
                 print '<input type="hidden" name="lineid" value="'.$lineid.'" />';
             }
 
+			print '<!-- scheduleTableLines  -->';
             print '<table id="tablelines" class="noborder noshadow" width="100%">';
 
             $dateSelector = 1;
@@ -418,6 +419,9 @@ else
                 // Amount TTC ( TotalTTCShort )
                 print '<td class="linecolamountttc right" width="80">'.$langs->trans('TotalTTC').'</td>';
 
+				// Link to widthdraw
+				print '<td class="linecolwidthdraw center nowrap" width="80">'.$langs->trans('WidthdrawsLinked').'</td>';
+
                 // Link to payment
                 print '<td class="linecolpayment center nowrap" width="80">'.$langs->trans('PaymentLinked').'</td>';
 
@@ -450,6 +454,10 @@ else
             print "<tbody>\n";
             foreach ($object->TPaymentScheduleDet as $line)
             {
+            	/**
+            	 * @var $line PaymentScheduleDet
+            	 */
+
                 if (is_object($hookmanager))   // Old code is commented on preceding line.
                 {
                     if (empty($line->fk_parent_line))
@@ -515,27 +523,50 @@ else
                     print '</td>';
                     $coldisplay++;
 
+
+					print '<td class="linecolwidthdraw center nowrap">';
+
+					$line->fetchObjectLinked(null, '', $line->id, $line->element);
+
+					if (!empty($line->linkedObjectsIds['widthdraw']))
+					{
+						$toprint = '';
+						foreach ($line->linkedObjectsIds['widthdraw'] as $fk_widthdraw)
+						{
+							$widthdraw = new BonPrelevement($db);
+							if ($widthdraw->fetch($fk_widthdraw))
+							{
+								if (!empty($toprint)) $toprint.= '<br />';
+								$toprint.= $widthdraw->getNomUrl(1, '', '');
+							}
+						}
+						print $toprint;
+					}
+					else print '-';
+
+					print '</td>';
+					$coldisplay++;
+
+
                     print '<td class="linecolpayment center nowrap">';
-                    if (false && $line->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) print 'N/A';
-                    else
-                    {
-                        $line->fetchObjectLinked(null, '', $line->id, $line->element);
-                        if (!empty($line->linkedObjectsIds['paymentdet']))
-                        {
-                            $toprint = '';
-                            foreach ($line->linkedObjectsIds['paymentdet'] as $fk_paymentdet)
-                            {
-                                $paiement = PaymentScheduleDet::getPaymentObjectFromDetId($fk_paymentdet);
-                                if ($paiement)
-                                {
-                                    if (!empty($toprint)) $toprint.= '<br />';
-                                    $toprint.= $paiement->getNomUrl(1, '', '');
-                                }
-                            }
-                            print $toprint;
-                        }
-                        else print '-';
-                    }
+
+					$line->fetchObjectLinked(null, '', $line->id, $line->element);
+					if (!empty($line->linkedObjectsIds['paymentdet']))
+					{
+						$toprint = '';
+						foreach ($line->linkedObjectsIds['paymentdet'] as $fk_paymentdet)
+						{
+							$paiement = PaymentScheduleDet::getPaymentObjectFromDetId($fk_paymentdet);
+							if ($paiement)
+							{
+								if (!empty($toprint)) $toprint.= '<br />';
+								$toprint.= $paiement->getNomUrl(1, '', '');
+							}
+						}
+						print $toprint;
+					}
+					else print '-';
+
                     print '</td>';
                     $coldisplay++;
 

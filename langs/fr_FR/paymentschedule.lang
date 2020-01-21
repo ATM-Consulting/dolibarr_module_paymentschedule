@@ -123,6 +123,7 @@ NotPaymentSchedule=Pas d'échéancier
 PaymentScheduleDetLinked=Ligne d'échéancier concernée
 PaymentLinked=Règlements associés
 PaymentSchedule_selectFormatForWithdraw=Format pour le bon de prélèvement
+WidthdrawsLinked=Bon de prélèvements liés
 
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
