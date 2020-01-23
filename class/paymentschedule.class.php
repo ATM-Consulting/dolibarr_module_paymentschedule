@@ -609,6 +609,12 @@ class PaymentSchedule extends SeedObject
                 $det->amount_tva = $TLeftAmountToPay['VAT'];
                 $det->amount_ttc = $TLeftAmountToPay['TTC'];
             }
+            else if ($fill_amount === 'onlast' && $i == ($this->nb_term - 1))
+            {
+                $det->amount_ht  = $TLeftAmountToPay['HT'];
+                $det->amount_tva = $TLeftAmountToPay['VAT'];
+                $det->amount_ttc = $TLeftAmountToPay['TTC'];
+            }
             else
             {
                 $det->amount_ht  = $TDefaultAmountToPay['HT'];
