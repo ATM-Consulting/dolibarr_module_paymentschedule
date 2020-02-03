@@ -211,14 +211,15 @@ class PaymentSchedule extends SeedObject
     }
 
     /**
-     * @param User $user User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function save($user)
+    public function save($user, $notrigger = false)
     {
         if (!empty($this->is_clone)) {}
 
-        return $this->create($user);
+        return $this->create($user, $notrigger);
     }
 
 
@@ -233,10 +234,11 @@ class PaymentSchedule extends SeedObject
 
 
     /**
-     * @param User $user User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function delete(User &$user)
+    public function delete(User &$user, $notrigger = false)
     {
     	global $conf;
 
@@ -267,32 +269,34 @@ class PaymentSchedule extends SeedObject
 		}
 
         unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
-        return parent::delete($user);
+        return parent::delete($user, $notrigger);
     }
 
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setDraft($user)
+    public function setDraft($user, $notrigger = false)
     {
         if ($this->status === self::STATUS_VALIDATED)
         {
             $this->status = self::STATUS_DRAFT;
             $this->withChild = false;
 
-            return $this->update($user);
+            return $this->update($user, $notrigger);
         }
 
         return 0;
     }
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setValid($user)
+    public function setValid($user, $notrigger = false)
     {
         if ($this->status === self::STATUS_DRAFT)
         {
@@ -300,7 +304,7 @@ class PaymentSchedule extends SeedObject
             $this->status = self::STATUS_VALIDATED;
             $this->withChild = false;
 
-            return $this->update($user);
+            return $this->update($user, $notrigger);
         }
 
         return 0;
@@ -309,19 +313,21 @@ class PaymentSchedule extends SeedObject
 	/**
 	 * function for massaction compatibility
 	 *
-	 * @param User $user
-	 * @return int
+	 * @param	User	$user
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+	 * @return	int
 	 */
-    public function validate($user)
+    public function validate($user, $notrigger = false)
 	{
-		return $this->setValid($user);
+		return $this->setValid($user, $notrigger);
 	}
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setClose($user)
+    public function setClose($user, $notrigger = false)
     {
         if ($this->status === self::STATUS_VALIDATED)
         {
@@ -329,7 +335,7 @@ class PaymentSchedule extends SeedObject
             $this->status = self::STATUS_CLOSED;
             $this->withChild = false;
 
-            return $this->update($user);
+            return $this->update($user, $notrigger);
         }
 
         return 0;
@@ -337,17 +343,18 @@ class PaymentSchedule extends SeedObject
 
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setReopen($user)
+    public function setReopen($user, $notrigger = false)
     {
         if ($this->status === self::STATUS_VALIDATED || $this->status === self::STATUS_CLOSED)
         {
             $this->status = self::STATUS_VALIDATED;
             $this->withChild = false;
 
-            return $this->update($user);
+            return $this->update($user, $notrigger);
         }
 
         return 0;
@@ -476,10 +483,10 @@ class PaymentSchedule extends SeedObject
 	 * Crée l'objet échéancier depuis la facture en récupérant les infos du contrat lié
 	 *
 	 * @param Facture $facture
-	 *
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
 	 * @return int <0 if KO, > 0 if OK
 	 */
-	public function createFromFacture($facture, $date_start, $periodicity_unit, $periodicity_value, $nb_term)
+	public function createFromFacture($facture, $date_start, $periodicity_unit, $periodicity_value, $nb_term, $notrigger = false)
 	{
 		global $user;
 
@@ -502,7 +509,7 @@ class PaymentSchedule extends SeedObject
 
             $this->db->begin();
 
-            $res = $this->save($user);
+            $res = $this->save($user, $notrigger);
             if ($res > 0)
             {
                 $res = $this->initDetailEcheancier();
@@ -775,16 +782,17 @@ class PaymentSchedule extends SeedObject
      * @param User  $user   User object
      * @param int   $fk_payment_schedule_det   id
      * @param bool  $create_payment   create payment object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
      * @return int
      */
-    public function setLineAccepted($user, $fk_payment_schedule_det, $create_payment = false)
+    public function setLineAccepted($user, $fk_payment_schedule_det, $create_payment = false, $notrigger = false)
     {
         $res = 0;
         foreach ($this->TPaymentScheduleDet as $paymentScheduleDet)
         {
             if ($paymentScheduleDet->id == $fk_payment_schedule_det)
             {
-                $res = $paymentScheduleDet->setAccepted($user);
+                $res = $paymentScheduleDet->setAccepted($user, $notrigger);
                 if ($res && $create_payment)
                 {
                     include_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
@@ -817,7 +825,7 @@ class PaymentSchedule extends SeedObject
 
                         $label='(CustomerInvoicePayment)';
                         if ($this->facture->type == Facture::TYPE_CREDIT_NOTE) $label='(CustomerInvoicePaymentBack)';  // Refund of a credit note
-                        $paiement->addPaymentToBank($user, 'payment', $label, $this->facture->fk_account, '', '');
+                        $paiement->addPaymentToBank($user, 'payment', $label, $this->facture->fk_account, '', '', $notrigger);
                     }
                 }
 
@@ -832,9 +840,10 @@ class PaymentSchedule extends SeedObject
      * @param User  $user   User object
      * @param int   $fk_payment_schedule_det   id
      * @param bool  $create_reject   create reject object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
      * @return int
      */
-    public function setLineRefused($user, $fk_payment_schedule_det, $create_reject = false)
+    public function setLineRefused($user, $fk_payment_schedule_det, $create_reject = false, $notrigger = false)
     {
         $res = 0;
 
@@ -842,7 +851,7 @@ class PaymentSchedule extends SeedObject
         {
             if ($paymentScheduleDet->id == $fk_payment_schedule_det)
             {
-                $res = $paymentScheduleDet->setRefused($user);
+                $res = $paymentScheduleDet->setRefused($user, $notrigger);
                 if ($res && $create_reject)
                 {
                     $paymentScheduleDet->fetchObjectLinked();
@@ -989,34 +998,37 @@ class PaymentScheduleDet extends SeedObject
         return $this->fetchBySourceElement($fk_prelevement_facture_demande, 'prelevement_facture_demande');
     }
 	/**
-	 * @param User $user User object
-	 * @return int
+	 * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+	 * @return	int
 	 */
-	public function delete(User &$user)
+	public function delete(User &$user, $notrigger = false)
 	{
 		$this->deleteObjectLinked();
 
 //		unset($this->fk_element);
-		return parent::delete($user);
+		return parent::delete($user, $notrigger);
 	}
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setWaiting($user)
+    public function setWaiting($user, $notrigger = false)
     {
         $this->status = self::STATUS_WAITING;
         $this->withChild = false;
 
-        return $this->update($user);
+        return $this->update($user, $notrigger);
     }
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setInProcess($user, $fk_prelevement_facture_demande=null)
+    public function setInProcess($user, $fk_prelevement_facture_demande=null, $notrigger = false)
     {
         $this->status = self::STATUS_IN_PROCESS;
         $this->withChild = false;
@@ -1026,14 +1038,15 @@ class PaymentScheduleDet extends SeedObject
             $this->add_object_linked('prelevement_facture_demande', $fk_prelevement_facture_demande);
         }
 
-        return $this->update($user);
+        return $this->update($user, $notrigger);
     }
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setRequested($user, $fk_prelevement_bons = null)
+    public function setRequested($user, $fk_prelevement_bons = null, $notrigger = false)
     {
         $this->status = self::STATUS_REQUESTED;
         $this->withChild = false;
@@ -1043,31 +1056,33 @@ class PaymentScheduleDet extends SeedObject
             $this->add_object_linked('widthdraw', $fk_prelevement_bons);
         }
 
-        return $this->update($user);
+        return $this->update($user, $notrigger);
     }
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setAccepted($user)
+    public function setAccepted($user, $notrigger = false)
     {
         $this->status = self::STATUS_ACCEPTED;
         $this->withChild = false;
 
-        return $this->update($user);
+        return $this->update($user, $notrigger);
     }
 
     /**
-     * @param User  $user   User object
-     * @return int
+     * @param	User	$user		User object
+	 * @param	bool	$notrigger	false=launch triggers after, true=disable triggers
+     * @return	int
      */
-    public function setRefused($user)
+    public function setRefused($user, $notrigger = false)
     {
         $this->status = self::STATUS_REFUSED;
         $this->withChild = false;
 
-        return $this->update($user);
+        return $this->update($user, $notrigger);
     }
 
     /**
