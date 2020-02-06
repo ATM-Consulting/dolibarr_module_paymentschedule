@@ -560,7 +560,9 @@ class PaymentSchedule extends SeedObject
 		{
 			$TDatesEcheance[] = $start;
 			$start = strtotime('+'.$this->periodicity_value.' '.$this->periodicity_unit, $start);
+			$facture->date_lim_reglement = $start;
 		}
+		$facture->update($user);
 
 		$TDefaultAmountToPay = array(
 			'HT' 	=> round($facture->total_ht / $this->nb_term, 2)
