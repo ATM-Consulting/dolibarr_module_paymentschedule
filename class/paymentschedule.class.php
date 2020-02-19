@@ -559,8 +559,8 @@ class PaymentSchedule extends SeedObject
 		while ($nb_term--)
 		{
 			$TDatesEcheance[] = $start;
-			$start = strtotime('+'.$this->periodicity_value.' '.$this->periodicity_unit, $start);
 			$facture->date_lim_reglement = $start;
+			$start = strtotime('+'.$this->periodicity_value.' '.$this->periodicity_unit, $start);
 		}
 		$facture->update($user);
 
