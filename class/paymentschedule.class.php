@@ -1221,7 +1221,13 @@ class PaymentScheduleUpdateStatus extends SeedObject
 
     public function run()
     {
-        global $user, $langs, $conf;
+        global $user, $conf;
+
+	    //Hack to be sure to get translation working during CRON run
+	    $langs = new Translate('', $conf);
+	    $langs->setDefaultLang('fr_FR');
+	    $langs->loadLangs(array('main', 'admin', 'cron', 'dict'));
+	    $langs->load('paymentschedule@paymentschedule');
 
         $this->output = $langs->trans('PaymentScheduleUpdateStatus_start', date('Y-m-d H:i:s'));
 
