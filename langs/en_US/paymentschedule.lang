@@ -1,16 +1,156 @@
-Module104077Name = Timetable SEPA
-Module104077Desc = Create a payment schedule for invoice of type "payment schedule"
+Module104077Name = Payment Plan for Dolibarr
+Module104077Desc = Enables you to create payment plans for invoices marked as such
 
-ATMAbout = This module has been developed by <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>You can find the documentation on our <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>For any question or feedback, contact us on <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>For any commercial question, contact us on <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> or at +33 9 77 19 50 70<br><br>Find our other modules on <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+ATMAbout = This module was programmed by <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>
 
-PaymentScheduleSetup = PaymentSchedule module setup
-PaymentScheduleAbout = About PaymentSchedule
+PaymentScheduleSetup = Payment Plan module setup
+PaymentScheduleAbout = About Payment Plan for Dolibarr
+
+PaymentSchedule=Payment plan
+AbricotNeedUpdate=Please update module "Abricot"
+
+# PERMISSIONS
+paymentschedule_read=View payment plans
+paymentschedule_write=Create/edit payment plans
+paymentschedule_delete=Delete payment plans
+
+# SETUP
+PaymentScheduleExtrafieldPage=Extrafields for payment plans
+PaymentScheduleDetExtrafieldPage=Extrafields for payment plan lines
+PaymentScheduleDet=Payment plan lines
+PaymentschedulesPDFModules=Payment plan template
+PDFSurimiDescription=Payment plan PDF template
+
+PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE=Payment method for Dolibarr payment plans
+PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND=Additional invoice payment methods allowed on invoices for them to be used to create a payment plan
+PAYMENTSCHEDULE_LABEL_PATTERN=Pattern for payment plan line labels
+PAYMENTSCHEDULE_LABEL_PATTERN_HELP={INDICE} = line number (starts with 1)<br />{SOCNAME} = client name<br />{FACNUMBER} = invoice ref.<br />{REFCLIENT} = client ref.
+PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Disable checking for a registered client IBAN
+PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW=Automatically create a direct debit mandate after the request has been created using the form
+
+# MENU
+TopMenuPaymentSchedule=Payment plan
+PaymentSchedulePcaReport=Deferred income report
+
+# STATUS
+PaymentScheduleStatusDraft=Draft (pending payment plan)
+PaymentScheduleStatusValidated=Validated (ready for payment)
+PaymentScheduleStatusClosed=Closed
+
+PaymentScheduleStatusDraftShort=Draft
+PaymentScheduleStatusValidatedShort=Validated
+PaymentScheduleStatusClosedShort=Closed
+
+InvoiceStatus=Invoice status
+InvoicePaymentMode=Invoice payment method
+PaymentScheduleStatus=Payment plan status
+
+# LIST
+PaymentScheduleList=List of payment plans
+NoPaymentSchedule=(empty)
+
+# REPORT
+PaymentSchedulePcaReportList=List of deferred income amounts by client
+PaymentScheduleSearchDate=First payment scheduled on:
+
+# CARD
+NewPaymentSchedule=Payment plan creation
+PaymentScheduleCard=Payment plan card
+paymentscheduleNotCreatedYet=The invoice has no payment plan 
+paymentschedulePaymentStatus=Status
+paymentscheduleDateDemande=Date of request
+paymentscheduleModeRglt=Payment method
+
+PaymentScheduleReset=Generate
+PaymentScheduleModify=Modify
+PaymentScheduleClone=Clone
+PaymentScheduleValid=Validate
+PaymentScheduleAccept=Accept
+PaymentScheduleRefuse=Refuse
+PaymentScheduleReopen=Reopen
+PaymentScheduleCancel=Abandon
+PaymentScheduleDelete=Delete
+PaymentScheduleCreate=Create payment plan
+
+PeriodicityUnit=Time period unit
+PeriodicityValue=Time period spacing (every x unit)
+NbTerm=Number of installments
+paymentschedule_periodicityDay=Day
+paymentschedule_periodicityMonth=Month
+paymentschedule_periodicityYear=Year
+
+ConfirmCreatePaymentScheduleTitle=Payment plan creation
+ConfirmCreatePaymentScheduleBody=Create the payment plan?
+paymentschedule_dateStartEcheance=Start date
+paymentschedule_numberOfPayments=Number of installments
+paymentschedule_dateEndPrelevement=Scheduled date of the last installment:
+
+ConfirmValidatePaymentScheduleTitle=Payment plan validation
+ConfirmValidatePaymentScheduleBody=Do you wish to validate this payment plan? This will cause installments to be scheduled at the dates shown on the lines. 
+
+ConfirmDeletePaymentScheduleTitle=Delete the payment plan
+ConfirmDeletePaymentScheduleBody=Do you really want to delete this payment plan?
+
+ConfirmResetPaymentScheduleTitle=Generate payment plan
+ConfirmResetPaymentScheduleBody=Do you really want to generate the payment plan?
+paymentschedule_fullReset=Delete lines with status “pending”
+
+PaymentScheduleDetStatusWaiting=Processing pending
+PaymentScheduleDetStatusInProcess=Request pending
+PaymentScheduleDetStatusRequested=Direct debit mandate pending
+PaymentScheduleDetStatusAccepted=Accepted
+PaymentScheduleDetStatusRefused=Rejected
+
+paymentscheduleSetAccept=Mark as accepted
+paymentscheduleSetRefuse=Mark as rejected
+
+PaymentSchedule_warningSumIsDifferent=Warning: the sum of installment amounts is different from the invoice total. The difference is %s
+
+NewPaymentSchedule_createRequests=Creation of Direct debit mandate request
+PaymentSchedule_requestSelectDate=Date of the request
+PaymentSchedule_requestNumRowsFound=Number of requests found for this date: %d
+PaymentSchedule_requestNbCreate=Direct debit mandates created: %d
+PaymentSchedule_requestNbError=Direct debit mandates with errors: %d
+PaymentSchedule_requestBack=Back
+
+LeftMenuPaymentScheduleCreatePrevlevement=Creation of a SEPA Direct Debit mandate request
+
+NotPaymentSchedule=No payment plan
+PaymentScheduleDetLinked=Payment plan line concerned
+PaymentLinked=Linked payments
+PaymentSchedule_selectFormatForWithdraw=Format for direct debit mandate
+WidthdrawsLinked=Related direct debit mandates
 
 # ERRORS
-CheckErrorIsNotPaymentSchedule=This invoice is not a payment schedule
+CheckErrorInvoiceIsDraft=This is a draft invoice
+CheckErrorTimetableAlreadyExists=This invoice already has an attached payment plan
+CheckErrorCustomerHasNoIBAN=No IBAN found for the invoice's client
+CheckErrorModeRgltNotMatch=The payment method doesn't match allowed payment methods (please check module configuration)
+CheckErrorIsNotPaymentSchedule=This invoice is not a payment plan invoice
 CheckErrorIsNotLinkedToContract=This invoice is not linked to a contract
-CheckErrorNoActiveLineOnContract=The linked contract has no active line
-CanNotRetrieveInvoice=Can't retrieve linked invoice
+CheckErrorNoActiveLineOnContract=The related contract has no active lines
+CanNotRetrieveInvoice=Unable to fetch the related invoice
+CheckErrorInvoiceInsufficientPermission=Rejected (please check user rights)
+PaymentScheduleIsValidated=The payment plan is validated
 
-PaymentScheduleCreate=Create payment schedule
-bankWithdrawal=Bank withdrawal due %s
+# WARNINGS
+PaymentSchedule_Warnings_checkDateOrPaymentType=Please check the date you entered and/or the payment methods allowed in the module configuration
+
+# CRON
+PaymentScheduleUpdateStatus=[PAYMENTSCHEDULE] - Status update
+PaymentScheduleUpdateStatus_start=[%s] - Start
+PaymentScheduleUpdateStatus_end=[%s] - End
+
+PaymentScheduleUpdateStatus_ErrorNotEnoughPermission=[ERROR] This action requires the permission “Create/modify payment plans”
+PaymentScheduleUpdateStatus_ErrorMainConfigurationMissing=[ERROR] No payment method configured for payment plans
+PaymentScheduleUpdateStatus_ErrorQuery=[ERROR] SQL query failed: %s
+PaymentScheduleUpdateStatus_ErrorPaymentScheduleFetch=[ERROR] Unable to load the payment plan: %s
+
+PaymentScheduleUpdateStatus_QueryFoundNum=- %s matching direct debit mandate(s)
+PDFSheduleStartDate=SINGLE INVOICE / PAYMENT PLAN FROM <u>%s</u> ON<br />(to be retained for the whole duration of the contract)
+FreeLegalTextOnPaymentShedule=Additional statement on payment plans
+
+PdfPaymentScheduleTitle=Payment plan
+DatePaymentSchedule=Payment plan date
+
+paymentscheduleSetAcceptNeedToSetBankAccountId=Please fill in the invoice's default bank account

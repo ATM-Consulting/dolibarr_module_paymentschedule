@@ -25,9 +25,9 @@ $langs->load('paymentschedule@paymentschedule');
 
 $nbLine = GETPOST('limit');
 
-$search_nom = GETPOST('Listview_paymentschedulerepport_search_nom', 'alpha');
-$search_code_client = GETPOST('Listview_paymentschedulerepport_search_code_client', 'alpha');
-$search_code_compta = GETPOST('Listview_paymentschedulerepport_search_code_compta', 'alpha');
+$search_nom = GETPOST('Listview_paymentschedulereport_search_nom', 'alpha');
+$search_code_client = GETPOST('Listview_paymentschedulereport_search_code_client', 'alpha');
+$search_code_compta = GETPOST('Listview_paymentschedulereport_search_code_compta', 'alpha');
 
 $time_demande = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
 if (empty($time_demande)) $time_demande = dol_mktime(0, 0, 0, date('m'), date('d'), date('Y'));
@@ -48,7 +48,7 @@ if (empty($time_demande)) $time_demande = dol_mktime(0, 0, 0, date('m'), date('d
 
 $object = new PaymentSchedule($db);
 
-$hookmanager->initHooks(array('paymentschedulerepport'));
+$hookmanager->initHooks(array('paymentschedulereport'));
 
 /*
  * Actions
@@ -60,7 +60,7 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 
 if (empty($reshook))
 {
-    // do action from GETPOST ... 
+    // do action from GETPOST ...
 }
 
 
@@ -68,7 +68,7 @@ if (empty($reshook))
  * View
  */
 
-llxHeader('', $langs->trans('PaymentSchedulePcaRepport'), '', '');
+llxHeader('', $langs->trans('PaymentSchedulePcaReport'), '', '');
 
 
 
@@ -136,13 +136,13 @@ $html_select_fiscal = $form->selectDate($time_demande, 're');
 
 if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
-$r = new Listview($db, 'paymentschedulerepport');
+$r = new Listview($db, 'paymentschedulereport');
 echo $r->renderArray($db, $TData, array(
         'limit'=>array(
             'nbLine' => $nbLine
         )
         ,'list' => array(
-            'title' => $langs->trans('PaymentSchedulePcaRepportList')
+            'title' => $langs->trans('PaymentSchedulePcaReportList')
             ,'image' => 'title_generic.png'
             ,'picto_precedent' => '<'
             ,'picto_suivant' => '>'

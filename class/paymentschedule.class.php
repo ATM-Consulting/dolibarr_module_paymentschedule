@@ -1233,7 +1233,7 @@ class PaymentScheduleUpdateStatus extends SeedObject
 
         if (empty($user->rights->paymentschedule->write))
         {
-            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnougthPermission');
+            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnoughPermission');
         }
         elseif (empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
         {

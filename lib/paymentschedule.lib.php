@@ -159,7 +159,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
             array('type' => 'date', 'label' => $langs->trans('paymentschedule_dateStartEcheance'), 'name' => 'date_start', 'value' => '')
             , array('type' => 'select', 'label' => $langs->trans('PeriodicityUnit'), 'name' => 'periodicity_unit', 'values' => $values, 'default' => PaymentSchedule::PERIODICITY_VALUE_MONTH)
             , array('type' => 'text', 'label' => $langs->trans('PeriodicityValue'), 'name' => 'periodicity_value', 'value' => '1', 'size' => '5')
-            , array('type' => 'text', 'label' => $langs->trans('paymentschedule_numberOfEcheanceEcheance'), 'name' => 'nb_term', 'value' => '6', 'size' => '5')
+            , array('type' => 'text', 'label' => $langs->trans('paymentschedule_numberOfPayments'), 'name' => 'nb_term', 'value' => '6', 'size' => '5')
             , array('type' => 'onecolumn', 'value' => $scriptjs)
         );
         $body = $langs->trans('ConfirmCreatePaymentScheduleBody', $facture->ref);

@@ -431,7 +431,7 @@ else
 					foreach ($linesExtralabels as $extra => $label) print '<td class="'.$label.'">'.$label.'</td>';
 				}
 
-                print '<td class="linecolstatus center">'.$langs->trans('paymentscheduleStatusBankLevy').'</td>';
+                print '<td class="linecolstatus center">'.$langs->trans('paymentschedulePaymentStatus').'</td>';
 
                 print '<td class="linecolupdatestatus"></td>';
 
