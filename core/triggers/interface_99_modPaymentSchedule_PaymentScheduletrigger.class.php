@@ -498,10 +498,18 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+            if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
+            dol_include_once('paymentschedule/config.php');
+            dol_include_once('paymentschedule/class/paymentschedule.class.php');
+
             $paymentschedule = new PaymentSchedule($this->db);
             if ($paymentschedule->fetchBy($object->id, 'fk_facture') > 0) {
                 if ($paymentschedule->delete($user) <= 0) {
-                    setEventMessages($langs->trans('PaymentScheduleDeleteFailed', $paymentschedule->id, $object->id));
+                    setEventMessages(
+                        $langs->trans('PaymentScheduleDeleteFailed', $paymentschedule->id, $object->id),
+                        array(),
+                        'errors'
+                    );
                 }
             }
 
