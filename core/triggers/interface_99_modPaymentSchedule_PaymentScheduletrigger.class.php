@@ -97,8 +97,8 @@ class InterfacePaymentScheduletrigger
             return $langs->trans("Unknown");
         }
     }
-	
-	
+
+
 	/**
 	 * Function called when a Dolibarrr business event is done.
 	 * All functions "run_trigger" are triggered if file is inside directory htdocs/core/triggers
@@ -114,8 +114,8 @@ class InterfacePaymentScheduletrigger
 		//For 8.0 remove warning
 		$result=$this->run_trigger($action, $object, $user, $langs, $conf);
 		return $result;
-	}	
-		
+	}
+
 
     /**
      * Function called when a Dolibarrr business event is done.
@@ -498,6 +498,14 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+            $paymentschedule = new PaymentSchedule($this->db);
+            if ($paymentschedule->fetchBy($object->id, 'fk_facture') > 0) {
+                if ($paymentschedule->delete($user) <= 0) {
+                    setEventMessages($langs->trans('PaymentScheduleDeleteFailed', $paymentschedule->id, $object->id));
+                }
+            }
+
+
         } elseif ($action == 'LINEBILL_INSERT') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id

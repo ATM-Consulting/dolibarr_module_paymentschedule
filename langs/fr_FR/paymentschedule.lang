@@ -132,6 +132,7 @@ CheckErrorNoActiveLineOnContract=Le contrat lié n'a aucune ligne active
 CanNotRetrieveInvoice=Impossible de récupérer la facture liée
 CheckErrorInvoiceInsufficientPermission=Permission insuffisante
 PaymentScheduleIsValidated=L'échéancier est au statut validé
+PaymentScheduleDeleteFailed=Impossible de supprimer l’échéancier %d lié à la facture %d
 
 # WARNINGS
 PaymentSchedule_Warnings_checkDateOrPaymentType=Veuillez vérifier la date saisie et/ou les types de paiements autorisés en configuration du module

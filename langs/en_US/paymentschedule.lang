@@ -132,6 +132,7 @@ CheckErrorNoActiveLineOnContract=The related contract has no active lines
 CanNotRetrieveInvoice=Unable to fetch the related invoice
 CheckErrorInvoiceInsufficientPermission=Rejected (please check user rights)
 PaymentScheduleIsValidated=The payment plan is validated
+PaymentScheduleDeleteFailed=Unable to delete payment plan %d linked with invoice %d
 
 # WARNINGS
 PaymentSchedule_Warnings_checkDateOrPaymentType=Please check the date you entered and/or the payment methods allowed in the module configuration
