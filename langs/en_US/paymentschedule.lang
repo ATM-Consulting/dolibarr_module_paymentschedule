@@ -7,6 +7,7 @@ PaymentScheduleSetup = Payment Plan module setup
 PaymentScheduleAbout = About Payment Plan for Dolibarr
 
 PaymentSchedule=Payment plan
+PaymentScheduleDet=Planned payment
 AbricotNeedUpdate=Please update module "Abricot"
 
 # PERMISSIONS

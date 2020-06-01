@@ -7,6 +7,7 @@ PaymentScheduleSetup = Configuration du module Echéancier SEPA
 PaymentScheduleAbout = A propos du module Echéancier SEPA
 
 PaymentSchedule=Echéancier
+PaymentScheduleDet=Échéance
 AbricotNeedUpdate=Le module abricot doit être mis à jour
 
 # PERMISSIONS
@@ -74,7 +75,7 @@ PaymentScheduleCreate=Créer échéancier
 
 PeriodicityUnit=Unité période
 PeriodicityValue=Valeur période (toutes les x unité)
-NbTerm=Nombre d'échéance
+NbTerm=Nombre d'échéances
 paymentschedule_periodicityDay=Jour
 paymentschedule_periodicityMonth=Mois
 paymentschedule_periodicityYear=Année
@@ -119,7 +120,7 @@ NotPaymentSchedule=Pas d'échéancier
 PaymentScheduleDetLinked=Ligne d'échéancier concernée
 PaymentLinked=Règlements associés
 PaymentSchedule_selectFormatForWithdraw=Format pour le bon de prélèvement
-WidthdrawsLinked=Bon de prélèvements liés
+WidthdrawsLinked=Bons de prélèvement liés
 
 # ERRORS
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
