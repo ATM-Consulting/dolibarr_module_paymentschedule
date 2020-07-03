@@ -158,3 +158,9 @@ PdfPaymentScheduleTitle=Échéancier
 DatePaymentSchedule=Date échéancier
 
 paymentscheduleSetAcceptNeedToSetBankAccountId=Vous devez renseigner une banque par défaut sur votre facture
+
+# Revert Script
+RevertPaymentSchedule=Annuler échéancier Sépa
+PaymentScheduleRevert_requestSelectDate=Date à laquelle la demande a été faite
+PaymentScheduleRevert_changeSelectDate=Date d'échéancier (rensignée dans le formulaire)
+Revert=Exécuter

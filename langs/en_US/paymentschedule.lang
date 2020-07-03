@@ -14,3 +14,9 @@ CanNotRetrieveInvoice=Can't retrieve linked invoice
 
 PaymentScheduleCreate=Create payment schedule
 bankWithdrawal=Bank withdrawal due %s
+
+# Revert Script
+RevertPaymentSchedule=Annuler échéancier Sépa
+PaymentScheduleRevert_requestSelectDate=Date à laquelle la demande a été faite
+PaymentScheduleRevert_changeSelectDate=Date d'échéancier (rensignée dans le formulaire)
+Revert=Exécuter

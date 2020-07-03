@@ -56,10 +56,10 @@ if (empty($reshook))
     {
         $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
         $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
-		
+
 		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) && $date_demande_start)
         {
-            $sql = 'SELECT COUNT(*) AS nb 
+            $sql = 'SELECT COUNT(*) AS nb
                     FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
                     INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
                     WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
@@ -83,7 +83,7 @@ if (empty($reshook))
     {
         $date_demande_start = GETPOST('date_demande_start');
         $date_demande_end = GETPOST('date_demande_end');
-		
+
 		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
 		{
 			$sql = 'SELECT t.fk_facture, td.rowid
@@ -94,6 +94,8 @@ if (empty($reshook))
                 AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
                 AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
 			$resql = $db->query($sql);
+
+
 
 			$errors = array();
 			if ($resql)
@@ -248,7 +250,7 @@ if ($action === 'searchpaymentschedule')
     print '</tr>';
 
     if (!empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
-    {
+	{
         global $mysoc;
         print '<tr>';
         if ($mysoc->isInEEC())
