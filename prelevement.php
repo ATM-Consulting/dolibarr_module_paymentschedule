@@ -100,6 +100,8 @@ if (empty($reshook))
 
 			$resql = $db->query($sql);
 
+
+
 			$errors = array();
 			if ($resql)
 			{
@@ -253,7 +255,7 @@ if ($action === 'searchpaymentschedule')
     print '</tr>';
 
     if (!empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
-    {
+	{
         global $mysoc;
         print '<tr>';
         if ($mysoc->isInEEC())

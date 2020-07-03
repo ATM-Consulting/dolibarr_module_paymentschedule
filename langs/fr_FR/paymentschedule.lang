@@ -81,7 +81,7 @@ paymentschedule_periodicityMonth=Mois
 paymentschedule_periodicityYear=Année
 
 ConfirmCreatePaymentScheduleTitle=Création échéancier
-ConfirmCreatePaymentScheduleBody=Souhaitez vous créer l'échéancier ?
+ConfirmCreatePaymentScheduleBody=Souhaitez vous créer l'échéancier ?
 paymentschedule_dateStartEcheance=Date de démarrage
 paymentschedule_numberOfPayments=Nombre d'échéances
 paymentschedule_dateEndPrelevement=Date prévisionnelle de dernière échéance :
@@ -156,3 +156,10 @@ PdfPaymentScheduleTitle=Échéancier
 DatePaymentSchedule=Date échéancier
 
 paymentscheduleSetAcceptNeedToSetBankAccountId=Vous devez renseigner un compte bancaire par défaut sur votre facture
+
+# Revert Script
+RevertPaymentSchedule=Annuler échéancier Sépa
+PaymentScheduleRevert_requestSelectDate=Date à laquelle la demande a été faite
+PaymentScheduleRevert_changeSelectDate=Date d'échéancier (rensignée dans le formulaire)
+Revert=Exécuter
+

@@ -57,7 +57,7 @@ PaymentScheduleSearchDate=First payment scheduled on:
 # CARD
 NewPaymentSchedule=Payment plan creation
 PaymentScheduleCard=Payment plan card
-paymentscheduleNotCreatedYet=The invoice has no payment plan 
+paymentscheduleNotCreatedYet=The invoice has no payment plan
 paymentschedulePaymentStatus=Status
 paymentscheduleDateDemande=Date of request
 paymentscheduleModeRglt=Payment method
@@ -87,7 +87,7 @@ paymentschedule_numberOfPayments=Number of installments
 paymentschedule_dateEndPrelevement=Scheduled date of the last installment:
 
 ConfirmValidatePaymentScheduleTitle=Payment plan validation
-ConfirmValidatePaymentScheduleBody=Do you wish to validate this payment plan? This will cause installments to be scheduled at the dates shown on the lines. 
+ConfirmValidatePaymentScheduleBody=Do you wish to validate this payment plan? This will cause installments to be scheduled at the dates shown on the lines.
 
 ConfirmDeletePaymentScheduleTitle=Delete the payment plan
 ConfirmDeletePaymentScheduleBody=Do you really want to delete this payment plan?
@@ -156,3 +156,9 @@ PdfPaymentScheduleTitle=Payment plan
 DatePaymentSchedule=Payment plan date
 
 paymentscheduleSetAcceptNeedToSetBankAccountId=Please fill in the invoice's default bank account
+
+# Revert Script
+RevertPaymentSchedule=Annuler échéancier Sépa
+PaymentScheduleRevert_requestSelectDate=Date à laquelle la demande a été faite
+PaymentScheduleRevert_changeSelectDate=Date d'échéancier (rensignée dans le formulaire)
+Revert=Exécuter
