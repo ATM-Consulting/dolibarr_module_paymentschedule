@@ -62,10 +62,12 @@ if (empty($reshook))
             $sql = 'SELECT COUNT(*) AS nb
                     FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
                     INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
+                    INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
                     WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                     AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
                     AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
-                    AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
+                    AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'
+                    AND fact.entity IN ('.getEntity('facture').') ';
             $resql = $db->query($sql);
 
             if ($resql)
@@ -89,10 +91,13 @@ if (empty($reshook))
 			$sql = 'SELECT t.fk_facture, td.rowid
                 FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
                 INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
+                INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
                 WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                 AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
                 AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
-                AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'';
+                AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'
+				AND fact.entity IN ('.getEntity('facture').') ';
+
 			$resql = $db->query($sql);
 
 

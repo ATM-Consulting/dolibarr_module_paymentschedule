@@ -606,7 +606,7 @@ class PaymentSchedule extends SeedObject
             }
             else
             {
-                $det->label = 'Prélèvement '.$facture->thirdparty->name.' - '.$facnumber;
+                $det->label = $langs->trans('PaymentScheduleDet').' '.$facture->thirdparty->name.' - '.$facnumber;
             }
 
 			$det->date_demande = $time;
@@ -1233,7 +1233,7 @@ class PaymentScheduleUpdateStatus extends SeedObject
 
         if (empty($user->rights->paymentschedule->write))
         {
-            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnougthPermission');
+            $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnoughPermission');
         }
         elseif (empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
         {
