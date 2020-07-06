@@ -134,7 +134,48 @@ if ($action === 'revertpaymentschedule') {
 		}
 	}
 	else {
-		array_push($results,array('KO'=>'Aucun bon de prélévement trouvé'));
+		array_push($results,array('KO'=>'Aucun bon de prélévement trouvé, supression des lignes sans correspondance :'));
+
+		// Suppression liens element_element Prelevement Facture Demande
+		$sql = '
+			DELETE FROM '.MAIN_DB_PREFIX.'element_element
+			WHERE sourcetype = \'prelevement_facture_demande\'
+			AND fk_source NOT IN
+				(
+				SELECT d.rowid
+				FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande as d
+				)
+			';
+
+		if ($db->query($sql))
+		{
+			array_push($results,array('OK'=>'Lignes Sans Correspondance element_element supprimées'));
+			$db->commit();
+		}
+		else {
+			array_push($results,array('KO'=>'Erreur suppression des lignes Sans Correspondance element_element'));
+		}
+
+		// Suppression Prelevement Facture Demande
+		$sql = '
+			DELETE
+			FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande
+			WHERE fk_prelevement_bons IS NULL
+			OR fk_prelevement_bons NOT IN
+			(
+				SELECT rowid
+				FROM '.MAIN_DB_PREFIX.'prelevement_bons
+			)
+		';
+
+		if ($db->query($sql))
+		{
+			array_push($results,array('OK'=>"\tLignes Sans Correspondance de prelevement_facture supprimées"));
+			$db->commit();
+		}
+		else {
+			array_push($results,array('KO'=>"\tSuppression Demandes Prélévements Factures de prelevement_bons ".$obj->rowid." échouée"));
+		}
 	}
 
 	$sql = '
