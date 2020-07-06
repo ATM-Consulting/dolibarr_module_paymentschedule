@@ -140,7 +140,7 @@ if ($action === 'revertpaymentschedule') {
 		$sql = '
 			DELETE FROM '.MAIN_DB_PREFIX.'element_element
 			WHERE sourcetype = \'prelevement_facture_demande\'
-			AND fk_source IN
+			AND fk_source NOT IN
 				(
 				SELECT d.rowid
 				FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande as d
@@ -160,7 +160,7 @@ if ($action === 'revertpaymentschedule') {
 		$sql = '
 			DELETE
 			FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande
-			WHERE  fk_prelevement_bons IS NULL
+			WHERE fk_prelevement_bons IS NULL
 			OR fk_prelevement_bons NOT IN
 			(
 				SELECT rowid
