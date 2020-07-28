@@ -1495,38 +1495,38 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		if ($showaddress)
 		{
 			// Sender properties
-//			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
-//
+			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
+
 //			// Show sender
-//			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
-//			$posy+=$top_shift;
-//			$posx=$this->marge_gauche;
-//			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
+			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
+			$posy+=$top_shift;
+			$posx=$this->marge_gauche;
+			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
 
 			$hautcadre=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 38 : 40;
 			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 82;
 
 
 			// Show sender frame
-//			$pdf->SetTextColor(0,0,0);
-//			$pdf->SetFont('','', $default_font_size - 2);
-//			$pdf->SetXY($posx,$posy-5);
-//			$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
-//			$pdf->SetXY($posx,$posy);
-//			$pdf->SetFillColor(230,230,230);
-//			$pdf->MultiCell($widthrecbox, $hautcadre, "", 0, 'R', 1);
-//			$pdf->SetTextColor(0,0,60);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('','', $default_font_size - 2);
+			$pdf->SetXY($posx,$posy-5);
+			$pdf->MultiCell(66,5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
+			$pdf->SetXY($posx,$posy);
+			$pdf->SetFillColor(230,230,230);
+			$pdf->MultiCell($widthrecbox, $hautcadre, "", 0, 'R', 1);
+			$pdf->SetTextColor(0,0,60);
 
 			// Show sender name
-//			$pdf->SetXY($posx+2,$posy+3);
-//			$pdf->SetFont('','B', $default_font_size);
-//			$pdf->MultiCell($widthrecbox-2, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
-//			$posy=$pdf->getY();
+			$pdf->SetXY($posx+2,$posy+3);
+			$pdf->SetFont('','B', $default_font_size);
+			$pdf->MultiCell($widthrecbox-2, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
+			$posy=$pdf->getY();
 
 			// Show sender information
-//			$pdf->SetXY($posx+2,$posy);
-//			$pdf->SetFont('','', $default_font_size - 1);
-//			$pdf->MultiCell($widthrecbox-2, 4, $carac_emetteur, 0, 'L');
+			$pdf->SetXY($posx+2,$posy);
+			$pdf->SetFont('','', $default_font_size - 1);
+			$pdf->MultiCell($widthrecbox-2, 4, $carac_emetteur, 0, 'L');
 
 
 
