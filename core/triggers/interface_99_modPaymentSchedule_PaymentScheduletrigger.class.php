@@ -532,7 +532,7 @@ class InterfacePaymentScheduletrigger
 
             if (!empty($object->id_prelevement))
             {
-                global $paymentschedule_facs, $paymentschedule_facs_index;
+                global $paymentschedule_facs;
 
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                 dol_include_once('paymentschedule/config.php');
@@ -541,37 +541,59 @@ class InterfacePaymentScheduletrigger
                 if (empty($paymentschedule_facs))
                 {
                     $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
-                    $psbonprelevement->fetch($object->id_prelevement);
+                    $res = $psbonprelevement->fetch($object->id_prelevement);
 
-                    $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
-                    $paymentschedule_facs_index = 0;
+                    if($res)
+                    {
+                        $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
+                    }
+//                        $paymentschedule_facs_index = 0;
                 }
 
-                // C'est pas terrible mais pas trop le choix, je récupère la dernière entrée pour l'utiliser et faire le lien
-                $fk_paiement_facture = null;
-                $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id.' ORDER BY rowid DESC LIMIT 1';
-                $resql = $this->db->query($sql);
-                if ($resql)
+                if(!empty($object->amounts) && !empty($paymentschedule_facs))
                 {
-                    while ($obj = $this->db->fetch_object($resql))
+                    //pour chaque montant du paiement
+                    foreach ($object->amounts as $facid => $amount)
                     {
-                        $fk_paiement_facture = $obj->rowid;
+
+                        //on sélectionner le dernier créé en fonction de l'id du paiement et de l'id de la facture en cours
+                        $fk_paiement_facture = null;
+                        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture ='.$facid.' ORDER BY rowid DESC LIMIT 1';
+                        $resql = $this->db->query($sql);
+                        if ($resql)
+                        {
+                            while ($obj = $this->db->fetch_object($resql))
+                            {
+                                $fk_paiement_facture = $obj->rowid;
+                            }
+                        }
+
+                        //on cherche le tableau d'infos pour facture en cours
+                        foreach ($paymentschedule_facs as $paymentschedule_fac)
+                        {
+                            if ($paymentschedule_fac[0] == $facid)
+                            {
+                                $TInfo = $paymentschedule_fac;
+                                break;
+                            }
+                        }
+
+//                    $TInfo = $paymentschedule_facs[$paymentschedule_facs_index];
+                        if (!empty($TInfo) && !empty($fk_paiement_facture))
+                        {
+                            $paymentscheduledet = new PaymentScheduleDet($this->db);
+                            // [2] = fk_prelevement_lignes
+                            if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
+                            {
+                                $paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
+                                $paymentscheduledet->setAccepted($user);
+                            }
+
+//                        $paymentschedule_facs_index++;
+                        }
                     }
                 }
 
-                $TInfo = $paymentschedule_facs[$paymentschedule_facs_index];
-                if (!empty($TInfo) && !empty($fk_paiement_facture))
-                {
-                    $paymentscheduledet = new PaymentScheduleDet($this->db);
-                    // [2] = fk_prelevement_lignes
-                    if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
-                    {
-                        $paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
-                        $paymentscheduledet->setAccepted($user);
-                    }
-
-                    $paymentschedule_facs_index++;
-                }
             }
             // CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA en provenance du formulaire de création de réglement standard Dolibarr
             elseif (GETPOSTISSET('action') && GETPOST('action') == 'confirm_paiement')
