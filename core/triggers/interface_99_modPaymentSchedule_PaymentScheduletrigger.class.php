@@ -538,20 +538,23 @@ class InterfacePaymentScheduletrigger
                 dol_include_once('paymentschedule/config.php');
                 dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
+                if (empty($paymentschedule_facs))
+                {
+                    $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
+                    $res = $psbonprelevement->fetch($object->id_prelevement);
 
-                if(!empty($object->amounts))
+                    if($res)
+                    {
+                        $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
+                    }
+//                        $paymentschedule_facs_index = 0;
+                }
+
+                if(!empty($object->amounts) && !empty($paymentschedule_facs))
                 {
                     //pour chaque montant du paiement
                     foreach ($object->amounts as $facid => $amount)
                     {
-                        if (empty($paymentschedule_facs))
-                        {
-                            $psbonprelevement = new PaymentScheduleBonPrelevement($this->db);
-                            $psbonprelevement->fetch($object->id_prelevement);
-
-                            $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
-//                        $paymentschedule_facs_index = 0;
-                        }
 
                         //on sélectionner le dernier créé en fonction de l'id du paiement et de l'id de la facture en cours
                         $fk_paiement_facture = null;
