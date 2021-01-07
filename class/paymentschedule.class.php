@@ -418,7 +418,21 @@ class PaymentSchedule extends SeedObject
 
         $TRestrictMessage = array();
 
-        if (empty($user->rights->paymentschedule->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
+		//Interdire la création d'échéancier si les lignes de la facture ont plusieurs taux de TVA différents
+		$i = 0;
+		foreach($facture->lines as $line){
+			if(empty($i)) $tx_tva = $line->tva_tx;
+
+			if($tx_tva != $line->tva_tx) {
+				$TRestrictMessage[] = $langs->trans('CheckErrorInvoiceSeveralTva');
+				break;
+			}
+
+			$tx_tva = $line->tva_tx;
+			$i++;
+		}
+
+		if (empty($user->rights->paymentschedule->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
