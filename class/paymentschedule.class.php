@@ -578,16 +578,46 @@ class PaymentSchedule extends SeedObject
 		}
 		$facture->update($user);
 
+		//Calcul reste à payer
+
+		// On verifie si la facture a des paiements
+		$sql = 'SELECT pf.amount';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'paiement_facture as pf';
+		$sql .= ' WHERE pf.fk_facture = ' . $facture->id;
+
+		$result = $this->db->query($sql);
+		if ($result) {
+			$i = 0;
+			$num = $this->db->num_rows($result);
+
+			while ($i < $num) {
+				$objp = $this->db->fetch_object($result);
+				$totalpaye += $objp->amount;
+				$i ++;
+			}
+		} else {
+			dol_print_error($this->db, '');
+		}
+
+		$totalcreditnotes = $facture->getSumCreditNotesUsed();
+		$totaldeposits = $facture->getSumDepositsUsed();
+
+		$resteapayer_TTC = price2num($facture->total_ttc - $totalpaye - $totalcreditnotes - $totaldeposits, 'MT');
+
+		//Calcul montant TVA et HT du reste à payer
+		$resteapayer_HT = $resteapayer_TTC / (1+($facture->lines[0]->tva_tx/100));
+		$resteapayer_TVA = $resteapayer_TTC - $resteapayer_HT;
+
 		$TDefaultAmountToPay = array(
-			'HT' 	=> round($facture->total_ht / $this->nb_term, 2)
-			,'VAT'	=> round($facture->total_tva / $this->nb_term, 2)
-			,'TTC'	=> round($facture->total_ttc / $this->nb_term, 2)
+			'HT' 	=> round($resteapayer_HT / $this->nb_term, 2)
+			,'VAT'	=> round($resteapayer_TVA / $this->nb_term, 2)
+			,'TTC'	=> round($resteapayer_TTC / $this->nb_term, 2)
 		);
 
 		$TLeftAmountToPay = array(
-			'HT' 	=> $facture->total_ht - (($this->nb_term-1) * $TDefaultAmountToPay['HT'])
-			,'VAT' 	=> $facture->total_tva - (($this->nb_term-1) * $TDefaultAmountToPay['VAT'])
-			,'TTC' 	=> $facture->total_ttc - (($this->nb_term-1) * $TDefaultAmountToPay['TTC'])
+			'HT' 	=> $resteapayer_HT - (($this->nb_term-1) * $TDefaultAmountToPay['HT'])
+			,'VAT' 	=> $resteapayer_TVA - (($this->nb_term-1) * $TDefaultAmountToPay['VAT'])
+			,'TTC' 	=> $resteapayer_TTC - (($this->nb_term-1) * $TDefaultAmountToPay['TTC'])
 		);
 
 		// si reset à true, alors on supprime toutes les lignes avant de les recréer (uniquement celles qui sont en attente de traitement)
