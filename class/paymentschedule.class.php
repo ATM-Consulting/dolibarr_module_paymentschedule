@@ -428,7 +428,6 @@ class PaymentSchedule extends SeedObject
 				break;
 			}
 
-			$tx_tva = $line->tva_tx;
 			$i++;
 		}
 
@@ -580,12 +579,15 @@ class PaymentSchedule extends SeedObject
 
 		//Calcul reste à payer
 
+		$totalpaye = 0;
+
 		// On verifie si la facture a des paiements
 		$sql = 'SELECT pf.amount';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'paiement_facture as pf';
 		$sql .= ' WHERE pf.fk_facture = ' . $facture->id;
 
 		$result = $this->db->query($sql);
+
 		if ($result) {
 			$i = 0;
 			$num = $this->db->num_rows($result);
