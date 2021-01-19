@@ -123,6 +123,7 @@ PaymentSchedule_selectFormatForWithdraw=Format pour le bon de prélèvement
 WidthdrawsLinked=Bons de prélèvement liés
 
 # ERRORS
+CheckErrorInvoiceSeveralTva=Cette facture possède des lignes avec des taux de TVA différents
 CheckErrorInvoiceIsDraft=Cette facture est au statut brouillon
 CheckErrorTimetableAlreadyExists=Un échéancier existe déjà pour cette facture
 CheckErrorCustomerHasNoIBAN=Le client de cette facture ne possède pas d'IBAN
