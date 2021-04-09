@@ -159,7 +159,7 @@ class InterfacePaymentScheduletrigger
 
             $object->deleteObjectLinked();
 
-        } elseif ($action == 'BON_PRELEVEMENT_CREATE' || $action == 'DIRECT_DEBIT_ORDER_CREATE') {
+        } elseif ($action == 'BON_PRELEVEMENT_CREATE' || $action == 'DIRECT_DEBIT_ORDER_CREATE' || $action == 'CREDIT_TRANSFER_ORDER_CREATE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
