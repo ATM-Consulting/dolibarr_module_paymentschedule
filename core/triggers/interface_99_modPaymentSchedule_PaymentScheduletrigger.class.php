@@ -596,7 +596,7 @@ class InterfacePaymentScheduletrigger
 
             }
             // CREATION LIEN ENTRE PAIEMENT ET DET DE L'ECHEANCIER SEPA en provenance du formulaire de création de réglement standard Dolibarr
-            elseif (GETPOSTISSET('action') && GETPOST('action') == 'confirm_paiement')
+            elseif (GETPOSTISSET('action') && GETPOST('action', 'aZ09') == 'confirm_paiement')
             {
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
                 dol_include_once('paymentschedule/config.php');

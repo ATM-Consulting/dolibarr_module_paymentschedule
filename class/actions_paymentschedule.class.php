@@ -78,8 +78,8 @@ class ActionsPaymentSchedule
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 				dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth'), GETPOST('date_startday'), GETPOST('date_startyear'));
-				$periodicity_unit = GETPOST('periodicity_unit');
+				$date_start = dol_mktime(12, 0, 0, GETPOST('date_startmonth', 'int'), GETPOST('date_startday', 'int'), GETPOST('date_startyear', 'int'));
+				$periodicity_unit = GETPOST('periodicity_unit', 'alphanohtml');
 				$periodicity_value = GETPOST('periodicity_value', 'int');
 				$nb_term = GETPOST('nb_term', 'int');
 
@@ -103,7 +103,7 @@ class ActionsPaymentSchedule
                 $did = GETPOST('did', 'int');
                 if ($did > 0)
                 {
-                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element 
+                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
                         WHERE fk_source = '.$did.' AND sourcetype = \'prelevement_facture_demande\'
                         AND targettype = \'paymentscheduledet\'';
 
@@ -178,7 +178,7 @@ class ActionsPaymentSchedule
                     if (in_array($det->status, array(PaymentScheduleDet::STATUS_IN_PROCESS, PaymentScheduleDet::STATUS_REQUESTED, PaymentScheduleDet::STATUS_ACCEPTED)) || $det->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) $disabled = 'disabled';
 
                     $selected = '';
-                    if (GETPOST('paymentscheduledet_'. $object->facid) == $det->id ) $selected = 'selected';
+                    if (GETPOST('paymentscheduledet_'. $object->facid, 'alphanohtml') == $det->id ) $selected = 'selected';
 
                     print '<option '.$disabled.' '.$selected.' value="' . $det->id . '" data-amount="' . $det->amount_ttc . '">' . $det->label . ' ('.$form->cache_types_paiements[$det->fk_mode_reglement]['label'].' - '.dol_print_date($det->date_demande, 'day').')</option>';
                 }
@@ -345,7 +345,7 @@ class ActionsPaymentSchedule
         $TContext = explode(':',$parameters['context']);
         if (in_array('directdebitcreatecard', $TContext))
         {
-            if (GETPOST('action') === 'create')
+            if (GETPOST('action', 'aZ09') === 'create')
             {
                 dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 
@@ -388,9 +388,9 @@ class ActionsPaymentSchedule
     {
         if ($parameters['currentcontext'] === 'invoicecard')
         {
-            if (GETPOST('action') === 'presend' && GETPOST('from') === 'paymentschedule')
+            if (GETPOST('action', 'aZ09') === 'presend' && GETPOST('from', 'alphanohtml') === 'paymentschedule')
             {
-                $fk_facture = GETPOST('facid');
+                $fk_facture = GETPOST('facid', 'int');
                 if ($fk_facture > 0)
                 {
                     global $conf;

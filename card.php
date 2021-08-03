@@ -28,14 +28,14 @@ if(empty($user->rights->paymentschedule->read)) accessforbidden();
 
 $langs->loadLangs(array('paymentschedule@paymentschedule', 'bills', 'main'));
 
-$action = GETPOST('action');
+$action = GETPOST('action', 'aZ09');
 $id = GETPOST('id', 'int');
-$ref = GETPOST('ref');
+$ref = GETPOST('ref', 'alphanohtml');
 $facid = GETPOST('facid', 'int');
 $lineid = GETPOST('lineid', 'int');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'paymentschedulecard';   // To manage different context of search
-$backtopage = GETPOST('backtopage', 'alpha');
+$backtopage = GETPOST('backtopage', 'alphanohtml');
 
 $usercansend = (empty($conf->global->MAIN_USE_ADVANCED_PERMS) || $user->rights->facture->invoice_advance->send);
 
@@ -74,11 +74,11 @@ $linesExtrafields = new ExtraFields($db);
 $linesExtralabels = $linesExtrafields->fetch_name_optionals_label($det->table_element);
 
 // Initialize array of search criterias
-//$search_all=trim(GETPOST("search_all",'alpha'));
+//$search_all=trim(GETPOST("search_all",'alphanohtml'));
 //$search=array();
 //foreach($object->fields as $key => $val)
 //{
-//    if (GETPOST('search_'.$key,'alpha')) $search[$key]=GETPOST('search_'.$key,'alpha');
+//    if (GETPOST('search_'.$key,'alphanohtml')) $search[$key]=GETPOST('search_'.$key,'alphanohtml');
 //}
 
 /*
@@ -187,25 +187,25 @@ if (empty($reshook))
         case 'confirm_resetpaymentschedule':
             if (!empty($user->rights->paymentschedule->write))
             {
-                $object->initDetailEcheancier(GETPOST('full_reset'));
+                $object->initDetailEcheancier(GETPOST('full_reset', 'int'));
             }
             header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
             exit;
 
         case 'updatelinepaymentschedule':
 //            var_dump(GETPOST('save'), $lineid);
-            if (GETPOST('save') && $lineid > 0)
+            if (GETPOST('save', 'alphanohtml') && $lineid > 0)
             {
                 $k = $object->addChild('PaymentScheduleDet', $lineid);
                 $child = &$object->TPaymentScheduleDet[$k];
                 if (!empty($child->id))
                 {
-                    $child->label = GETPOST('label');
-                    $child->date_demande = dol_mktime(12, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+                    $child->label = GETPOST('label', 'alphanohtml');
+                    $child->date_demande = dol_mktime(12, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
                     $child->fk_mode_reglement = GETPOST('fk_mode_reglement', 'int');
 
                     $old_amount_ttc = $child->amount_ttc;
-                    $child->amount_ttc = price2num(GETPOST('amount_ttc'));
+                    $child->amount_ttc = price2num(GETPOST('amount_ttc', 'int'));
 
 					$linesExtrafields->setOptionalsFromPost($linesExtralabels, $child);
 

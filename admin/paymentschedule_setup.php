@@ -42,10 +42,10 @@ if (! $user->admin) {
 }
 
 // Parameters
-$action = GETPOST('action', 'alpha');
-$value = GETPOST('value','alpha');
-$label = GETPOST('label','alpha');
-$scandir = GETPOST('scan_dir','alpha');
+$action = GETPOST('action', 'aZ09');
+$value = GETPOST('value','alphanohtml');
+$label = GETPOST('label','alphanohtml');
+$scandir = GETPOST('scan_dir','alphanohtml');
 $type='paymentschedule';
 
 /*
@@ -53,7 +53,7 @@ $type='paymentschedule';
  */
 if ($action == 'specimen')
 {
-	$modele=GETPOST('module','alpha');
+	$modele=GETPOST('module','alphanohtml');
 
 	$paymentschedule = new PaymentSchedule($db);
 	$paymentschedule->initAsSpecimen();
@@ -132,7 +132,7 @@ else if ($action == 'setdoc')
 if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
-	$val = GETPOST($code);
+	$val = GETPOST($code, 'alphanohtml');
 	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND' && !empty($val))
 	{
 		$val = implode(',', $val);
@@ -148,7 +148,7 @@ if (preg_match('/set_(.*)/', $action, $reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
@@ -434,7 +434,7 @@ print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'
 print '</form>';
 print '</td></tr>';
 
-setup_print_input_form_part('PAYMENTSCHEDULE_LABEL_PATTERN', $langs->trans('PAYMENTSCHEDULE_LABEL_PATTERN'), 'PAYMENTSCHEDULE_LABEL_PATTERN_HELP', array('placeholder' => 'Prélèvement {SOCNAME} - {FACNUMBER}', 'size' => '40'));
+setup_print_input_form_part('PAYMENTSCHEDULE_LABEL_PATTERN', $langs->trans('PAYMENTSCHEDULE_LABEL_PATTERN'), $langs->transnoentitiesnoconv('PAYMENTSCHEDULE_LABEL_PATTERN_HELP'), array('placeholder' => 'Prélèvement {SOCNAME} - {FACNUMBER}', 'size' => '40'));
 
 // Example with placeholder
 //setup_print_input_form_part('CONSTNAME',$langs->trans('ParamLabel'),'ParamDesc',array('placeholder'=>'http://'),'input','ParamHelp');
