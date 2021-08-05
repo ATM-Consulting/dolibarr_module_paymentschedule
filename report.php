@@ -23,13 +23,13 @@ if(empty($user->rights->paymentschedule->read)) accessforbidden();
 $langs->load('abricot@abricot');
 $langs->load('paymentschedule@paymentschedule');
 
-$nbLine = GETPOST('limit');
+$nbLine = GETPOST('limit', 'int');
 
-$search_nom = GETPOST('Listview_paymentschedulereport_search_nom', 'alpha');
-$search_code_client = GETPOST('Listview_paymentschedulereport_search_code_client', 'alpha');
-$search_code_compta = GETPOST('Listview_paymentschedulereport_search_code_compta', 'alpha');
+$search_nom = GETPOST('Listview_paymentschedulereport_search_nom', 'alphanohtml');
+$search_code_client = GETPOST('Listview_paymentschedulereport_search_code_client', 'alphanohtml');
+$search_code_compta = GETPOST('Listview_paymentschedulereport_search_code_compta', 'alphanohtml');
 
-$time_demande = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+$time_demande = dol_mktime(0, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
 if (empty($time_demande)) $time_demande = dol_mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 
 //$year = date('Y');

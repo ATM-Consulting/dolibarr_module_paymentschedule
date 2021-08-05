@@ -854,7 +854,8 @@ class PaymentSchedule extends SeedObject
                     $paiement->amounts      = array($this->fk_facture => $paymentScheduleDet->amount_ttc);   // Array with all payments dispatching with invoice id
                     $paiement->multicurrency_amounts = array();   // Array with all payments dispatching
                     $paiement->paiementid   = $paymentScheduleDet->fk_mode_reglement;
-                    $paiement->num_paiement = '';
+                    $paiement->num_payment = '';
+                    $paiement->num_paiement = $paiement->num_payment; // backward compatibility Dolibarr < 13.0
                     $paiement->note         = '';
 
                     $fk_paiement = $paiement->create($user, 1, $thirdparty);    // This include closing invoices and regenerating documents

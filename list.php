@@ -54,37 +54,37 @@ dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 $langs->loadLangs(array('bills', 'companies', 'products', 'categories', 'paymentschedule@paymentschedule'));
 
 $sall=trim((GETPOST('search_all', 'alphanohtml')!='')?GETPOST('search_all', 'alphanohtml'):GETPOST('sall', 'alphanohtml'));
-$projectid=(GETPOST('projectid')?GETPOST('projectid','int'):0);
+$projectid=(GETPOST('projectid', 'int')?GETPOST('projectid','int'):0);
 
 $id=(GETPOST('id','int')?GETPOST('id','int'):GETPOST('facid','int'));  // For backward compatibility
-$ref=GETPOST('ref','alpha');
+$ref=GETPOST('ref','alphanohtml');
 $socid=GETPOST('socid','int');
 
-$action=GETPOST('action','alpha');
-$massaction=GETPOST('massaction','alpha');
+$action=GETPOST('action','alphanohtml');
+$massaction=GETPOST('massaction','alphanohtml');
 $show_files=GETPOST('show_files','int');
-$confirm=GETPOST('confirm','alpha');
+$confirm=GETPOST('confirm','alphanohtml');
 $toselect = GETPOST('toselect', 'array');
 $contextpage=GETPOST('contextpage','aZ')?GETPOST('contextpage','aZ'):'invoicelist';
 
 $lineid=GETPOST('lineid','int');
 $userid=GETPOST('userid','int');
 $search_product_category=GETPOST('search_product_category','int');
-$search_ref=GETPOST('sf_ref')?GETPOST('sf_ref','alpha'):GETPOST('search_ref','alpha');
-$search_refcustomer=GETPOST('search_refcustomer','alpha');
+$search_ref=GETPOST('sf_ref', 'alphanohtml')?GETPOST('sf_ref','alphanohtml'):GETPOST('search_ref','alphanohtml');
+$search_refcustomer=GETPOST('search_refcustomer','alphanohtml');
 $search_type=GETPOST('search_type','int');
-$search_project=GETPOST('search_project','alpha');
-$search_societe=GETPOST('search_societe','alpha');
-$search_montant_ht=GETPOST('search_montant_ht','alpha');
-$search_montant_vat=GETPOST('search_montant_vat','alpha');
-$search_montant_localtax1=GETPOST('search_montant_localtax1','alpha');
-$search_montant_localtax2=GETPOST('search_montant_localtax2','alpha');
-$search_montant_ttc=GETPOST('search_montant_ttc','alpha');
+$search_project=GETPOST('search_project','alphanohtml');
+$search_societe=GETPOST('search_societe','alphanohtml');
+$search_montant_ht=GETPOST('search_montant_ht','alphanohtml');
+$search_montant_vat=GETPOST('search_montant_vat','alphanohtml');
+$search_montant_localtax1=GETPOST('search_montant_localtax1','alphanohtml');
+$search_montant_localtax2=GETPOST('search_montant_localtax2','alphanohtml');
+$search_montant_ttc=GETPOST('search_montant_ttc','alphanohtml');
 $search_status=GETPOST('search_status','intcomma');
 $search_paymentmode=GETPOST('search_paymentmode','int');
-$search_town=GETPOST('search_town','alpha');
-$search_zip=GETPOST('search_zip','alpha');
-$search_state=trim(GETPOST("search_state"));
+$search_town=GETPOST('search_town','alphanohtml');
+$search_zip=GETPOST('search_zip','alphanohtml');
+$search_state=trim(GETPOST("search_state", 'alphanohtml'));
 $search_country=GETPOST("search_country",'int');
 $search_type_thirdparty=GETPOST("search_type_thirdparty",'int');
 $search_user = GETPOST('search_user','int');
@@ -96,19 +96,19 @@ $search_day_lim		= GETPOST('search_day_lim','int');
 $search_month_lim	= GETPOST('search_month_lim','int');
 $search_year_lim	= GETPOST('search_year_lim','int');
 $search_categ_cus=trim(GETPOST("search_categ_cus",'int'));
-$search_btn=GETPOST('button_search','alpha');
-$search_remove_btn=GETPOST('button_removefilter','alpha');
+$search_btn=GETPOST('button_search','alphanohtml');
+$search_remove_btn=GETPOST('button_removefilter','alphanohtml');
 $search_status_schedule=GETPOST('search_status_schedule', 'int');
 
-$option = GETPOST('search_option');
+$option = GETPOST('search_option', 'alphanohtml');
 if ($option == 'late') {
     $search_status = '1';
 }
-$filtre	= GETPOST('filtre','alpha');
+$filtre	= GETPOST('filtre','alphanohtml');
 
 $limit = GETPOST('limit','int')?GETPOST('limit','int'):$conf->liste_limit;
-$sortfield = GETPOST("sortfield",'alpha');
-$sortorder = GETPOST("sortorder",'alpha');
+$sortfield = GETPOST("sortfield",'alphanohtml');
+$sortorder = GETPOST("sortorder",'alphanohtml');
 $page = GETPOST("page",'int');
 if (empty($page) || $page == -1 || !empty($search_btn) || !empty($search_remove_btn) || (empty($toselect) && $massaction === '0')) { $page = 0; }     // If $page is not defined, or '' or -1
 $offset = $limit * $page;
@@ -192,8 +192,8 @@ if (is_array($extrafields->attribute_label) && count($extrafields->attribute_lab
  * Actions
  */
 
-if (GETPOST('cancel','alpha')) { $action='list'; $massaction=''; }
-if (! GETPOST('confirmmassaction','alpha') && $massaction != 'presend' && $massaction != 'confirm_presend') { $massaction=''; }
+if (GETPOST('cancel','alphanohtml')) { $action='list'; $massaction=''; }
+if (! GETPOST('confirmmassaction','alphanohtml') && $massaction != 'presend' && $massaction != 'confirm_presend') { $massaction=''; }
 
 $parameters=array('socid'=>$socid);
 $reshook=$hookmanager->executeHooks('doActions',$parameters,$object,$action);    // Note that $action and $object may have been modified by some hooks
@@ -202,7 +202,7 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 include DOL_DOCUMENT_ROOT.'/core/actions_changeselectedfields.inc.php';
 
 // Do we click on purge search criteria ?
-if (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter','alpha') || GETPOST('button_removefilter.x','alpha')) // All tests are required to be compatible with all browsers
+if (GETPOST('button_removefilter_x','alphanohtml') || GETPOST('button_removefilter','alphanohtml') || GETPOST('button_removefilter.x','alphanohtml')) // All tests are required to be compatible with all browsers
 {
     $search_user='';
     $search_sale='';

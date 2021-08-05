@@ -35,7 +35,7 @@ $langs->loadLangs(array('paymentschedule@paymentschedule', 'banks', 'categories'
 //$result = restrictedArea($user, 'prelevement', '', '', 'bons');
 if(empty($user->rights->paymentschedule->write)) accessforbidden();
 
-$action = GETPOST('action');
+$action = GETPOST('action', 'aZ09');
 
 
 $hookmanager->initHooks(array('paymentschedulecard', 'globalcard'));
@@ -54,8 +54,8 @@ if (empty($reshook))
 {
     if ($action === 'searchpaymentschedule')
     {
-        $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
-        $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth'), GETPOST('reday'), GETPOST('reyear'));
+        $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
+        $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
 
 		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) && $date_demande_start)
         {
@@ -83,8 +83,8 @@ if (empty($reshook))
     }
     elseif ($action === 'createpaymentschedule')
     {
-        $date_demande_start = GETPOST('date_demande_start');
-        $date_demande_end = GETPOST('date_demande_end');
+        $date_demande_start = GETPOST('date_demande_start', 'alphanohtml');
+        $date_demande_end = GETPOST('date_demande_end', 'alphanohtml');
 
 		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
 		{
@@ -167,7 +167,7 @@ if (empty($reshook))
                     $langs->loadLangs(array('banks', 'categories', 'widthdrawals', 'companies', 'bills'));
 
                     require_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
-                    $format = GETPOST('format');
+                    $format = GETPOST('format', 'alphanohtml');
                     $bprev = new BonPrelevement($db);
                     $executiondate = $date_demande_start;
                     $mode = 'real';
