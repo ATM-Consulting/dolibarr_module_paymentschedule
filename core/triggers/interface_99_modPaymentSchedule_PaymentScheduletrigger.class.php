@@ -547,10 +547,13 @@ class InterfacePaymentScheduletrigger
                     {
                         $paymentschedule_facs = $psbonprelevement->getListInvoices(1);
                     }
+
 //                        $paymentschedule_facs_index = 0;
                 }
 
-                if(!empty($object->amounts) && !empty($paymentschedule_facs))
+				if (empty($object->amounts)) $object->amounts = $object->getAmountsArray();
+
+				if(!empty($object->amounts) && !empty($paymentschedule_facs))
                 {
                     //pour chaque montant du paiement
                     foreach ($object->amounts as $facid => $amount)
