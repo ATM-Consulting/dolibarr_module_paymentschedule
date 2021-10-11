@@ -915,7 +915,7 @@ class PaymentSchedule extends SeedObject
                         include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/ligneprelevement.class.php';
                         include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/rejetprelevement.class.php';
 
-						/** COMPATIBILITY DOL_VERSION 11 et plus */
+						/** COMPATIBILITY DOL_VERSION 12 et plus */
 						if(versioncompare(versiondolibarrarray(), explode('.', '12.0.0')) >= 0 ){
 							$lipre = new LignePrelevement($this->db);
 						}else{
@@ -925,7 +925,7 @@ class PaymentSchedule extends SeedObject
                         $lipre->fetch($fk_widthdraw_line);
                         if ($lipre->id > 0)
                         {
-							/** COMPATIBILITY DOL_VERSION 11 et plus */
+							/** COMPATIBILITY DOL_VERSION 12 et plus */
 							if(versioncompare(versiondolibarrarray(), explode('.', '12.0.0')) >= 0 ){
 								$lipre = new LignePrelevement($this->db);
 							}else{
