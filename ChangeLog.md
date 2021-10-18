@@ -6,6 +6,7 @@
 
 ## Version 1.1
 
+- FIX: retrocompatibility  - *12/10/2021* - 1.1.2
 - FIX: get payment table for payment link to just one invoice - *07/09/2021* - 1.1.1
 - NEW: compatibility with Dolibarr v13-v14 - *03/08/2021* - 1.1.0
 
