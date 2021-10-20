@@ -915,11 +915,29 @@ class PaymentSchedule extends SeedObject
                         include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/ligneprelevement.class.php';
                         include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/rejetprelevement.class.php';
 
-                        $lipre = new LignePrelevement($this->db, $user);
+						/** COMPATIBILITY DOL_VERSION 12 et plus */
+						if(versioncompare(versiondolibarrarray(), explode('.', '12.0.0')) >= 0 ){
+							$lipre = new LignePrelevement($this->db);
+						}else{
+							$lipre = new LignePrelevement($this->db, $user);
+						}
+
                         $lipre->fetch($fk_widthdraw_line);
                         if ($lipre->id > 0)
                         {
-                            $rej = new RejetPrelevement($this->db, $user);
+							/** COMPATIBILITY DOL_VERSION 12 et plus */
+							if(versioncompare(versiondolibarrarray(), explode('.', '12.0.0')) >= 0 ){
+								$lipre = new LignePrelevement($this->db);
+							}else{
+								$lipre = new LignePrelevement($this->db, $user);
+							}
+
+							/** COMPATIBILITY DOL_VERSION 11 et plus */
+							if(versioncompare(versiondolibarrarray(), explode('.', '11.0.0')) >= 0 ){
+								$rej = new RejetPrelevement($this->db, $user, 'prelevement'); // Type ('direct-debit' for direct debit or 'bank-transfer' for credit transfer)
+							}else{
+								$rej = new RejetPrelevement($this->db, $user);
+							}
                             /** @see RejetPrelevement::motifs 1 = Provision insuffisante; 2 = Prélèvement contesté; ...*/
                             $rej->create($user, $lipre->id, 2, $daterej, $lipre->bon_rowid, 0);
 
