@@ -1267,7 +1267,7 @@ class PaymentScheduleUpdateStatus extends SeedObject
 
     public function run()
     {
-        global $user, $conf;
+        global $user, $conf, $langs;
 
 	    //Hack to be sure to get translation working during CRON run
 	    $langs = new Translate('', $conf);
