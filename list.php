@@ -33,7 +33,7 @@
  *	\brief      List of customer invoices
  */
 
-require '../../main.inc.php';
+require __DIR__ . '/config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -125,6 +125,15 @@ if (! empty($user->societe_id)) $socid=$user->societe_id;
 $result = restrictedArea($user, 'facture', $id,'','','fk_soc',$fieldid);
 
 $diroutputmassaction=$conf->paymentschedule->dir_output . '/temp/massgeneration/'.$user->id;
+
+
+// COMPATIBILITY VERSION < 14
+$invoiceTotalHtField = 'total_ht';
+$invoiceTotalVatField = 'total_tva';
+if(version_compare(DOL_VERSION, '14.0.0', '<')){
+	$invoiceTotalHtField = 'total';
+	$invoiceTotalVatField = 'tva';
+}
 
 $now=dol_now();
 
@@ -265,7 +274,7 @@ $scheduleStatic=new PaymentSchedule($db);
 
 $sql = 'SELECT';
 if ($sall || $search_product_category > 0) $sql = 'SELECT DISTINCT';
-$sql.= ' f.rowid as id, f.'.$fieldRefFacture.' as ref, f.ref_client, f.type, f.note_private, f.note_public, f.increment, f.fk_mode_reglement, f.total as total_ht, f.tva as total_vat, f.total_ttc,';
+$sql.= ' f.rowid as id, f.'.$fieldRefFacture.' as ref, f.ref_client, f.type, f.note_private, f.note_public, f.increment, f.fk_mode_reglement, f.'.$invoiceTotalHtField.' as total_ht, f.'.$invoiceTotalVatField.' as total_vat, f.total_ttc,';
 $sql.= ' f.localtax1 as total_localtax1, f.localtax2 as total_localtax2,';
 $sql.= ' f.datef as df, f.date_lim_reglement as datelimite,';
 $sql.= ' f.paye as paye, f.fk_statut,';
@@ -336,8 +345,8 @@ if ($search_state) $sql.= natural_search("state.nom",$search_state);
 if ($search_country) $sql .= " AND s.fk_pays IN (".$db->escape($search_country).')';
 if ($search_type_thirdparty) $sql .= " AND s.fk_typent IN (".$db->escape($search_type_thirdparty).')';
 if ($search_company) $sql .= natural_search('s.nom', $search_company);
-if ($search_montant_ht != '') $sql.= natural_search('f.total', $search_montant_ht, 1);
-if ($search_montant_vat != '') $sql.= natural_search('f.tva', $search_montant_vat, 1);
+if ($search_montant_ht != '') $sql.= natural_search('f.'.$invoiceTotalHtField, $search_montant_ht, 1);
+if ($search_montant_vat != '') $sql.= natural_search('f.'.$invoiceTotalVatField, $search_montant_vat, 1);
 if ($search_montant_localtax1 != '') $sql.= natural_search('f.localtax1', $search_montant_localtax1, 1);
 if ($search_montant_localtax2 != '') $sql.= natural_search('f.localtax2', $search_montant_localtax2, 1);
 if ($search_montant_ttc != '') $sql.= natural_search('f.total_ttc', $search_montant_ttc, 1);
@@ -414,7 +423,10 @@ $sql.=$hookmanager->resPrint;
 
 if (! $sall)
 {
-    $sql.= ' GROUP BY f.rowid, f.'.$fieldRefFacture.', ref_client, f.type, f.note_private, f.note_public, f.increment, f.fk_mode_reglement, f.total, f.tva, f.total_ttc,';
+
+
+
+    $sql.= ' GROUP BY f.rowid, f.'.$fieldRefFacture.', ref_client, f.type, f.note_private, f.note_public, f.increment, f.fk_mode_reglement, f.'.$invoiceTotalHtField.', f.'.$invoiceTotalVatField.', f.total_ttc,';
     $sql.= ' f.localtax1, f.localtax2,';
     $sql.= ' f.datef, f.date_lim_reglement,';
     $sql.= ' f.paye, f.fk_statut,';
@@ -828,7 +840,7 @@ if ($resql)
     if (! empty($arrayfields['typent.code']['checked']))          print_liste_field_titre($arrayfields['typent.code']['label'],$_SERVER["PHP_SELF"],"typent.code","",$param,'align="center"',$sortfield,$sortorder);
     if (! empty($arrayfields['f.fk_mode_reglement']['checked']))  print_liste_field_titre($arrayfields['f.fk_mode_reglement']['label'],$_SERVER["PHP_SELF"],"f.fk_mode_reglement","",$param,"",$sortfield,$sortorder);
     if (! empty($arrayfields['f.total_ht']['checked']))           print_liste_field_titre($arrayfields['f.total_ht']['label'],$_SERVER['PHP_SELF'],'f.total','',$param,'align="right"',$sortfield,$sortorder);
-    if (! empty($arrayfields['f.total_vat']['checked']))          print_liste_field_titre($arrayfields['f.total_vat']['label'],$_SERVER['PHP_SELF'],'f.tva','',$param,'align="right"',$sortfield,$sortorder);
+    if (! empty($arrayfields['f.total_vat']['checked']))          print_liste_field_titre($arrayfields['f.total_vat']['label'],$_SERVER['PHP_SELF'],'f.'.$invoiceTotalVatField,'',$param,'align="right"',$sortfield,$sortorder);
     if (! empty($arrayfields['f.total_localtax1']['checked']))    print_liste_field_titre($arrayfields['f.total_localtax1']['label'],$_SERVER['PHP_SELF'],'f.localtax1','',$param,'align="right"',$sortfield,$sortorder);
     if (! empty($arrayfields['f.total_localtax2']['checked']))    print_liste_field_titre($arrayfields['f.total_localtax2']['label'],$_SERVER['PHP_SELF'],'f.localtax2','',$param,'align="right"',$sortfield,$sortorder);
     if (! empty($arrayfields['f.total_ttc']['checked']))          print_liste_field_titre($arrayfields['f.total_ttc']['label'],$_SERVER['PHP_SELF'],'f.total_ttc','',$param,'align="right"',$sortfield,$sortorder);
