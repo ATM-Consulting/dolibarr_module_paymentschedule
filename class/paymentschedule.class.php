@@ -423,6 +423,11 @@ class PaymentSchedule extends SeedObject
 		foreach($facture->lines as $line){
 			if(empty($i)) $tx_tva = $line->tva_tx;
 
+			if($conf->subtotal->enabled) { // Pas de vérification de TVA sur les lignes de sous total
+				dol_include_once('/subtotal/class/subtotal.class.php');
+				if(TSubtotal::isModSubtotalLine($line)) continue;
+			}
+
 			if($tx_tva != $line->tva_tx) {
 				$TRestrictMessage[] = $langs->trans('CheckErrorInvoiceSeveralTva');
 				break;
