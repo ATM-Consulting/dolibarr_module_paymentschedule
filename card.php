@@ -452,6 +452,8 @@ else
             $form->load_cache_types_paiements();
 
             print "<tbody>\n";
+			if (!empty($object->TPaymentScheduleDet)) $LastLineIndex = count($object->TPaymentScheduleDet) -1;
+
             foreach ($object->TPaymentScheduleDet as $line)
             {
             	/**
@@ -585,8 +587,15 @@ else
 
                     print '<td class="linecolupdatestatus">';
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
-                    elseif (in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED)) && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED)))
+                    elseif (
+						in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED))
+						&& (
+							!in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED)) // la facture est payée ou abandonnée
+							|| $i == $LastLineIndex // ou c'est la dernière ligne de l'échéancier => on doit pouvoir la rejecter à tout moment en cas de rejet du dernier prélèvement
+						)
+					)
                     {
+
                         if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED)
                         {
                             if (!empty($object->facture->fk_account)) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
@@ -628,6 +637,7 @@ else
                 $sum+= $line->amount_ttc;
                 $i++;
             }
+
             print "</tbody>\n";
 
             print "</table>\n";
