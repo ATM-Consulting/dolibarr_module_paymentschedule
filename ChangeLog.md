@@ -5,6 +5,7 @@
 
 
 ## Version 1.1
+- FIX : the scheduledet must be rejectable at anytime - *26/04/2022* - 1.1.5
 - FIX : Fix fatal on reject witdrawal + misMerge... - *07/01/2022* - 1.1.4
 - FIX : sql compatibility for list in V14  - *23/11/2021* - 1.1.3  
   In V14 column total and tva are renamed in `total_ht` and `total_tva`
