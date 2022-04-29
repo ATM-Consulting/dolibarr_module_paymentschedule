@@ -1,26 +1,26 @@
 Module104077Name = Echéancier de paiement
 Module104077Desc = Creation d'un échéancier de paiement sur les factures de type "échéancier"
 
-ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+ATMAbout = Ce module a été développé par <a href="https://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
 PaymentScheduleSetup = Configuration du module Echéancier SEPA
 PaymentScheduleAbout = A propos du module Echéancier SEPA
 
-PaymentSchedule=Echéancier
-PaymentScheduleDet=Échéance
-AbricotNeedUpdate=Le module abricot doit être mis à jour
+PaymentSchedule    = Echéancier
+PaymentScheduleDet = Échéance
+AbricotNeedUpdate  = Le module abricot doit être mis à jour
 
 # PERMISSIONS
-paymentschedule_read=Consulter les échéanciers
-paymentschedule_write=Créer/modifier les échéanciers
-paymentschedule_delete=Supprimer les échéanciers
+paymentschedule_read   = Consulter les échéanciers
+paymentschedule_write  = Créer/modifier les échéanciers
+paymentschedule_delete = Supprimer les échéanciers
 
 # SETUP
-PaymentScheduleExtrafieldPage=Attributs complémentaires des échéanciers
-PaymentScheduleDetExtrafieldPage=Attributs complémentaires des lignes d'échéancier
-PaymentScheduleDet=lignes d'échéancier
-PaymentschedulesPDFModules=Modèle d'échéancier de paiement
-PDFSurimiDescription=Modèle de PDF d'échéancier de paiement
+PaymentScheduleExtrafieldPage = Attributs complémentaires des échéanciers
+PaymentScheduleDetExtrafieldPage = Attributs complémentaires des lignes d'échéancier
+PaymentScheduleDet = lignes d'échéancier
+PaymentschedulesPDFModules = Modèle d'échéancier de paiement
+PDFSurimiDescription = Modèle de PDF d'échéancier de paiement
 
 PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE=Mode de règlement à destination des échéanciers de paiement Dolibarr
 PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND=Autres modes de règlement de factures pour lesquels on autorise la création d'un échéancier depuis la facture
@@ -30,84 +30,88 @@ PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN=Désactiver la vérification de l'ex
 PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW=Créer en automatique le bon de prélèvement après la création des demandes via le formulaire
 
 # MENU
-TopMenuPaymentSchedule=Echéancier
-PaymentSchedulePcaReport=Rapport PCA
+TopMenuPaymentSchedule = Echéancier
+PaymentSchedulePcaReport = Rapport PCA
 
 # STATUS
-PaymentScheduleStatusDraft=Brouillon (échéancier en attente)
-PaymentScheduleStatusValidated=Validée (prête pour paiement)
-PaymentScheduleStatusClosed=Clôturée
+PaymentScheduleStatusDraft = Brouillon (échéancier en attente)
+PaymentScheduleStatusValidated = Validée (prête pour paiement)
+PaymentScheduleStatusClosed = Clôturée
 
-PaymentScheduleStatusDraftShort=Brouillon
-PaymentScheduleStatusValidatedShort=Validée
-PaymentScheduleStatusClosedShort=Clôturée
+PaymentScheduleStatusDraftShort = Brouillon
+PaymentScheduleStatusValidatedShort = Validée
+PaymentScheduleStatusClosedShort = Clôturée
 
-InvoiceStatus=Statut de la facture
-InvoicePaymentMode=Mode de règlement de la facture
-PaymentScheduleStatus=Statut de l'échéancier
+InvoiceStatus = Statut de la facture
+InvoicePaymentMode = Mode de règlement de la facture
+PaymentScheduleStatus = Statut de l'échéancier
 
 # LIST
-PaymentScheduleList=Liste échéanciers
-NoPaymentSchedule=(vide)
+PaymentScheduleList = Liste échéanciers
+NoPaymentSchedule = (vide)
 
 # REPORT
-PaymentSchedulePcaReportList=Liste des montants PCA par client
-PaymentScheduleSearchDate=Date de prélèvement à partir de :
+PaymentSchedulePcaReportList = Liste des montants PCA par client
+PaymentScheduleSearchDate = Date de prélèvement à partir de :
 
 # CARD
-NewPaymentSchedule=Création Echéancier
-PaymentScheduleCard=Fiche Echéancier
-paymentscheduleNotCreatedYet=Aucun échéancier pour cette facture
-paymentschedulePaymentStatus=Statut
-paymentscheduleDateDemande=Date demande
-paymentscheduleModeRglt=Mode de règlement
+NewPaymentSchedule = Création Echéancier
+PaymentScheduleCard = Fiche Echéancier
+paymentscheduleNotCreatedYet = Aucun échéancier pour cette facture
+paymentschedulePaymentStatus = Statut
+paymentscheduleDateDemande = Date demande
+paymentscheduleModeRglt = Mode de règlement
 
-PaymentScheduleReset=Générer
-PaymentScheduleModify=Modifier
-PaymentScheduleClone=Cloner
-PaymentScheduleValid=Valider
-PaymentScheduleAccept=Accepter
-PaymentScheduleRefuse=Refuser
-PaymentScheduleReopen=Rouvrir
-PaymentScheduleCancel=Abandonner
-PaymentScheduleDelete=Supprimer
-PaymentScheduleCreate=Créer échéancier
+PaymentScheduleReset  = Générer
+PaymentScheduleModify = Modifier
+PaymentScheduleClone  = Cloner
+PaymentScheduleValid  = Valider
+PaymentScheduleAccept = Accepter
+PaymentScheduleRefuse = Refuser
+PaymentScheduleReopen = Rouvrir
+PaymentScheduleCancel = Abandonner
+PaymentScheduleDelete = Supprimer
+PaymentScheduleCreate = Créer échéancier
 
-PeriodicityUnit=Unité période
-PeriodicityValue=Valeur période (toutes les x unité)
-NbTerm=Nombre d'échéances
-paymentschedule_periodicityDay=Jour
-paymentschedule_periodicityMonth=Mois
-paymentschedule_periodicityYear=Année
+PeriodicityUnit  = Unité période
+PeriodicityValue = Valeur période (toutes les x unité)
+NbTerm = Nombre d'échéances
 
-ConfirmCreatePaymentScheduleTitle=Création échéancier
-ConfirmCreatePaymentScheduleBody=Souhaitez vous créer l'échéancier ?
-paymentschedule_dateStartEcheance=Date de démarrage
-paymentschedule_numberOfPayments=Nombre d'échéances
-paymentschedule_dateEndPrelevement=Date prévisionnelle de dernière échéance :
+paymentschedule_periodicityDay   = Jour
+paymentschedule_periodicityMonth = Mois
+paymentschedule_periodicityYear  = Année
 
-ConfirmValidatePaymentScheduleTitle=Validation échéancier
-ConfirmValidatePaymentScheduleBody=Souhaitez vous valider cet échéancier pour prise en compte des paiements aux dates indiquées ?
+ConfirmCreatePaymentScheduleTitle = Création échéancier
+ConfirmCreatePaymentScheduleBody  = Souhaitez vous créer l'échéancier ?
 
-ConfirmDeletePaymentScheduleTitle=Supprimer échéancier
-ConfirmDeletePaymentScheduleBody=Êtes-vous sûr de vouloir supprimer cet échéancier ?
+paymentschedule_dateStartEcheance  = Date de démarrage
+paymentschedule_numberOfPayments   = Nombre d'échéances
+paymentschedule_dateEndPrelevement = Date prévisionnelle de dernière échéance :
 
-ConfirmResetPaymentScheduleTitle=Générer échéancier
-ConfirmResetPaymentScheduleBody=Êtes-vous sûr de vouloir générer l'échéancier ?
-paymentschedule_fullReset=Supprimer les lignes au statut "En attente de traitement"
+ConfirmValidatePaymentScheduleTitle = Validation échéancier
+ConfirmValidatePaymentScheduleBody  = Souhaitez vous valider cet échéancier pour prise en compte des paiements aux dates indiquées ?
 
-PaymentScheduleDetStatusWaiting=En attente de traitement
-PaymentScheduleDetStatusInProcess=Demande en cours
-PaymentScheduleDetStatusRequested=Bon de prélèvement en attente de retour
-PaymentScheduleDetStatusAccepted=Accepté
-PaymentScheduleDetStatusRefused=Rejeté
+ConfirmDeletePaymentScheduleTitle = Supprimer échéancier
+ConfirmDeletePaymentScheduleBody  = Êtes-vous sûr de vouloir supprimer cet échéancier ?
 
-paymentscheduleSetAccept=Passer à accepter
-paymentscheduleSetRefuse=Passer à rejeter
+ConfirmResetPaymentScheduleTitle = Générer échéancier
+ConfirmResetPaymentScheduleBody  = Êtes-vous sûr de vouloir générer l'échéancier ?
 
-PaymentSchedule_warningSumIsDifferent=Attention: le montant des paiements est différent du montant de la facture, écart de : %s
+paymentschedule_fullReset = Supprimer les lignes au statut "En attente de traitement"
+
+PaymentScheduleDetStatusWaiting   = En attente de traitement
+PaymentScheduleDetStatusInProcess = Demande en cours
+PaymentScheduleDetStatusRequested = Bon de prélèvement en attente de retour
+PaymentScheduleDetStatusAccepted  = Accepté
+PaymentScheduleDetStatusRefused   = Rejeté
+
+paymentscheduleSetAccept = Passer à accepter
+paymentscheduleSetRefuse = Passer à rejeter
+
+PaymentSchedule_warningSumIsDifferent = Attention: le montant des paiements est différent du montant de la facture, écart de : %s
 
 NewPaymentSchedule_createRequests=Création des demandes de prélèvement
+
 PaymentSchedule_requestSelectDate=Date de demande recherchée
 PaymentSchedule_requestNumRowsFound=Nombre de demande trouvée pour cette date : %d
 PaymentSchedule_requestNbCreate=Demande de prélèvement créée : %d
