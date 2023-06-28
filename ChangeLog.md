@@ -5,6 +5,7 @@
 
 
 ## Version 1.1
+- FIX : Compat v18 - *14/06/2022* - 1.1.6
 - FIX : the scheduledet must be rejectable at anytime - *26/04/2022* - 1.1.5
 - FIX : Fix fatal on reject witdrawal + misMerge... - *07/01/2022* - 1.1.4
 - FIX : sql compatibility for list in V14  - *23/11/2021* - 1.1.3  
