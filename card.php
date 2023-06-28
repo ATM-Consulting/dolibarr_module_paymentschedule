@@ -245,7 +245,7 @@ $formfile = new FormFile($db);
 
 $title=$langs->trans('PaymentSchedule');
 llxHeader('', $title);
-
+$token = newToken();
 if ($action == 'create')
 {
     print load_fiche_titre($langs->trans('NewPaymentSchedule'), '', 'paymentschedule@paymentschedule');
@@ -389,7 +389,7 @@ else
             $dateSelector = 1;
             $selected = null;
 
-            $parameters = array('num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+            $parameters = array('i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
             $reshook = $hookmanager->executeHooks('printObjectLineTitle', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
             if (empty($reshook))
             {
@@ -464,21 +464,22 @@ else
                 {
                     if (empty($line->fk_parent_line))
                     {
-                        $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+                        $parameters = array('line'=>$line,'var'=>$var,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
                         $reshook = $hookmanager->executeHooks('printObjectLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                     else
                     {
-                        $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+                        $parameters = array('line'=>$line,'var'=>$var,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
                         $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                 }
                 if (empty($reshook))
                 {
-                    $domData  = ' data-element="'.$line->element.'"';
-                    $domData .= ' data-id="'.$line->id.'"';
-                    $domData .= ' data-qty="'.$line->qty.'"';
-                    $domData .= ' data-product_type="'.$line->product_type.'"';
+					$coldisplay = 0;
+                    if(!empty($line->element)) $domData  = ' data-element="'.$line->element.'"';
+                    if(!empty($line->id)) $domData .= ' data-id="'.$line->id.'"';
+                    if(!empty($line->qty)) $domData .= ' data-qty="'.$line->qty.'"';
+                    if(!empty($line->product_type)) $domData .= ' data-product_type="'.$line->product_type.'"';
 
                     print '<tr  id="row-'.$line->id.'" class="drag drop oddeven" '.$domData.' >';
                     if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
@@ -714,7 +715,7 @@ else
 
                 if (!empty($user->rights->paymentschedule->delete))
                 {
-                    if ($object->status !== PaymentSchedule::STATUS_CLOSED) print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
+                    if ($object->status !== PaymentSchedule::STATUS_CLOSED) print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule&amp;token='.$token.'">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
                 }
                 else
                 {
@@ -735,7 +736,7 @@ else
 				$genallowed = $user->rights->paymentschedule->read;
 				$delallowed = $user->rights->paymentschedule->write;
 
-				print $formfile->showdocuments('paymentschedule', $filename, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', $soc->default_lang);
+				print $formfile->showdocuments('paymentschedule', $filename, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', '');
 
 				print '</div>';
 			}
