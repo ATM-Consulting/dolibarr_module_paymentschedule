@@ -469,7 +469,7 @@ else
                     }
                     else
                     {
-                        $parameters = array('line'=>$line,'var'=>$var,'num'=>$num,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
+                        $parameters = array('line'=>$line,'var'=>$var,'i'=>$i,'dateSelector'=>$dateSelector,'selected'=>$selected);
                         $reshook = $hookmanager->executeHooks('printObjectSubLine', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
                     }
                 }
