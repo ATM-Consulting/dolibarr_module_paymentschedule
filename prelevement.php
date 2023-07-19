@@ -124,8 +124,9 @@ if (empty($reshook))
 					{
                         /** @see Facture::demande_prelevement() this method force payment mode with Facture::setPaymentMethods() with fk_c_paiement with code PRE */
                         if ($old_mode_reglement_id != $facture->mode_reglement_id) $facture->setPaymentMethods($old_mode_reglement_id);
-
-                        $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande';
+						if((float) DOL_VERSION >= 17.0) $tablePrelvDmnd = 'prelevement_demande';
+						else $tablePrelvDmnd = 'prelevement_facture_demande';
+                        $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd;
                         $resql2 = $db->query($sql);
                         if ($resql2)
                         {
