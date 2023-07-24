@@ -1369,7 +1369,8 @@ class PaymentScheduleBonPrelevement extends BonPrelevement
         }
         $sql.= " FROM ".MAIN_DB_PREFIX."prelevement_bons as p";
         $sql.= " , ".MAIN_DB_PREFIX."prelevement_lignes as pl";
-        $sql.= " , ".MAIN_DB_PREFIX."prelevement_facture as pf";
+		if ((float) DOL_VERSION >= 17.0) $sql.= " , ".MAIN_DB_PREFIX."prelevement as pf";
+		else $sql.= " , ".MAIN_DB_PREFIX."prelevement_facture as pf";
         $sql.= " WHERE pf.fk_prelevement_lignes = pl.rowid";
         $sql.= " AND pl.fk_prelevement_bons = p.rowid";
         $sql.= " AND p.rowid = ".$this->id;
