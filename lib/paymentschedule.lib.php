@@ -185,8 +185,10 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
 
 function createLinkedBonPrelevement($db, $user, $fk_prelevement_bons)
 {
+	if((float) DOL_VERSION >= 17.0) $tablePrelvDmnd = 'prelevement_demande';
+	else $tablePrelvDmnd = 'prelevement_facture_demande';
     $sql = 'SELECT pfd.rowid, ee.fk_target
-            FROM '.MAIN_DB_PREFIX.'prelevement_facture_demande pfd
+            FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd.' pfd
             INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
             WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
             AND ee.targettype = \'paymentscheduledet\'';
