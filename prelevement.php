@@ -33,7 +33,7 @@ $langs->loadLangs(array('paymentschedule@paymentschedule', 'banks', 'categories'
 
 
 //$result = restrictedArea($user, 'prelevement', '', '', 'bons');
-if(empty($user->rights->paymentschedule->write)) accessforbidden();
+if(!$user->hasRight('paymentschedule', 'write')) accessforbidden();
 
 $action = GETPOST('action', 'aZ09');
 
@@ -46,7 +46,7 @@ $hookmanager->initHooks(array('paymentschedulecard', 'globalcard'));
  * Actions
  */
 
-$parameters = array('id' => $id, 'ref' => $ref);
+$parameters = array();
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
@@ -57,7 +57,7 @@ if (empty($reshook))
         $date_demande_start = dol_mktime(0, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
         $date_demande_end = dol_mktime(23, 59, 59, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
 
-		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) && $date_demande_start)
+		if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE') && $date_demande_start)
         {
             $sql = 'SELECT COUNT(*) AS nb
                     FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
@@ -65,7 +65,7 @@ if (empty($reshook))
                     INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
                     WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                     AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
-                    AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
+                    AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
                     AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'
                     AND fact.entity IN ('.getEntity('facture').') ';
             $resql = $db->query($sql);
@@ -86,7 +86,7 @@ if (empty($reshook))
         $date_demande_start = GETPOST('date_demande_start', 'alphanohtml');
         $date_demande_end = GETPOST('date_demande_end', 'alphanohtml');
 
-		if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
+		if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE'))
 		{
 			$sql = 'SELECT t.fk_facture, td.rowid
                 FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
@@ -94,7 +94,7 @@ if (empty($reshook))
                 INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
                 WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                 AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
-                AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
+                AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
                 AND td.date_demande >= \''.$db->idate($date_demande_start).'\' AND td.date_demande <= \''.$db->idate($date_demande_end).'\'
 				AND fact.entity IN ('.getEntity('facture').') ';
 
@@ -163,7 +163,7 @@ if (empty($reshook))
                     }
                 }
 
-                if ($nb_error == 0 && !empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
+                if ($nb_error == 0 && getDolGlobalString('PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW'))
                 {
                     $langs->loadLangs(array('banks', 'categories', 'widthdrawals', 'companies', 'bills'));
 
@@ -173,7 +173,7 @@ if (empty($reshook))
                     $executiondate = $date_demande_start;
                     $mode = 'real';
 
-                    $result = $bprev->create($conf->global->PRELEVEMENT_CODE_BANQUE, $conf->global->PRELEVEMENT_CODE_GUICHET, $mode, $format, $executiondate);
+                    $result = $bprev->create(getDolGlobalString('PRELEVEMENT_CODE_BANQUE'), getDolGlobalString('PRELEVEMENT_CODE_GUICHET'), $mode, $format, $executiondate);
                     if ($result < 0)
                     {
                         $nb_error++;
@@ -255,7 +255,7 @@ if ($action === 'searchpaymentschedule')
     print '<td>'.dol_print_date($date_demande_start, 'day').'</td>';
     print '</tr>';
 
-    if (!empty($conf->global->PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW))
+    if (getDolGlobalString('PAYMENTSCHEDULE_AUTO_CREATE_WITHDRAW'))
 	{
         global $mysoc;
         print '<tr>';
@@ -279,7 +279,7 @@ if ($action === 'searchpaymentschedule')
 
     print '<div class="center">';
     if ($number_det_found > 0) print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans('Create')).'">';
-    else print '<a class="button" href="'.$_REQUEST['PHP_SELF'].'">'.$langs->trans('PaymentSchedule_requestBack').'</a>';
+    else print '<a class="button" href="'.$_SERVER['PHP_SELF'].'">'.$langs->trans('PaymentSchedule_requestBack').'</a>';
     print '</div>';
 
     print '</form>';

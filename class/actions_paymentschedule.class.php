@@ -25,7 +25,8 @@
 /**
  * Class ActionsPaymentSchedule
  */
-class ActionsPaymentSchedule
+require_once __DIR__.'/../backport/v19/core/class/commonhookactions.class.php';
+class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookActions
 {
     /**
      * @var DoliDb		Database handler (result of a new DoliDB)
@@ -133,7 +134,7 @@ class ActionsPaymentSchedule
         elseif (in_array('directdebitprevcard', $TContext))
         {
             // PRELEVEMENT_ID_BANKACCOUNT => si non paramétré alors nous avons une erreur sur le passage en credité, donc je teste la conf ici aussi pour éviter de classer Accepté
-            if ($action == 'infocredit' && !empty($user->rights->prelevement->bons->credit) && !empty($conf->global->PRELEVEMENT_ID_BANKACCOUNT) && $conf->global->PRELEVEMENT_ID_BANKACCOUNT > 0)
+            if ($action == 'infocredit' && $user->hasRight('prelevement', 'bons', 'credit') && getDolGlobalString('PRELEVEMENT_ID_BANKACCOUNT') && getDolGlobalInt('PRELEVEMENT_ID_BANKACCOUNT') > 0)
             {
                 // Théoriquement je n'ai plus besoin de ce bout code car il a été remplacé par ce qu'il y a dans le trigger PAYMENT_CUSTOMER_CREATE
 //                if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
@@ -175,7 +176,7 @@ class ActionsPaymentSchedule
                 {
                     $disabled = '';
                     // Si le statut de la ligne de l'échéancier est en cours
-                    if (in_array($det->status, array(PaymentScheduleDet::STATUS_IN_PROCESS, PaymentScheduleDet::STATUS_REQUESTED, PaymentScheduleDet::STATUS_ACCEPTED)) || $det->fk_mode_reglement == $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE) $disabled = 'disabled';
+                    if (in_array($det->status, array(PaymentScheduleDet::STATUS_IN_PROCESS, PaymentScheduleDet::STATUS_REQUESTED, PaymentScheduleDet::STATUS_ACCEPTED)) || $det->fk_mode_reglement == getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE')) $disabled = 'disabled';
 
                     $selected = '';
                     if (GETPOST('paymentscheduledet_'. $object->facid, 'alphanohtml') == $det->id ) $selected = 'selected';
@@ -227,7 +228,7 @@ class ActionsPaymentSchedule
 			}
 
 			// vérifier qu'on a bien l'extrafield isecheancier à true
-			if (!empty($object->array_options['options_isecheancier']) && !empty($user->rights->paymentschedule->write))
+			if (!empty($object->array_options['options_isecheancier']) && $user->hasRight('paymentschedule', 'write'))
 			{
                 if (!defined('INC_FROM_DOLIBARR')) define('INC_FROM_DOLIBARR', 1);
 				dol_include_once('/paymentschedule/class/paymentschedule.class.php');

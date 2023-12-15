@@ -27,7 +27,7 @@
  */
 function paymentscheduleAdminPrepareHead()
 {
-    global $langs, $conf;
+    global $langs, $conf, $object;
 
     $langs->load('paymentschedule@paymentschedule');
 
@@ -106,12 +106,12 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
     $langs->load('main');
     $formconfirm = '';
 
-    if ($action === 'validpaymentschedule' && !empty($user->rights->paymentschedule->write))
+    if ($action === 'validpaymentschedule' && $user->hasRight('paymentschedule', 'write'))
     {
         $body = $langs->trans('ConfirmValidatePaymentScheduleBody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidatePaymentScheduleTitle'), $body, 'confirm_validatepaymentschedule', '', 0, 1);
     }
-    elseif ($action === 'createpaymentschedule' && !empty($user->rights->paymentschedule->write))
+    elseif ($action === 'createpaymentschedule' && $user->hasRight('paymentschedule', 'write'))
     {
         $scriptjs = '
             <label>'.$langs->transnoentities('paymentschedule_dateEndPrelevement').' <span id="date_last_prelevement"></span></label>
@@ -165,7 +165,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
         $body = $langs->trans('ConfirmCreatePaymentScheduleBody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $facture->id, $langs->trans('ConfirmCreatePaymentScheduleTitle'), $body, 'confirm_createpaymentschedule', $formquestion, 0, 1, 'auto');
     }
-    elseif ($action === 'resetpaymentschedule' && !empty($user->rights->paymentschedule->write))
+    elseif ($action === 'resetpaymentschedule' && $user->hasRight('paymentschedule', 'write'))
     {
         $formquestion = array(
             array('type' => 'checkbox', 'label' => $langs->trans('paymentschedule_fullReset'), 'name' => 'full_reset', 'value' => '1', 'moreattr' => 'value="1"')
@@ -173,7 +173,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
         $body = $langs->trans('ConfirmResetPaymentScheduleBody', $facture->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmResetPaymentScheduleTitle'), $body, 'confirm_resetpaymentschedule', $formquestion, 0, 1);
     }
-    elseif ($action === 'deletepaymentschedule' && !empty($user->rights->paymentschedule->write))
+    elseif ($action === 'deletepaymentschedule' && $user->hasRight('paymentschedule', 'write'))
     {
         $body = $langs->trans('ConfirmDeletePaymentScheduleBody');
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletePaymentScheduleTitle'), $body, 'confirm_deletepaymentschedule', '', 0, 1);

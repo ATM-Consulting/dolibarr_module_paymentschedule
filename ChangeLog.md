@@ -2,6 +2,9 @@
 
 ## Not Released
 
+- NEW : Compat v19 - *15/12/2023* - 1.2.0
+  - DOL v15 minimum 
+  - PHP 7 min 
 
 
 ## Version 1.1

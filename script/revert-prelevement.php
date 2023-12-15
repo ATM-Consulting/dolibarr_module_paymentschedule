@@ -32,7 +32,7 @@ require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 $langs->loadLangs(array('paymentschedule@paymentschedule', 'banks', 'categories', 'widthdrawals', 'companies', 'bills'));
 
 //$result = restrictedArea($user, 'prelevement', '', '', 'bons');
-if(empty($user->rights->paymentschedule->write)) accessforbidden();
+if(!$user->hasRight('paymentschedule', 'write')) accessforbidden();
 
 $action = GETPOST('action');
 
@@ -193,7 +193,7 @@ if($action === 'revertpaymentschedule') {
 		INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
 		WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
 		AND td.status = '.PaymentScheduleDet::STATUS_REQUESTED.'
-		AND td.fk_mode_reglement = '.$conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE.'
+		AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
         AND td.date_demande >= \''.$db->idate($date_changement_start).'\' and td . date_demande <= \''.$db->idate($date_changement_end).'\'
     ';
 
