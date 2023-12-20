@@ -112,7 +112,7 @@ $sortorder = GETPOST("sortorder",'alphanohtml');
 $page = GETPOST("page",'int');
 if (empty($page) || $page == -1 || !empty($search_btn) || !empty($search_remove_btn) || (empty($toselect) && $massaction === '0')) { $page = 0; }     // If $page is not defined, or '' or -1
 $offset = $limit * $page;
-if (! $sortorder && ! empty($conf->global->INVOICE_DEFAULT_UNPAYED_SORT_ORDER) && $search_status == '1') $sortorder=$conf->global->INVOICE_DEFAULT_UNPAYED_SORT_ORDER;
+if (! $sortorder && getDolGlobalString('INVOICE_DEFAULT_UNPAYED_SORT_ORDER') && $search_status == '1') $sortorder=getDolGlobalString('INVOICE_DEFAULT_UNPAYED_SORT_ORDER');
 if (! $sortorder) $sortorder='DESC';
 if (! $sortfield) $sortfield='f.datef';
 $pageprev = $page - 1;
@@ -252,9 +252,9 @@ if (empty($reshook))
 {
     $objectclass='PaymentSchedule';
     $objectlabel='PaymentSchedule';
-    $permtoread = $user->rights->paymentschedule->read;
-    $permtocreate = $user->rights->paymentschedule->write;
-    $permtodelete = $user->rights->paymentschedule->delete;
+    $permtoread = $user->hasRight('paymentschedule','read');
+    $permtocreate = $user->hasRight('paymentschedule','write');
+    $permtodelete = $user->hasRight('paymentschedule','delete');
     $uploaddir = $conf->paymentschedule->dir_output;
     include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
@@ -309,7 +309,7 @@ if ($sall || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'
 if ($search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'categorie_product as cp ON cp.fk_product=pd.fk_product';
 $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."projet as p ON p.rowid = f.fk_projet";
 // We'll need this table joined to the select in order to filter by sale
-if ($search_sale > 0 || (! $user->rights->societe->client->voir && ! $socid)) $sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
+if ($search_sale > 0 || (! $user->hasRight('societe', 'client', 'voir') && ! $socid)) $sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
 if ($search_user > 0)
 {
     $sql.=", ".MAIN_DB_PREFIX."element_contact as ec";
@@ -317,7 +317,7 @@ if ($search_user > 0)
 }
 $sql.= ' WHERE 1=1';
 
-if (! $user->rights->societe->client->voir && ! $socid) $sql.= " AND s.rowid = sc.fk_soc AND sc.fk_user = " .$user->id;
+if (! $user->hasRight('societe', 'client', 'voir') && ! $socid) $sql.= " AND s.rowid = sc.fk_soc AND sc.fk_user = " .$user->id;
 if ($search_product_category > 0) $sql.=" AND cp.fk_categorie = ".$db->escape($search_product_category);
 if ($socid > 0) $sql.= ' AND s.rowid = '.$socid;
 if ($userid)
@@ -456,7 +456,7 @@ foreach ($listfield as $key => $value) $sql.= $listfield[$key].' '.($listorder[$
 $sql.= ' f.rowid DESC ';
 
 $nbtotalofrecords = '';
-if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST))
+if (!getDolGlobalString('MAIN_DISABLE_FULL_SCANLIST'))
 {
     $result = $db->query($sql);
     $nbtotalofrecords = $db->num_rows($result);
@@ -477,7 +477,7 @@ if ($resql)
 
     $arrayofselected=is_array($toselect)?$toselect:array();
 
-    if ($num == 1 && ! empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $sall)
+    if ($num == 1 && getDolGlobalString('MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE') && $sall)
     {
         $obj = $db->fetch_object($resql);
         $id = $obj->id;
@@ -571,7 +571,7 @@ if ($resql)
 
     // If the user can view prospects other than his'
     $moreforfilter='';
-    if ($user->rights->societe->client->voir || $socid)
+    if ($user->hasRight('societe', 'client', 'voir') || $socid)
     {
         $langs->load("commercial");
         $moreforfilter.='<div class="divsearchfield">';
@@ -580,7 +580,7 @@ if ($resql)
         $moreforfilter.='</div>';
     }
     // If the user can view prospects other than his'
-    if ($user->rights->societe->client->voir || $socid)
+    if ($user->hasRight('societe', 'client', 'voir') || $socid)
     {
         $moreforfilter.='<div class="divsearchfield">';
         $moreforfilter.=$langs->trans('LinkedToSpecificUsers'). ': ';
@@ -588,7 +588,7 @@ if ($resql)
         $moreforfilter.='</div>';
     }
     // If the user can view prospects other than his'
-    if ($conf->categorie->enabled && ($user->rights->produit->lire || $user->rights->service->lire))
+    if ($conf->categorie->enabled && ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')))
     {
         include_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
         $moreforfilter.='<div class="divsearchfield">';
@@ -650,7 +650,7 @@ if ($resql)
             Facture::TYPE_CREDIT_NOTE=>$langs->trans("InvoiceAvoir"),
             Facture::TYPE_DEPOSIT=>$langs->trans("InvoiceDeposit"),
         );
-        if (! empty($conf->global->INVOICE_USE_SITUATION))
+        if (getDolGlobalString('INVOICE_USE_SITUATION'))
         {
             $listtype[Facture::TYPE_SITUATION] = $langs->trans("InvoiceSituation");
         }
@@ -662,7 +662,7 @@ if ($resql)
     if (! empty($arrayfields['f.date']['checked']))
     {
         print '<td class="liste_titre nowraponall" align="center">';
-        if (! empty($conf->global->MAIN_LIST_FILTER_ON_DAY)) print '<input class="flat valignmiddle" type="text" size="1" maxlength="2" name="search_day" value="'.dol_escape_htmltag($search_day).'">';
+        if (getDolGlobalString('MAIN_LIST_FILTER_ON_DAY')) print '<input class="flat valignmiddle" type="text" size="1" maxlength="2" name="search_day" value="'.dol_escape_htmltag($search_day).'">';
         print '<input class="flat valignmiddle width25" type="text" size="1" maxlength="2" name="search_month" value="'.dol_escape_htmltag($search_month).'">';
         $formother->select_year($search_year?$search_year:-1,'search_year',1, 20, 5, 0, 0, '', 'widthauto valignmiddle');
         print '</td>';
@@ -671,7 +671,7 @@ if ($resql)
     if (! empty($arrayfields['f.date_lim_reglement']['checked']))
     {
         print '<td class="liste_titre nowraponall" align="center">';
-        if (! empty($conf->global->MAIN_LIST_FILTER_ON_DAY)) print '<input class="flat valignmiddle" type="text" size="1" maxlength="2" name="search_day_lim" value="'.dol_escape_htmltag($search_day_lim).'">';
+        if (getDolGlobalString('MAIN_LIST_FILTER_ON_DAY')) print '<input class="flat valignmiddle" type="text" size="1" maxlength="2" name="search_day_lim" value="'.dol_escape_htmltag($search_day_lim).'">';
         print '<input class="flat valignmiddle width25" type="text" size="1" maxlength="2" name="search_month_lim" value="'.dol_escape_htmltag($search_month_lim).'">';
         $formother->select_year($search_year_lim?$search_year_lim:-1,'search_year_lim',1, 20, 5, 0, 0, '', 'widthauto valignmiddle');
         print '<br><input type="checkbox" name="search_option" value="late"'.($option == 'late'?' checked':'').'> '.$langs->trans("Alert");
@@ -709,7 +709,7 @@ if ($resql)
     if (! empty($arrayfields['typent.code']['checked']))
     {
         print '<td class="liste_titre maxwidthonsmartphone" align="center">';
-        print $form->selectarray("search_type_thirdparty", $formcompany->typent_array(0), $search_type_thirdparty, 0, 0, 0, '', 0, 0, 0, (empty($conf->global->SOCIETE_SORT_ON_TYPEENT)?'ASC':$conf->global->SOCIETE_SORT_ON_TYPEENT), 'maxwidth100');
+        print $form->selectarray("search_type_thirdparty", $formcompany->typent_array(0), $search_type_thirdparty, 0, 0, 0, '', 0, 0, 0, (getDolGlobalString('SOCIETE_SORT_ON_TYPEENT','ASC')), 'maxwidth100');
         print '</td>';
     }
     // Payment mode
@@ -1250,8 +1250,8 @@ if ($resql)
     $urlsource.=str_replace('&amp;','&',$param);
 
     $filedir=$diroutputmassaction;
-    $genallowed=$user->rights->paymentschedule->read;
-    $delallowed=$user->rights->paymentschedule->write;
+    $genallowed=$user->hasRight('paymentschedule','read');
+    $delallowed=$user->hasRight('paymentschedule','write');
 
     print $formfile->showdocuments('paymentschedule','/temp/massgeneration/'.$conf->entity,$filedir,$urlsource,0,$delallowed,'',1,1,0,48,1,$param,$title,'','','',null,$hidegeneratedfilelistifempty);
 

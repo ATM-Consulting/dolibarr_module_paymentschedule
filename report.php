@@ -18,7 +18,7 @@
 require 'config.php';
 dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
-if(empty($user->rights->paymentschedule->read)) accessforbidden();
+if(!$user->hasRight('paymentschedule', 'read')) accessforbidden();
 
 $langs->load('abricot@abricot');
 $langs->load('paymentschedule@paymentschedule');
@@ -134,7 +134,7 @@ $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_paymentschedule', 'GE
 
 $html_select_fiscal = $form->selectDate($time_demande, 're');
 
-if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
+if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : getDolGlobalString('MAIN_SIZE_LISTE_LIMIT');
 
 $r = new Listview($db, 'paymentschedulereport');
 echo $r->renderArray($db, $TData, array(

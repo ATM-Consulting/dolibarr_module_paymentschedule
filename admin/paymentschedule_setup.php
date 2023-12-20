@@ -107,7 +107,7 @@ else if ($action == 'del')
 	$ret = delDocumentModel($value, $type);
 	if ($ret > 0)
 	{
-		if ($conf->global->PAYMENTSCHEDULE_ADDON_PDF == "$value") dolibarr_del_const($db, 'PAYMENTSCHEDULE_ADDON_PDF',$conf->entity);
+		if (getDolGlobalString('PAYMENTSCHEDULE_ADDON_PDF') == "$value") dolibarr_del_const($db, 'PAYMENTSCHEDULE_ADDON_PDF',$conf->entity);
 	}
 }
 
@@ -132,7 +132,7 @@ else if ($action == 'setdoc')
 if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
-	$val = GETPOST($code, 'alphanohtml');
+	$val = GETPOST($code, 'none');
 	if ($code === 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND' && !empty($val))
 	{
 		$val = implode(',', $val);
@@ -264,8 +264,8 @@ foreach ($dirmodels as $reldir)
 							$module = new $classname($db);
 
 							$modulequalified=1;
-							if ($module->version == 'development'  && $conf->global->MAIN_FEATURES_LEVEL < 2) $modulequalified=0;
-							if ($module->version == 'experimental' && $conf->global->MAIN_FEATURES_LEVEL < 1) $modulequalified=0;
+							if ($module->version == 'development'  && getDolGlobalInt('MAIN_FEATURES_LEVEL') < 2) $modulequalified=0;
+							if ($module->version == 'experimental' && getDolGlobalInt('MAIN_FEATURES_LEVEL') < 1) $modulequalified=0;
 
 							if ($modulequalified)
 							{
@@ -288,19 +288,19 @@ foreach ($dirmodels as $reldir)
 								else
 								{
 									print "<td align=\"center\">\n";
-									print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&value='.$name.'&scan_dir='.$module->scandir.'&label='.urlencode($module->name).'">'.img_picto($langs->trans("SetAsDefault"),'switch_off').'</a>';
+									print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&value='.$name.'&scan_dir='.$module->scandir.'&label='.urlencode($module->name).'&token='.newToken().'">'.img_picto($langs->trans("SetAsDefault"),'switch_off').'</a>';
 									print "</td>";
 								}
 
 								// Defaut
 								print "<td align=\"center\">";
-								if ($conf->global->PAYMENTSCHEDULE_ADDON_PDF == "$name")
+								if (getDolGlobalString('PAYMENTSCHEDULE_ADDON_PDF') == "$name")
 								{
 									print img_picto($langs->trans("Default"),'on');
 								}
 								else
 								{
-									print '<a href="'.$_SERVER["PHP_SELF"].'?action=setdoc&value='.$name.'&scan_dir='.$module->scandir.'&label='.urlencode($module->name).'" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("SetAsDefault"),'off').'</a>';
+									print '<a href="'.$_SERVER["PHP_SELF"].'?action=setdoc&value='.$name.'&scan_dir='.$module->scandir.'&label='.urlencode($module->name).'&token='.newToken().'" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("SetAsDefault"),'off').'</a>';
 								}
 								print '</td>';
 
@@ -365,14 +365,14 @@ print '<input type="hidden" name="action" value="set_PAYMENTSCHEDULE_FREE_TEXT" 
 print '<tr class="oddeven"><td colspan="2">';
 print $langs->trans("FreeLegalTextOnPaymentShedule").'<br>';
 $variablename='PAYMENTSCHEDULE_FREE_TEXT';
-if (empty($conf->global->PDF_ALLOW_HTML_FOR_FREE_TEXT))
+if (!getDolGlobalString('PDF_ALLOW_HTML_FOR_FREE_TEXT'))
 {
-	print '<textarea name="'.$variablename.'" class="flat" cols="120">'.$conf->global->$variablename.'</textarea>';
+	print '<textarea name="'.$variablename.'" class="flat" cols="120">' . getDolGlobalString($variablename).'</textarea>';
 }
 else
 {
 	include_once DOL_DOCUMENT_ROOT.'/core/class/doleditor.class.php';
-	$doleditor=new DolEditor($variablename, $conf->global->$variablename,'',80,'dolibarr_notes');
+	$doleditor=new DolEditor($variablename, getDolGlobalString($variablename),'',80,'dolibarr_notes');
 	print $doleditor->Create();
 }
 print '</td><td align="right">';
@@ -411,7 +411,7 @@ print '<td align="right" width="300">';
 print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE">';
-print $form->select_types_paiements($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE, 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE');
+print $form->select_types_paiements(getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE'), 'PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';
@@ -429,7 +429,7 @@ foreach ($form->cache_types_paiements as $info)
 {
     $TPaiementId[$info['id']] = $info['label'];
 }
-print Form::multiselectarray('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND', $TPaiementId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND), 0, 0, 'minwidth200');
+print Form::multiselectarray('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND', $TPaiementId, explode(',', getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND')), 0, 0, 'minwidth200');
 print '<input type="submit" class="butAction" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';

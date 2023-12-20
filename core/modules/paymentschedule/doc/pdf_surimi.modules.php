@@ -142,10 +142,10 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$this->page_largeur = $formatarray['width'];
 		$this->page_hauteur = $formatarray['height'];
 		$this->format = array($this->page_largeur,$this->page_hauteur);
-		$this->marge_gauche=isset($conf->global->MAIN_PDF_MARGIN_LEFT)?$conf->global->MAIN_PDF_MARGIN_LEFT:10;
-		$this->marge_droite=isset($conf->global->MAIN_PDF_MARGIN_RIGHT)?$conf->global->MAIN_PDF_MARGIN_RIGHT:10;
-		$this->marge_haute =isset($conf->global->MAIN_PDF_MARGIN_TOP)?$conf->global->MAIN_PDF_MARGIN_TOP:10;
-		$this->marge_basse =isset($conf->global->MAIN_PDF_MARGIN_BOTTOM)?$conf->global->MAIN_PDF_MARGIN_BOTTOM:10;
+		$this->marge_gauche=(float) getDolGlobalString('MAIN_PDF_MARGIN_LEFT',10);
+		$this->marge_droite=(float) getDolGlobalString('MAIN_PDF_MARGIN_RIGHT',10);
+		$this->marge_haute =(float) getDolGlobalString('MAIN_PDF_MARGIN_TOP',10);
+		$this->marge_basse =(float) getDolGlobalString('MAIN_PDF_MARGIN_BOTTOM',10);
 
 		$this->option_logo = 1;                    // Affiche logo
 		$this->option_tva = 1;                     // Gere option tva FACTURE_TVAOPTION
@@ -166,7 +166,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 		// Define position of columns
 		$this->posxdesc=$this->marge_gauche+1;
-		if (!empty($conf->global->PRODUCT_USE_UNITS))
+		if (getDolGlobalString('PRODUCT_USE_UNITS'))
 		{
 			$this->posxdate=106;
 		}
@@ -215,7 +215,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 		if (! is_object($outputlangs)) $outputlangs=$langs;
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
-		if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
+		if (getDolGlobalString('MAIN_USE_FPDF')) $outputlangs->charset_output='ISO-8859-1';
 
 		// Load traductions files requiredby by page
 		$outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies"));
@@ -226,9 +226,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		{
 			$this->facture->fetch_thirdparty();
 
-			$deja_regle = $this->facture->getSommePaiement(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_credit_notes_included = $this->facture->getSumCreditNotesUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_deposits_included = $this->facture->getSumDepositsUsed(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? 1 : 0);
+			$deja_regle = $this->facture->getSommePaiement((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_credit_notes_included = $this->facture->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_deposits_included = $this->facture->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
 
 			// Definition of $dir and $file
 			if ($object->specimen)
@@ -276,9 +276,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$heightforinfotot= 4*6; // 4 * number of max index in tot (+1 for marge) : Already paid, Deposits, Credit note, Escompte, RemainderToPay
 				$heightforinfotot+= 4*$nbpayments; // Height reserved to output the info and total part and payment part
 
-		        $heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
+		        $heightforfreetext= (float) getDolGlobalString('MAIN_PDF_FREETEXT_HEIGHT',5);	// Height reserved to output the free text on last page
 	            $heightforfooter = $this->marge_basse + 8;	// Height reserved to output the footer (value include bottom margin)
-	            if ($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS >0) $heightforfooter+= 6;
+	            if (getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS') > 0) $heightforfooter+= 6;
 
                 if (class_exists('TCPDF'))
                 {
@@ -288,9 +288,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
                 $pdf->SetFont(pdf_getPDFFont($outputlangs));
 
                 // Set path to the background PDF File
-                if (! empty($conf->global->MAIN_ADD_PDF_BACKGROUND))
+                if (getDolGlobalString('MAIN_ADD_PDF_BACKGROUND'))
                 {
-				    $pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/'.$conf->global->MAIN_ADD_PDF_BACKGROUND);
+				    $pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/' . getDolGlobalString('MAIN_ADD_PDF_BACKGROUND'));
 				    $tplidx = $pdf->importPage(1);
                 }
 
@@ -303,7 +303,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$pdf->SetCreator("Dolibarr ".DOL_VERSION);
 				$pdf->SetAuthor($outputlangs->convToOutputCharset($user->getFullName($outputlangs)));
 				$pdf->SetKeyWords($outputlangs->convToOutputCharset($object->ref)." ".$outputlangs->transnoentities("PdfInvoiceTitle")." ".$outputlangs->convToOutputCharset($object->thirdparty->name));
-				if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) $pdf->SetCompression(false);
+				if (getDolGlobalString('MAIN_DISABLE_PDF_COMPRESSION')) $pdf->SetCompression(false);
 
 				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
 
@@ -312,13 +312,13 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 				$pagenb++;
 
-				$top_shift = $this->_pagehead($pdf, $object, 1, $outputlangs);
+				$this->_pagehead($pdf, $object, 1, $outputlangs);
 				$pdf->SetFont('','', $default_font_size - 1);
 				$pdf->MultiCell(0, 3, '');		// Set interline to 3
 				$pdf->SetTextColor(0,0,0);
 
-				$tab_top = 90+$top_shift;
-				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42+$top_shift:10);
+				$tab_top = 90;
+				$tab_top_newpage = (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')?42:10);
 
 				// Affiche notes
 				$notetoshow=$outputlangs->trans("PDFSheduleStartDate", dol_print_date($object->lines[0]->date_demande, "%d %B %Y"));//empty($object->note_public)?'':$object->note_public;
@@ -415,7 +415,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 							{
 								$pdf->AddPage('','',true);
 								if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-								if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+								if (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 								$pdf->setPage($pageposafter+1);
 							}
 						}
@@ -454,16 +454,16 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$pdf->SetXY($this->posxtotalttc, $curY);
 					$pdf->MultiCell($this->page_largeur-$this->marge_droite-$this->posxtotalttc, 3, $total_excl_tax, 0, 'R', 0);
 
-					$localtax1ligne=$object->lines[$i]->total_localtax1;
-					$localtax2ligne=$object->lines[$i]->total_localtax2;
-					$localtax1_rate=$object->lines[$i]->localtax1_tx;
-					$localtax2_rate=$object->lines[$i]->localtax2_tx;
-					$localtax1_type=$object->lines[$i]->localtax1_type;
-					$localtax2_type=$object->lines[$i]->localtax2_type;
+					$localtax1ligne=$object->lines[$i]->total_localtax1 ?? 0;
+					$localtax2ligne=$object->lines[$i]->total_localtax2 ?? 0;
+					$localtax1_rate=$object->lines[$i]->localtax1_tx ?? 0;
+					$localtax2_rate=$object->lines[$i]->localtax2_tx ?? 0;
+					$localtax1_type=$object->lines[$i]->localtax1_type ?? 0;
+					$localtax2_type=$object->lines[$i]->localtax2_type ?? 0;
 
-					if ($object->remise_percent) $tvaligne-=($tvaligne*$object->remise_percent)/100;
-					if ($object->remise_percent) $localtax1ligne-=($localtax1ligne*$object->remise_percent)/100;
-					if ($object->remise_percent) $localtax2ligne-=($localtax2ligne*$object->remise_percent)/100;
+					if (!empty($object->remise_percent)) $tvaligne-=($tvaligne*$object->remise_percent)/100;
+					if (!empty($object->remise_percent)) $localtax1ligne-=($localtax1ligne*$object->remise_percent)/100;
+					if (!empty($object->remise_percent)) $localtax2ligne-=($localtax2ligne*$object->remise_percent)/100;
 
 					$vatrate=(string) $object->lines[$i]->tva_tx;
 
@@ -482,12 +482,12 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					if ($localtax2_type && $localtax2ligne != 0)
 						$this->localtax2[$localtax2_type][$localtax2_rate]+=$localtax2ligne;
 
-					if (($object->lines[$i]->info_bits & 0x01) == 0x01) $vatrate.='*';
+					if (!empty($object->lines[$i]->info_bits) && ($object->lines[$i]->info_bits & 0x01) == 0x01) $vatrate.='*';
 					if (! isset($this->tva[$vatrate])) 				$this->tva[$vatrate]=0;
-					$this->tva[$vatrate] += $tvaligne;
+					$this->tva[$vatrate] += $tvaligne ?? 0;
 
 					// Add line
-					if (! empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nblignes - 1))
+					if (getDolGlobalString('MAIN_PDF_DASH_BETWEEN_LINES') && $i < ($nblignes - 1))
 					{
 						$pdf->setPage($pageposafter);
 						$pdf->SetLineStyle(array('dash'=>'1,1','color'=>array(80,80,80)));
@@ -514,7 +514,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 						$pagenb++;
 						$pdf->setPage($pagenb);
 						$pdf->setPageOrientation('', 1, 0);	// The only function to edit the bottom margin of current page to set it.
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+						if (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					}
 					if (isset($object->lines[$i+1]->pagebreak) && $object->lines[$i+1]->pagebreak)
 					{
@@ -531,7 +531,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 						$pdf->AddPage();
 						if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 						$pagenb++;
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+						if (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					}
 				}
 
@@ -573,8 +573,8 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				global $action;
 				$reshook=$hookmanager->executeHooks('afterPDFCreation',$parameters,$this,$action);    // Note that $action and $object may have been modified by some hooks
 
-				if (! empty($conf->global->MAIN_UMASK))
-				@chmod($file, octdec($conf->global->MAIN_UMASK));
+				if (getDolGlobalString('MAIN_UMASK'))
+				@chmod($file, octdec(getDolGlobalString('MAIN_UMASK')));
 
 				$this->result = array('fullpath'=>$file);
 
@@ -611,7 +611,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		global $conf;
 
         $sign=1;
-        if ($object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+        if ($object->type == 2 && getDolGlobalString('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
 
 		$current_page = $pdf->getPage();
         $tab3_posx = 120;
@@ -653,7 +653,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$current_page++;
 					$pdf->AddPage('','',true);
 					if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+					if (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					$pdf->setPage($current_page);
 					$this->_tableau_versements_header($pdf, $object, $outputlangs, $default_font_size, $tab3_posx, $tab3_top+$y-3, $tab3_width, $tab3_height);
 				}
@@ -710,7 +710,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 					$current_page++;
 					$pdf->AddPage('','',true);
 					if (! empty($tplidx)) $pdf->useTemplate($tplidx);
-					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $object, 0, $outputlangs);
+					if (!getDolGlobalString('MAIN_PDF_DONOTREPEAT_HEAD')) $this->_pagehead($pdf, $object, 0, $outputlangs);
 					$pdf->setPage($current_page);
 					$this->_tableau_versements_header($pdf, $object, $outputlangs, $default_font_size, $tab3_posx, $tab3_top+$y-3, $tab3_width, $tab3_height);
 				}
@@ -957,7 +957,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		global $conf,$mysoc;
 
         $sign=1;
-        if ($object->type == 2 && ! empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE)) $sign=-1;
+        if (!empty($object->type) && $object->type == 2 && getDolGlobalString('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
 
         $default_font_size = pdf_getPDFFontSize($outputlangs);
 
@@ -988,7 +988,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //		// Show VAT by rates and total
 //		$pdf->SetFillColor(248,248,248);
 //
-		$total_ttc = ($conf->multicurrency->enabled && $this->facture->multicurrency_tx != 1) ? $this->facture->multicurrency_total_ttc : $this->facture->total_ttc;
+		$total_ttc = (!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? $this->facture->multicurrency_total_ttc : $this->facture->total_ttc;
 //
 //		$this->atleastoneratenotnull=0;
 //		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT))
@@ -1187,13 +1187,13 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //		}
 
 		$pdf->SetTextColor(0,0,0);
-		$creditnoteamount=$this->facture->getSumCreditNotesUsed(($conf->multicurrency->enabled && $this->facture->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
-		$depositsamount=$this->facture->getSumDepositsUsed(($conf->multicurrency->enabled && $this->facture->multicurrency_tx != 1) ? 1 : 0);
+		$creditnoteamount=$this->facture->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
+		$depositsamount=$this->facture->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? 1 : 0);
 		//print "x".$creditnoteamount."-".$depositsamount;exit;
 		$resteapayer = price2num($total_ttc - $deja_regle - $creditnoteamount - $depositsamount, 'MT');
 		if ($this->facture->paye) $resteapayer=0;
 
-		if (empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
+		if (!getDolGlobalString('INVOICE_NO_PAYMENT_DETAILS'))
 		{
 			// Already paid + Deposits
 			$index++;
@@ -1278,7 +1278,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$pdf->MultiCell(($pdf->GetStringWidth($titre) + 3), 2, $titre);
 
 			//$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
-			if (! empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR)) $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_droite-$this->marge_gauche, 5, 'F', null, explode(',',$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
+			if (getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')) $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur-$this->marge_droite-$this->marge_gauche, 5, 'F', null, explode(',',getDolGlobalString('MAIN_PDF_TITLE_BACKGROUND_COLOR')));
 		}
 
 		$pdf->SetDrawColor(128,128,128);
@@ -1332,9 +1332,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		pdf_pagehead($pdf,$outputlangs,$this->page_hauteur);
 
 		// Show Draft Watermark
-		if($this->facture->statut==Facture::STATUS_DRAFT && (! empty($conf->global->FACTURE_DRAFT_WATERMARK)) )
+		if($this->facture->statut==Facture::STATUS_DRAFT && (getDolGlobalString('FACTURE_DRAFT_WATERMARK')) )
         {
-		      pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',$conf->global->FACTURE_DRAFT_WATERMARK);
+		      pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',getDolGlobalString('FACTURE_DRAFT_WATERMARK'));
         }
 
 		$pdf->SetTextColor(0,0,60);
@@ -1348,7 +1348,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$pdf->SetXY($this->marge_gauche,$posy);
 
 		// Logo
-		if (empty($conf->global->PDF_DISABLE_MYCOMPANY_LOGO))
+		if (!getDolGlobalString('PDF_DISABLE_MYCOMPANY_LOGO'))
 		{
 			$logo=$conf->mycompany->dir_output.'/logos/'.$this->emetteur->logo;
 			if ($this->emetteur->logo)
@@ -1467,7 +1467,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //		}
 
 		// Get contact
-		if (!empty($conf->global->DOC_SHOW_FIRST_SALES_REP))
+		if (getDolGlobalString('DOC_SHOW_FIRST_SALES_REP'))
 		{
 		    $arrayidcontact=$this->facture->getIdContact('internal','SALESREPFOLL');
 		    if (count($arrayidcontact) > 0)
@@ -1498,13 +1498,12 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $this->facture->thirdparty, '', 0, 'source', $this->facture);
 
 //			// Show sender
-			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
-			$posy+=$top_shift;
+			$posy=getDolGlobalString('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
 			$posx=$this->marge_gauche;
-			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
+			if (getDolGlobalString('MAIN_INVERT_SENDER_RECIPIENT')) $posx=$this->page_largeur-$this->marge_droite-80;
 
-			$hautcadre=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 38 : 40;
-			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 82;
+			$hautcadre=getDolGlobalString('MAIN_PDF_USE_ISO_LOCATION') ? 38 : 40;
+			$widthrecbox=getDolGlobalString('MAIN_PDF_USE_ISO_LOCATION') ? 92 : 82;
 
 
 			// Show sender frame
@@ -1541,7 +1540,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 
 			//Recipient name
 			// On peut utiliser le nom de la societe du contact
-			if ($usecontact && !empty($conf->global->MAIN_USE_COMPANY_NAME_OF_CONTACT)) {
+			if ($usecontact && getDolGlobalString('MAIN_USE_COMPANY_NAME_OF_CONTACT')) {
 				$thirdparty = $this->facture->contact;
 			} else {
 				$thirdparty = $this->facture->thirdparty;
@@ -1552,12 +1551,12 @@ class pdf_surimi extends ModelePDFPaymentschedule
 			$carac_client=pdf_build_address($outputlangs,$this->emetteur,$this->facture->thirdparty,($usecontact?$this->facture->contact:''),$usecontact,'target',$this->facture);
 
 			// Show recipient
-			$widthrecbox=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 92 : 100;
+			$widthrecbox=getDolGlobalString('MAIN_PDF_USE_ISO_LOCATION') ? 92 : 100;
 			if ($this->page_largeur < 210) $widthrecbox=84;	// To work with US executive format
-			$posy=!empty($conf->global->MAIN_PDF_USE_ISO_LOCATION) ? 40 : 42;
+			$posy=getDolGlobalString('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
 //			$posy+=$top_shift;
 			$posx=$this->page_largeur-$this->marge_droite-$widthrecbox;
-			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
+			if (getDolGlobalString('MAIN_INVERT_SENDER_RECIPIENT')) $posx=$this->marge_gauche;
 
 			// Show recipient frame
 			$pdf->SetTextColor(0,0,0);
@@ -1580,7 +1579,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		}
 
 		$pdf->SetTextColor(0,0,0);
-		return $top_shift;
+		return 0;
 	}
 
 	/**
@@ -1595,7 +1594,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 	function _pagefoot(&$pdf,$object,$outputlangs,$hidefreetext=0)
 	{
 		global $conf;
-		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
+		$showdetails=getDolGlobalString('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS');
 		return pdf_pagefoot($pdf,$outputlangs,'PAYMENTSCHEDULE_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
 

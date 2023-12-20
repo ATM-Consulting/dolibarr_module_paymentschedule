@@ -423,7 +423,7 @@ class PaymentSchedule extends SeedObject
 		foreach($facture->lines as $line){
 			if(empty($i)) $tx_tva = $line->tva_tx;
 
-			if($conf->subtotal->enabled) { // Pas de vérification de TVA sur les lignes de sous total
+			if(!empty($conf->subtotal->enabled)) { // Pas de vérification de TVA sur les lignes de sous total
 				dol_include_once('/subtotal/class/subtotal.class.php');
 				if(TSubtotal::isModSubtotalLine($line)) continue;
 			}
@@ -436,13 +436,13 @@ class PaymentSchedule extends SeedObject
 			$i++;
 		}
 
-		if (empty($user->rights->paymentschedule->write)) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
+		if (!$user->hasRight('paymentschedule', 'write')) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceInsufficientPermission');
 
         if ($facture->statut == Facture::STATUS_DRAFT) $TRestrictMessage[] = $langs->trans('CheckErrorInvoiceIsDraft');
 
         $TPaymentId = array();
-        if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE)) $TPaymentId[] = $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE;
-        if (!empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND)) $TPaymentId = array_merge($TPaymentId, explode(',', $conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND));
+        if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE')) $TPaymentId[] = getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE');
+        if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND')) $TPaymentId = array_merge($TPaymentId, explode(',', getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE_SECOND')));
 
         if (!in_array($facture->mode_reglement_id, $TPaymentId))
 		{
@@ -484,7 +484,7 @@ class PaymentSchedule extends SeedObject
 
 		// TODO vérifier que le tiers de la facture a bien un compte bancaire avec les infos nécessaires au prélèvement
 		// IBAN valide + BIC + RUM + MODE (FRST ou RECUR)...
-        if (empty($conf->global->PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN))
+        if (!getDolGlobalString('PAYMENTSCHEDULE_DISABLE_RESTRICTION_ON_IBAN'))
 		{
 			require_once DOL_DOCUMENT_ROOT.'/societe/class/companypaymentmode.class.php';
 			$companypaymentmode = new CompanyPaymentMode($facture->db);
@@ -645,9 +645,9 @@ class PaymentSchedule extends SeedObject
 
 			$facnumber = ((float) DOL_VERSION < 9.0 ) ? $facture->facnumber : $facture->ref;
 			// {INDICE} {SOCNAME} - {FACNUMBER} {REFCLIENT}
-            if (!empty($conf->global->PAYMENTSCHEDULE_LABEL_PATTERN))
+            if (getDolGlobalString('PAYMENTSCHEDULE_LABEL_PATTERN'))
             {
-                $det->label = $conf->global->PAYMENTSCHEDULE_LABEL_PATTERN;
+                $det->label = getDolGlobalString('PAYMENTSCHEDULE_LABEL_PATTERN');
                 $det->label = strtr($det->label, array(
                     '{INDICE}' => $i+1
                     , '{SOCNAME}' => $facture->thirdparty->name
@@ -717,8 +717,8 @@ class PaymentSchedule extends SeedObject
 
 			if ($this->modelpdf) {
 				$modele = $this->modelpdf;
-			} elseif (! empty($conf->global->PAYMENTSCHEDULE_ADDON_PDF)) {
-				$modele = $conf->global->PAYMENTSCHEDULE_ADDON_PDF;
+			} elseif (getDolGlobalString('PAYMENTSCHEDULE_ADDON_PDF')) {
+				$modele = getDolGlobalString('PAYMENTSCHEDULE_ADDON_PDF');
 			}
 		}
 
@@ -750,7 +750,7 @@ class PaymentSchedule extends SeedObject
 
 		$url = dol_buildpath("/paymentschedule/card.php?facid=".$this->fk_facture, 2);//DOL_URL_ROOT.'/compta/facture/card.php?facid='.$this->id;
 
-		if (!$user->rights->facture->lire)
+		if (!$user->hasRight('facture', 'lire'))
 			$option = 'nolink';
 
 		if ($option !== 'nolink')
@@ -767,7 +767,7 @@ class PaymentSchedule extends SeedObject
 
 		$label='';
 
-		if ($user->rights->paymentschedule->read) {
+		if ($user->hasRight('paymentschedule', 'read')) {
 			$label = '<u>' . $langs->trans("ShowInvoice") . '</u>';
 			if (! empty($this->ref))
 				$label .= '<br><b>'.$langs->trans('Ref') . ':</b> ' . $this->ref;
@@ -787,9 +787,9 @@ class PaymentSchedule extends SeedObject
 		}
 
 		$linkclose='';
-		if (empty($notooltip) && $user->rights->facture->lire)
+		if (empty($notooltip) && $user->hasRight('facture', 'lire'))
 		{
-			if (! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER))
+			if (getDolGlobalString('MAIN_OPTIMIZEFORTEXTBROWSER'))
 			{
 				$label=$langs->trans("ShowInvoice");
 				$linkclose.=' alt="'.dol_escape_htmltag($label, 1).'"';
@@ -1295,11 +1295,11 @@ class PaymentScheduleUpdateStatus extends SeedObject
 
         $this->output = $langs->trans('PaymentScheduleUpdateStatus_start', date('Y-m-d H:i:s'));
 
-        if (empty($user->rights->paymentschedule->write))
+        if (!$user->hasRight('paymentschedule', 'write'))
         {
             $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorNotEnoughPermission');
         }
-        elseif (empty($conf->global->PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE))
+        elseif (!getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE'))
         {
             $this->output.= '<br />'.$langs->trans('PaymentScheduleUpdateStatus_ErrorMainConfigurationMissing');
         }

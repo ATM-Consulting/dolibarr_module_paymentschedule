@@ -59,7 +59,7 @@ class modPaymentSchedule extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module PaymentSchedule";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.1.7';
+		$this->version = '1.2.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -118,7 +118,7 @@ class modPaymentSchedule extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(9,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(15,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("paymentschedule@paymentschedule");
 
 		// Constants
@@ -153,7 +153,7 @@ class modPaymentSchedule extends DolibarrModules
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
         $this->tabs = array(
-            'invoice:+paymentschedulecard:PaymentSchedule:paymentschedule@paymentschedule:$user->rights->paymentschedule->read:/paymentschedule/card.php?facid=__ID__'
+            'invoice:+paymentschedulecard:PaymentSchedule:paymentschedule@paymentschedule:$user->hasRight("paymentschedule","read"):/paymentschedule/card.php?facid=__ID__'
         );
 
         // Dictionaries
@@ -334,7 +334,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->rights->paymentschedule->write && $user->rights->prelevement->bons->creer',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","write") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -351,7 +351,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->rights->paymentschedule->read && $user->rights->prelevement->bons->creer',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","read") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -367,7 +367,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> '$conf->paymentschedule->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","read")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both

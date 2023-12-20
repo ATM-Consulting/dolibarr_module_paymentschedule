@@ -24,7 +24,7 @@ dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 
-if(empty($user->rights->paymentschedule->read)) accessforbidden();
+if(!$user->hasRight('paymentschedule', 'read')) accessforbidden();
 
 $langs->loadLangs(array('paymentschedule@paymentschedule', 'bills', 'main'));
 
@@ -37,7 +37,7 @@ $lineid = GETPOST('lineid', 'int');
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'paymentschedulecard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alphanohtml');
 
-$usercansend = (empty($conf->global->MAIN_USE_ADVANCED_PERMS) || $user->rights->facture->invoice_advance->send);
+$usercansend = (!getDolGlobalString('MAIN_USE_ADVANCED_PERMS') || $user->hasRight("facture","invoice_advance","send"));
 
 $object = new PaymentSchedule($db);
 
@@ -97,7 +97,7 @@ if (empty($reshook))
 
 	// Actions to build doc
 	$upload_dir = $conf->paymentschedule->dir_output;
-	$permissioncreate=$user->rights->paymentschedule->write;
+	$permissioncreate=$user->hasRight('paymentschedule','write');
 	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 	$error = 0;
@@ -169,23 +169,23 @@ if (empty($reshook))
 
 		case 'modifpaymentschedule':
 		case 'reopenpaymentschedule':
-			if (!empty($user->rights->paymentschedule->write)) $object->setDraft($user);
+			if ($user->hasRight('paymentschedule', 'write')) $object->setDraft($user);
 
 			break;
 		case 'confirm_validatepaymentschedule':
-			if (!empty($user->rights->paymentschedule->write)) $object->setValid($user);
+			if ($user->hasRight('paymentschedule', 'write')) $object->setValid($user);
 
 			header('Location: '.dol_buildpath('/paymentschedule/card.php', 1).'?id='.$object->id);
 			exit;
 
 		case 'confirm_deletepaymentschedule':
-			if (!empty($user->rights->paymentschedule->delete)) $res = $object->delete($user);
+			if ($user->hasRight('paymentschedule', 'delete')) $res = $object->delete($user);
 
 			header('Location: '.dol_buildpath('/compta/facture/card.php', 1).'?facid='.$facture->id);
 			exit;
 
         case 'confirm_resetpaymentschedule':
-            if (!empty($user->rights->paymentschedule->write))
+            if ($user->hasRight('paymentschedule', 'write'))
             {
                 $object->initDetailEcheancier(GETPOST('full_reset', 'int'));
             }
@@ -225,7 +225,7 @@ if (empty($reshook))
 
         case 'set_accept':
         case 'set_refuse':
-            if (!empty($user->rights->paymentschedule->write))
+            if ($user->hasRight('paymentschedule', 'write'))
             {
                 if ($action == 'set_accept') $object->setLineAccepted($user, $lineid, true);
                 elseif ($action == 'set_refuse') $object->setLineRefused($user, $lineid, true);
@@ -336,7 +336,7 @@ else
             $morehtmlref.=$form->editfieldval("RefCustomer", 'ref_client', $facture->ref_client, $facture, 0, 'string', '', null, null, '', 1);
             // Thirdparty
             $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $facture->thirdparty->getNomUrl(1,'customer');
-            if (empty($conf->global->MAIN_DISABLE_OTHER_LINK) && $facture->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/compta/facture/list.php?socid='.$facture->thirdparty->id.'&search_societe='.urlencode($facture->thirdparty->name).'">'.$langs->trans("OtherBills").'</a>)';
+            if (!getDolGlobalString('MAIN_DISABLE_OTHER_LINK') && $facture->thirdparty->id > 0) $morehtmlref.=' (<a href="'.DOL_URL_ROOT.'/compta/facture/list.php?socid='.$facture->thirdparty->id.'&search_societe='.urlencode($facture->thirdparty->name).'">'.$langs->trans("OtherBills").'</a>)';
 
             $morehtmlref.='</div>';
 
@@ -399,7 +399,7 @@ else
                 print '<tr class="liste_titre nodrag nodrop">';
 
                 // Adds a line numbering column
-                if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) print '<td class="linecolnum center" width="5">&nbsp;</td>';
+                if (getDolGlobalString('MAIN_VIEW_LINE_NUMBER')) print '<td class="linecolnum center" width="5">&nbsp;</td>';
 
                 // Label
                 print '<td class="linecollabel">'.$langs->trans('Label').'</td>';
@@ -482,7 +482,7 @@ else
                     if(!empty($line->product_type)) $domData .= ' data-product_type="'.$line->product_type.'"';
 
                     print '<tr  id="row-'.$line->id.'" class="drag drop oddeven" '.$domData.' >';
-                    if (! empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
+                    if (getDolGlobalString('MAIN_VIEW_LINE_NUMBER')) {
                         print '<td class="linecolnum" align="center">'.($i+1).'</td>';
                         $coldisplay++;
                     }
@@ -578,8 +578,8 @@ else
 					{
 						$line->fetch_optionals();
 						foreach ($linesExtralabels as $extra => $label){
-							if ($action == 'editline' && $line->id == $lineid) print '<td class="'.$label.'">'.$linesExtrafields->showInputField($extra, $line->array_options['options_'.$extra]).'</td>';
-							else print '<td class="'.$label.'">'.$linesExtrafields->showOutputField($extra, $line->array_options['options_'.$extra]).'</td>';
+							if ($action == 'editline' && $line->id == $lineid) print '<td class="'.$label.'">'.$linesExtrafields->showInputField($extra, $line->array_options['options_'.$extra] ?? '', '', '', '', '', 0, $det->table_element).'</td>';
+							else print '<td class="'.$label.'">'.$linesExtrafields->showOutputField($extra, $line->array_options['options_'.$extra] ?? '','',$det->table_element).'</td>';
 						}
 					}
 
@@ -599,10 +599,10 @@ else
 
                         if ($line->status != PaymentScheduleDet::STATUS_ACCEPTED)
                         {
-                            if (!empty($object->facture->fk_account)) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
+                            if (!empty($object->facture->fk_account)) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_accept&lineid='.$line->id.'&token='.$token.'" title="'.$langs->trans('paymentscheduleSetAccept').'"><span class="fa-lg fa fa-check-circle"></span></a>';
                             else print '<a style="margin-right:8px; color:#888" href="#" title="'.$langs->trans('paymentscheduleSetAcceptNeedToSetBankAccountId').'"><span class="fa-lg fa fa-check-circle"></span></a>';
                         }
-                        if ($line->status != PaymentScheduleDet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'" title="'.$langs->trans('paymentscheduleSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
+                        if ($line->status != PaymentScheduleDet::STATUS_REFUSED) print '<a style="margin-right:8px;" href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=set_refuse&lineid='.$line->id.'&token='.$token.'" title="'.$langs->trans('paymentscheduleSetRefuse').'"><span class="fa-lg fa fa-times-circle fa-times-circle-o"></span></a>';
                     }
                     print '</td>';
                     $coldisplay++;
@@ -667,7 +667,7 @@ else
                 //        print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=presend&mode=init#formmailbeforetitle">' . $langs->trans('SendMail') . '</a>'."\n";
 
                 // Modify
-                if (!empty($user->rights->paymentschedule->write))
+                if ($user->hasRight('paymentschedule', 'write'))
                 {
                     if ($object->status === PaymentSchedule::STATUS_DRAFT)
                     {
@@ -700,7 +700,7 @@ else
                 }
 
                 // Send by mail
-                if (($object->status == PaymentSchedule::STATUS_VALIDATED || $object->statut == PaymentSchedule::STATUS_CLOSED) || !empty($conf->global->FACTURE_SENDBYEMAIL_FOR_ALL_STATUS))
+                if (($object->status == PaymentSchedule::STATUS_VALIDATED || $object->statut == PaymentSchedule::STATUS_CLOSED) || getDolGlobalString('FACTURE_SENDBYEMAIL_FOR_ALL_STATUS'))
                 {
                     if ($objectidnext)
                     {
@@ -713,7 +713,7 @@ else
                     }
                 }
 
-                if (!empty($user->rights->paymentschedule->delete))
+                if ($user->hasRight('paymentschedule', 'delete'))
                 {
                     if ($object->status !== PaymentSchedule::STATUS_CLOSED) print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deletepaymentschedule&amp;token='.$token.'">'.$langs->trans("PaymentScheduleDelete").'</a></div>'."\n";
                 }
@@ -733,8 +733,8 @@ else
 				$filename = dol_sanitizeFileName($facture->ref.'_ps');
 				$filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref.'_ps');
 				$urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $facture->id;
-				$genallowed = $user->rights->paymentschedule->read;
-				$delallowed = $user->rights->paymentschedule->write;
+				$genallowed = $user->hasRight('paymentschedule','read');
+				$delallowed = $user->hasRight('paymentschedule','write');
 
 				print $formfile->showdocuments('paymentschedule', $filename, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', '');
 
