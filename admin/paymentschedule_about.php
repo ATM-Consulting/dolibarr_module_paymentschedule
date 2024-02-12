@@ -48,11 +48,11 @@ llxHeader('', $langs->trans($page_name));
 // Subheader
 $linkback = '<a href="' . DOL_URL_ROOT . '/admin/modules.php">'
     . $langs->trans('BackToModuleList') . '</a>';
-print load_fiche_titre($langs->trans($page_name), $linkback);
+print load_fiche_titre($langs->trans($page_name), $linkback, 'tools');
 
 // Configuration header
 $head = paymentscheduleAdminPrepareHead();
-dol_fiche_head(
+print dol_get_fiche_head(
     $head,
     'about',
     $langs->trans('Module104077Name'),
@@ -64,11 +64,16 @@ dol_fiche_head(
 print '<div style="float: left;"><img src="../img/Dolibarr_Preferred_Partner_logo.png" /></div>';
 print '<div>'.$langs->trans('ATMAbout').'</div>';
 
-dol_fiche_end();
+print dol_get_fiche_end();
 
-print '<br><div class="center">';
-print '<a href="http://www.atm-consulting.fr" target="_blank"><img src="../img/ATM_logo.jpg" /></a>';
-print '</div>';
+require_once __DIR__ . '/../class/techatm.class.php';
+$techATM = new \paymentschedule\TechATM($db);
+
+require_once __DIR__ . '/../core/modules/modPaymentSchedule.class.php';
+$moduleDescriptor = new modPaymentSchedule($db);
+
+print $techATM->getAboutPage($moduleDescriptor);
+
 
 llxFooter();
 $db->close();
