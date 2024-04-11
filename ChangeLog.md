@@ -5,7 +5,7 @@
 
 
 ## Release 1.2
-
+- FIX missing compat - *11/04/2023* - 1.2.1
 - NEW : Compat v19 - *15/12/2023* - 1.2.0
   - DOL v15 minimum 
   - PHP 7 min 
