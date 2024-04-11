@@ -187,6 +187,14 @@ $arrayfields=array(
     'f.tms'=>array('label'=>"DateModificationShort", 'checked'=>0, 'position'=>500),
     'f.fk_statut'=>array('label'=>"InvoiceStatus", 'checked'=>1, 'position'=>1000),
 );
+
+if(floatval(DOL_VERSION) >= 17) {
+    $extrafields->attribute_type= $extrafields->attributes['paymentschedule']['type'] ?? array();
+    $extrafields->attribute_size= $extrafields->attributes['paymentschedule']['size'] ?? array();
+    $extrafields->attribute_unique= $extrafields->attributes['paymentschedule']['unique'] ?? array();
+    $extrafields->attribute_required= $extrafields->attributes['paymentschedule']['required'] ?? array();
+    $extrafields->attribute_label= $extrafields->attributes['paymentschedule']['label'] ?? array();
+}
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label))
 {
@@ -344,7 +352,6 @@ if ($search_zip)   $sql.= natural_search("s.zip",$search_zip);
 if ($search_state) $sql.= natural_search("state.nom",$search_state);
 if ($search_country) $sql .= " AND s.fk_pays IN (".$db->escape($search_country).')';
 if ($search_type_thirdparty) $sql .= " AND s.fk_typent IN (".$db->escape($search_type_thirdparty).')';
-if ($search_company) $sql .= natural_search('s.nom', $search_company);
 if ($search_montant_ht != '') $sql.= natural_search('f.'.$invoiceTotalHtField, $search_montant_ht, 1);
 if ($search_montant_vat != '') $sql.= natural_search('f.'.$invoiceTotalVatField, $search_montant_vat, 1);
 if ($search_montant_localtax1 != '') $sql.= natural_search('f.localtax1', $search_montant_localtax1, 1);
@@ -524,7 +531,6 @@ if ($resql)
     if ($search_paymentmode > 0) $param.='&search_paymentmode='.urlencode($search_paymentmode);
     if ($show_files)         $param.='&show_files='.urlencode($show_files);
     if ($option)             $param.="&search_option=".urlencode($option);
-    if ($optioncss != '')    $param.='&optioncss='.urlencode($optioncss);
     if ($search_categ_cus > 0) $param.='&search_categ_cus='.urlencode($search_categ_cus);
 
     // Add $param from extra fields
@@ -545,14 +551,12 @@ if ($resql)
     $i = 0;
     print '<form method="POST" name="searchFormList" action="'.$_SERVER["PHP_SELF"].'">'."\n";
 
-    if ($optioncss != '') print '<input type="hidden" name="optioncss" value="'.$optioncss.'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
     print '<input type="hidden" name="action" value="list">';
     print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
     print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
     print '<input type="hidden" name="page" value="'.$page.'">';
-    print '<input type="hidden" name="viewstatut" value="'.$viewstatut.'">';
     print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
     print_barre_liste($langs->trans('PaymentScheduleList').' '.($socid?' '.$soc->name:''), $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'title_accountancy.png', 0, $newcardbutton, '', $limit);
@@ -869,7 +873,7 @@ if ($resql)
     if ($num > 0)
     {
         $i=0;
-        $totalarray=array();
+        $totalarray=array('nbfield' => 0);
         while ($i < min($num,$limit))
         {
             $obj = $db->fetch_object($resql);
@@ -885,7 +889,8 @@ if ($resql)
             $facturestatic->statut=$obj->fk_statut;
             $facturestatic->total_ttc=$obj->total_ttc;
             $facturestatic->paye=$obj->paye;
-            $facturestatic->fk_soc=$obj->fk_soc;
+            if(property_exists($facturestatic,'fk_soc') && !empty($obj->fk_soc)) $facturestatic->fk_soc=$obj->fk_soc;
+            if(property_exists($facturestatic,'socid') && !empty($obj->fk_soc)) $facturestatic->socid=$obj->fk_soc;
             $facturestatic->date_lim_reglement=$db->jdate($obj->datelimite);
             $facturestatic->note_public=$obj->note_public;
             $facturestatic->note_private=$obj->note_private;
@@ -1065,6 +1070,7 @@ if ($resql)
                 print '<td align="right">'.price($obj->total_ht)."</td>\n";
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totalhtfield']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totalht']))  $totalarray['totalht'] = 0;
                 $totalarray['totalht'] += $obj->total_ht;
             }
             // Amount VAT
@@ -1073,6 +1079,7 @@ if ($resql)
                 print '<td align="right">'.price($obj->total_vat)."</td>\n";
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totalvatfield']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totalvat']))  $totalarray['totalvat'] = 0;
                 $totalarray['totalvat'] += $obj->total_vat;
             }
             // Amount LocalTax1
@@ -1081,6 +1088,7 @@ if ($resql)
                 print '<td align="right">'.price($obj->total_localtax1)."</td>\n";
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totallocaltax1field']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totallocaltax1']))  $totalarray['totallocaltax1'] = 0;
                 $totalarray['totallocaltax1'] += $obj->total_localtax1;
             }
             // Amount LocalTax2
@@ -1089,6 +1097,8 @@ if ($resql)
                 print '<td align="right">'.price($obj->total_localtax2)."</td>\n";
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totallocaltax2field']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totallocaltax2']))  $totalarray['totallocaltax2'] = 0;
+
                 $totalarray['totallocaltax2'] += $obj->total_localtax2;
             }
             // Amount TTC
@@ -1097,6 +1107,8 @@ if ($resql)
                 print '<td align="right">'.price($obj->total_ttc)."</td>\n";
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totalttcfield']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totalttc']))  $totalarray['totalttc'] = 0;
+
                 $totalarray['totalttc'] += $obj->total_ttc;
             }
 
@@ -1105,6 +1117,8 @@ if ($resql)
                 print '<td align="right">'.(! empty($totalpay)?price($totalpay,0,$langs):'&nbsp;').'</td>'; // TODO Use a denormalized field
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totalamfield']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totalam']))  $totalarray['totalam'] = 0;
+
                 $totalarray['totalam'] += $totalpay;
             }
 
@@ -1113,6 +1127,8 @@ if ($resql)
                 print '<td align="right">'.(! empty($remaintopay)?price($remaintopay,0,$langs):'&nbsp;').'</td>'; // TODO Use a denormalized field
                 if (! $i) $totalarray['nbfield']++;
                 if (! $i) $totalarray['totalrtpfield']=$totalarray['nbfield'];
+                if(!isset( $totalarray['totalrtp']))  $totalarray['totalrtp'] = 0;
+
                 $totalarray['totalrtp'] += $remaintopay;
             }
 
@@ -1218,13 +1234,13 @@ if ($resql)
                     if ($num < $limit && empty($offset)) print '<td align="left">'.$langs->trans("Total").'</td>';
                     else print '<td align="left">'.$langs->trans("Totalforthispage").'</td>';
                 }
-                elseif ($totalarray['totalhtfield'] == $i)  print '<td align="right">'.price($totalarray['totalht']).'</td>';
-                elseif ($totalarray['totalvatfield'] == $i) print '<td align="right">'.price($totalarray['totalvat']).'</td>';
-                elseif ($totalarray['totallocaltax1field'] == $i) print '<td align="right">'.price($totalarray['totallocaltax1']).'</td>';
-                elseif ($totalarray['totallocaltax2field'] == $i) print '<td align="right">'.price($totalarray['totallocaltax2']).'</td>';
-                elseif ($totalarray['totalttcfield'] == $i) print '<td align="right">'.price($totalarray['totalttc']).'</td>';
-                elseif ($totalarray['totalamfield'] == $i)  print '<td align="right">'.price($totalarray['totalam']).'</td>';
-                elseif ($totalarray['totalrtpfield'] == $i)  print '<td align="right">'.price($totalarray['totalrtp']).'</td>';
+                elseif (!empty($totalarray['totalhtfield']) && $totalarray['totalhtfield'] == $i)  print '<td align="right">'.price($totalarray['totalht']).'</td>';
+                elseif (!empty($totalarray['totalvatfield']) && $totalarray['totalvatfield'] == $i) print '<td align="right">'.price($totalarray['totalvat']).'</td>';
+                elseif (!empty($totalarray['totallocaltax1field']) && $totalarray['totallocaltax1field'] == $i) print '<td align="right">'.price($totalarray['totallocaltax1']).'</td>';
+                elseif (!empty($totalarray['totallocaltax2field']) && $totalarray['totallocaltax2field'] == $i) print '<td align="right">'.price($totalarray['totallocaltax2']).'</td>';
+                elseif (!empty($totalarray['totalttcfield']) && $totalarray['totalttcfield'] == $i) print '<td align="right">'.price($totalarray['totalttc']).'</td>';
+                elseif (!empty($totalarray['totalamfield']) && $totalarray['totalamfield'] == $i)  print '<td align="right">'.price($totalarray['totalam']).'</td>';
+                elseif (!empty($totalarray['totalrtpfield']) && $totalarray['totalrtpfield'] == $i)  print '<td align="right">'.price($totalarray['totalrtp']).'</td>';
                 else print '<td></td>';
             }
             print '</tr>';
@@ -1253,7 +1269,7 @@ if ($resql)
     $genallowed=$user->hasRight('paymentschedule','read');
     $delallowed=$user->hasRight('paymentschedule','write');
 
-    print $formfile->showdocuments('paymentschedule','/temp/massgeneration/'.$conf->entity,$filedir,$urlsource,0,$delallowed,'',1,1,0,48,1,$param,$title,'','','',null,$hidegeneratedfilelistifempty);
+    print $formfile->showdocuments('paymentschedule','/temp/massgeneration/'.$conf->entity,$filedir,$urlsource,0,$delallowed,'',1,1,0,48,1,$param,'','','','',null,$hidegeneratedfilelistifempty);
 
     ?>
     <script type="text/javascript">
