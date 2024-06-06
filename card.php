@@ -230,7 +230,6 @@ if (empty($reshook))
                 if ($action == 'set_accept') $object->setLineAccepted($user, $lineid, true);
                 elseif ($action == 'set_refuse') $object->setLineRefused($user, $lineid, true);
             }
-
             header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
             exit;
 	}
@@ -587,6 +586,7 @@ else
                     $coldisplay++;
 
                     print '<td class="linecolupdatestatus">';
+
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
                     elseif (
 						in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED))

@@ -1148,6 +1148,7 @@ class PaymentScheduleDet extends SeedObject
         $this->status = self::STATUS_REFUSED;
         $this->withChild = false;
 
+
         return $this->update($user, $notrigger);
     }
 
@@ -1237,6 +1238,7 @@ class PaymentScheduleDet extends SeedObject
             {
                 $conf->{$element} = new stdClass();
                 $conf->{$element}->enabled = 1;
+				$conf->modules[$element] = 1;
             }
         }
 
