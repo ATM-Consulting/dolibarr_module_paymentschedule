@@ -581,7 +581,6 @@ else
 							else print '<td class="'.$label.'">'.$linesExtrafields->showOutputField($extra, $line->array_options['options_'.$extra] ?? '','',$det->table_element).'</td>';
 						}
 					}
-
                     print '<td class="linecolstatus center">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;
 
@@ -660,7 +659,6 @@ else
             $parameters=array();
             $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
             if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-
             if (empty($reshook))
             {
                 // Send

@@ -529,7 +529,7 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-
+var_dump(!empty($object->id_prelevement));
             if (!empty($object->id_prelevement))
             {
                 global $paymentschedule_facs;
@@ -588,8 +588,10 @@ class InterfacePaymentScheduletrigger
                             // [2] = fk_prelevement_lignes
                             if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
                             {
-                                $paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
-                                $paymentscheduledet->setAccepted($user);
+								$actionForm = GETPOST('action', 'alpha');
+								$paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
+								if($paymentscheduledet->status != PaymentScheduleDet::STATUS_REFUSED && $amount > 0) $paymentscheduledet->setAccepted($user);
+                                if($actionForm == 'confirm_rejet') $paymentscheduledet->setRefused($user);
                             }
 
 //                        $paymentschedule_facs_index++;

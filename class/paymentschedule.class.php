@@ -900,7 +900,6 @@ class PaymentSchedule extends SeedObject
     public function setLineRefused($user, $fk_payment_schedule_det, $create_reject = false, $notrigger = false)
     {
         $res = 0;
-
         foreach ($this->TPaymentScheduleDet as $paymentScheduleDet)
         {
             if ($paymentScheduleDet->id == $fk_payment_schedule_det)
@@ -953,7 +952,6 @@ class PaymentSchedule extends SeedObject
                         }
                     }
                 }
-
                 break;
             }
         }
@@ -1147,8 +1145,6 @@ class PaymentScheduleDet extends SeedObject
     {
         $this->status = self::STATUS_REFUSED;
         $this->withChild = false;
-
-
         return $this->update($user, $notrigger);
     }
 
