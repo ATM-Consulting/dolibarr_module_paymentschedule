@@ -593,8 +593,6 @@ var_dump(!empty($object->id_prelevement));
 								if($paymentscheduledet->status != PaymentScheduleDet::STATUS_REFUSED && $amount > 0) $paymentscheduledet->setAccepted($user);
                                 if($actionForm == 'confirm_rejet') $paymentscheduledet->setRefused($user);
                             }
-
-//                        $paymentschedule_facs_index++;
                         }
                     }
                 }
