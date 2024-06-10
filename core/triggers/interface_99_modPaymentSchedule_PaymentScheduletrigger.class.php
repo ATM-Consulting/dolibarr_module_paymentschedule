@@ -529,7 +529,6 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-var_dump(!empty($object->id_prelevement));
             if (!empty($object->id_prelevement))
             {
                 global $paymentschedule_facs;
