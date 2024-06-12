@@ -230,7 +230,6 @@ if (empty($reshook))
                 if ($action == 'set_accept') $object->setLineAccepted($user, $lineid, true);
                 elseif ($action == 'set_refuse') $object->setLineRefused($user, $lineid, true);
             }
-
             header('Location: '.$_SERVER['PHP_SELF'].'?facid='.$facture->id);
             exit;
 	}
@@ -582,11 +581,11 @@ else
 							else print '<td class="'.$label.'">'.$linesExtrafields->showOutputField($extra, $line->array_options['options_'.$extra] ?? '','',$det->table_element).'</td>';
 						}
 					}
-
                     print '<td class="linecolstatus center">'.$line->getLibStatut(3).'</td>';
                     $coldisplay++;
 
                     print '<td class="linecolupdatestatus">';
+
                     if ($action == 'editline' && $line->id == $lineid) print '&nbsp;';
                     elseif (
 						in_array($line->status, array(PaymentScheduleDet::STATUS_ACCEPTED, PaymentScheduleDet::STATUS_REFUSED))
@@ -660,7 +659,6 @@ else
             $parameters=array();
             $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
             if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-
             if (empty($reshook))
             {
                 // Send

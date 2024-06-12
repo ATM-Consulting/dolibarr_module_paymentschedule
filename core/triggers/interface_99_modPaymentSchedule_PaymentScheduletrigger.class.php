@@ -529,7 +529,6 @@ class InterfacePaymentScheduletrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-
             if (!empty($object->id_prelevement))
             {
                 global $paymentschedule_facs;
@@ -588,11 +587,12 @@ class InterfacePaymentScheduletrigger
                             // [2] = fk_prelevement_lignes
                             if ($paymentscheduledet->fetchBySourceElement($TInfo[2], 'widthdraw_line') > 0)
                             {
-                                $paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
-                                $paymentscheduledet->setAccepted($user);
+								$actionForm = GETPOST('action', 'alpha');
+								$paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
+								// Gestion des pastilles verte et rouges dans l'échéancier selon l'acceptation ou refus de prélèvement sur le standard et module paymentschedule
+								if($paymentscheduledet->status != PaymentScheduleDet::STATUS_REFUSED && $amount > 0) $paymentscheduledet->setAccepted($user); // changement statut ligne échéancier
+                                if($actionForm == 'confirm_rejet') $paymentscheduledet->setRefused($user); // changement statut ligne échéancier refus de prelévement via le standard
                             }
-
-//                        $paymentschedule_facs_index++;
                         }
                     }
                 }
