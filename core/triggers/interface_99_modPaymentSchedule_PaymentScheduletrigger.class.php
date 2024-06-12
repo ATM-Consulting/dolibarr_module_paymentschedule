@@ -589,8 +589,9 @@ class InterfacePaymentScheduletrigger
                             {
 								$actionForm = GETPOST('action', 'alpha');
 								$paymentscheduledet->add_object_linked('paymentdet', $fk_paiement_facture);
-								if($paymentscheduledet->status != PaymentScheduleDet::STATUS_REFUSED && $amount > 0) $paymentscheduledet->setAccepted($user);
-                                if($actionForm == 'confirm_rejet') $paymentscheduledet->setRefused($user);
+								// Gestion des pastilles verte et rouges dans l'échéancier selon l'acceptation ou refus de prélèvement sur le standard et module paymentschedule
+								if($paymentscheduledet->status != PaymentScheduleDet::STATUS_REFUSED && $amount > 0) $paymentscheduledet->setAccepted($user); // changement statut ligne échéancier
+                                if($actionForm == 'confirm_rejet') $paymentscheduledet->setRefused($user); // changement statut ligne échéancier refus de prelévement via le standard
                             }
                         }
                     }
