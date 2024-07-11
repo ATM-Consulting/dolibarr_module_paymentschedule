@@ -2,7 +2,8 @@
 
 ## Not Released
 
-
+- FIX: Compat v20  
+  Changed Dolibarr compatibility range to 16 min - 20 max
 
 ## Release 1.2
 - FIX : Champ échéancier vide lors de la saisie d'un réglement - *16/07/2024* - 1.2.3
