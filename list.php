@@ -286,7 +286,7 @@ $sql.= ' f.rowid as id, f.'.$fieldRefFacture.' as ref, f.ref_client, f.type, f.n
 $sql.= ' f.localtax1 as total_localtax1, f.localtax2 as total_localtax2,';
 $sql.= ' f.datef as df, f.date_lim_reglement as datelimite,';
 $sql.= ' f.paye as paye, f.fk_statut,';
-$sql.= ' f.datec as date_creation, f.tms as date_update,';
+$sql.= ' f.datec as date_creation, f.tms as date_modification,';
 $sql.= ' s.rowid as socid, s.nom as name, s.email, s.town, s.zip, s.fk_pays, s.client, s.fournisseur, s.code_client, s.code_fournisseur, s.code_compta as code_compta_client, s.code_compta_fournisseur,';
 $sql.= " typent.code as typent_code,";
 $sql.= " state.code_departement as state_code, state.nom as state_name,";
@@ -1185,7 +1185,7 @@ if ($resql)
             if (! empty($arrayfields['f.tms']['checked']))
             {
                 print '<td align="center" class="nowrap">';
-                print dol_print_date($db->jdate($obj->date_update), 'dayhour', 'tzuser');
+                print dol_print_date($db->jdate($obj->date_modification), 'dayhour', 'tzuser');
                 print '</td>';
                 if (! $i) $totalarray['nbfield']++;
             }
