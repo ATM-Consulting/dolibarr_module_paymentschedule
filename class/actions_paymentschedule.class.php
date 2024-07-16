@@ -170,7 +170,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 			print '<td class="right">';
 			if (!empty($tableSEPA->id))
             {
-                print '<select id="" class="paymentschedule-select2 minwidth200 maxwidth300" name="paymentscheduledet_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
+                print '<select id="paymentScheduleDet_'.$object->facid.'" class="paymentschedule-select2 minwidth200 maxwidth300" name="paymentscheduledet_'.$object->facid.'" onchange="$(\'[name=amount_'.$object->facid.']\').val($(this).find(\'option:selected\').data(\'amount\')); $(\'[name=amount_'.$object->facid.']\').trigger(\'change\')">';
                 print '<option value="" data-amount="">&nbsp;</option>';
                 foreach ($tableSEPA->TPaymentScheduleDet as $det)
                 {
@@ -369,7 +369,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
         {
             print '<script type="text/javascript">
                     $(function() {
-                        $(".paymentschedule-select2").select2();
+                        $("[id^=\'paymentScheduleDet_\']").select2();
                     });
                 </script>';
         }
