@@ -5,6 +5,7 @@
 
 
 ## Release 1.2
+- FIX : Champ échéancier vide lors de la saisie d'un réglement - *16/07/2024* - 1.2.3
 - FIX refused prelevement - *10/06/2023* - 1.2.2
 - FIX missing compat - *11/04/2023* - 1.2.1
 - NEW : Compat v19 - *15/12/2023* - 1.2.0
