@@ -47,7 +47,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
-if (! empty($conf->commande->enabled)) require_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
+if (isModEnabled('commande')) require_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
 dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
 // Load translation files required by the page
@@ -163,7 +163,7 @@ $arrayfields=array(
     'f.type'=>array('label'=>"Type", 'checked'=>0),
     'f.date'=>array('label'=>"DateInvoice", 'checked'=>1),
     'f.date_lim_reglement'=>array('label'=>"DateDue", 'checked'=>1),
-    'p.ref'=>array('label'=>"ProjectRef", 'checked'=>0, 'enabled'=>(empty($conf->projet->enabled)?0:1)),
+    'p.ref'=>array('label'=>"ProjectRef", 'checked'=>0, 'enabled'=>(!isModEnabled('projet')?0:1)),
     's.nom'=>array('label'=>"ThirdParty", 'checked'=>1),
     's.town'=>array('label'=>"Town", 'checked'=>1),
     's.zip'=>array('label'=>"Zip", 'checked'=>1),
@@ -592,7 +592,7 @@ if ($resql)
         $moreforfilter.='</div>';
     }
     // If the user can view prospects other than his'
-    if ($conf->categorie->enabled && ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')))
+    if (isModEnabled('categorie') && ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')))
     {
         include_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
         $moreforfilter.='<div class="divsearchfield">';
@@ -601,7 +601,7 @@ if ($resql)
         $moreforfilter.=$form->selectarray('search_product_category', $cate_arbo, $search_product_category, 1, 0, 0, '', 0, 0, 0, 0, 'maxwidth300', 1);
         $moreforfilter.='</div>';
     }
-    if (! empty($conf->categorie->enabled))
+    if (isModEnabled('categorie'))
     {
         require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
         $moreforfilter.='<div class="divsearchfield">';

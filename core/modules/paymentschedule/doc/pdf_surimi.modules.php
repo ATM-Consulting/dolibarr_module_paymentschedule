@@ -226,9 +226,9 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		{
 			$this->facture->fetch_thirdparty();
 
-			$deja_regle = $this->facture->getSommePaiement((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_credit_notes_included = $this->facture->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
-			$amount_deposits_included = $this->facture->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $object->multicurrency_tx != 1) ? 1 : 0);
+			$deja_regle = $this->facture->getSommePaiement((isModEnabled('multicurrency') && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_credit_notes_included = $this->facture->getSumCreditNotesUsed((isModEnabled('multicurrency') && $object->multicurrency_tx != 1) ? 1 : 0);
+			$amount_deposits_included = $this->facture->getSumDepositsUsed((isModEnabled('multicurrency') && $object->multicurrency_tx != 1) ? 1 : 0);
 
 			// Definition of $dir and $file
 			if ($object->specimen)
@@ -670,7 +670,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$pdf->SetXY($tab3_posx, $tab3_top+$y);
 				$pdf->MultiCell(20, 3, dol_print_date($obj->datef,'day',false,$outputlangs,true), 0, 'L', 0);
 				$pdf->SetXY($tab3_posx+21, $tab3_top+$y);
-				$pdf->MultiCell(20, 3, price(($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? $obj->multicurrency_amount_ttc : $obj->amount_ttc, 0, $outputlangs), 0, 'L', 0);
+				$pdf->MultiCell(20, 3, price((isModEnabled('multicurrency') && $object->multicurrency_tx != 1) ? $obj->multicurrency_amount_ttc : $obj->amount_ttc, 0, $outputlangs), 0, 'L', 0);
 				$pdf->SetXY($tab3_posx+40, $tab3_top+$y);
 				$pdf->MultiCell(20, 3, $text, 0, 'L', 0);
 				$pdf->SetXY($tab3_posx+58, $tab3_top+$y);
@@ -720,7 +720,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$pdf->SetXY($tab3_posx, $tab3_top+$y);
 				$pdf->MultiCell(20, 3, dol_print_date($this->db->jdate($row->date),'day',false,$outputlangs,true), 0, 'L', 0);
 				$pdf->SetXY($tab3_posx+21, $tab3_top+$y);
-				$pdf->MultiCell(20, 3, price($sign * (($conf->multicurrency->enabled && $object->multicurrency_tx != 1) ? $row->multicurrency_amount : $row->amount), 0, $outputlangs), 0, 'L', 0);
+				$pdf->MultiCell(20, 3, price($sign * ((isModEnabled('multicurrency') && $object->multicurrency_tx != 1) ? $row->multicurrency_amount : $row->amount), 0, $outputlangs), 0, 'L', 0);
 				$pdf->SetXY($tab3_posx+40, $tab3_top+$y);
 				$oper = $outputlangs->transnoentitiesnoconv("PaymentTypeShort" . $row->code);
 
@@ -981,14 +981,14 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //		$pdf->SetXY($col1x, $tab2_top + 0);
 //		$pdf->MultiCell($col2x-$col1x, $tab2_hl, $outputlangs->transnoentities("TotalHT"), 0, 'L', 1);
 //
-//		$total_ht = (($conf->multicurrency->enabled && isset($object->multicurrency_tx) && $object->multicurrency_tx != 1) ? $object->multicurrency_total_ht : $object->total_ht);
+//		$total_ht = ((isModEnabled('multicurrency') && isset($object->multicurrency_tx) && $object->multicurrency_tx != 1) ? $object->multicurrency_total_ht : $object->total_ht);
 //		$pdf->SetXY($col2x, $tab2_top + 0);
 //		$pdf->MultiCell($largcol2, $tab2_hl, price($sign * ($total_ht + (! empty($object->remise)?$object->remise:0)), 0, $outputlangs), 0, 'R', 1);
 //
 //		// Show VAT by rates and total
 //		$pdf->SetFillColor(248,248,248);
 //
-		$total_ttc = (!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? $this->facture->multicurrency_total_ttc : $this->facture->total_ttc;
+		$total_ttc = (isModEnabled('multicurrency') && $this->facture->multicurrency_tx != 1) ? $this->facture->multicurrency_total_ttc : $this->facture->total_ttc;
 //
 //		$this->atleastoneratenotnull=0;
 //		if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT))
@@ -1187,8 +1187,8 @@ class pdf_surimi extends ModelePDFPaymentschedule
 //		}
 
 		$pdf->SetTextColor(0,0,0);
-		$creditnoteamount=$this->facture->getSumCreditNotesUsed((!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
-		$depositsamount=$this->facture->getSumDepositsUsed((!empty($conf->multicurrency->enabled) && $this->facture->multicurrency_tx != 1) ? 1 : 0);
+		$creditnoteamount=$this->facture->getSumCreditNotesUsed((isModEnabled('multicurrency') && $this->facture->multicurrency_tx != 1) ? 1 : 0);	// Warning, this also include excess received
+		$depositsamount=$this->facture->getSumDepositsUsed((isModEnabled('multicurrency') && $this->facture->multicurrency_tx != 1) ? 1 : 0);
 		//print "x".$creditnoteamount."-".$depositsamount;exit;
 		$resteapayer = price2num($total_ttc - $deja_regle - $creditnoteamount - $depositsamount, 'MT');
 		if ($this->facture->paye) $resteapayer=0;
