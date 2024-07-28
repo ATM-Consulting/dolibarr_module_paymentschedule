@@ -375,7 +375,7 @@ else
 
             if ($action == 'editline')
             {
-                print '<form id="" name="" action="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'#row-'.$lineid.'" method="POST">';
+                print '<form id="" name="" action="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&token='.$token.'#row-'.$lineid.'" method="POST">';
                 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
                 print '<input type="hidden" name="action" value="updatelinepaymentschedule" />';
                 print '<input type="hidden" name="facid" value="'.$facture->id.'" />';
@@ -616,7 +616,7 @@ else
                     else
                     {
                         print '<td class="linecoledit" width="10">';  // No width to allow autodim
-                        if ($line->status == PaymentScheduleDet::STATUS_WAITING && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED))) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'#row-'.$line->id.'">'.img_edit().'</a>';
+                        if ($line->status == PaymentScheduleDet::STATUS_WAITING && !in_array($facture->statut, array(Facture::STATUS_CLOSED, Facture::STATUS_ABANDONED))) print '<a href="'.$_SERVER['PHP_SELF'].'?facid='.$facture->id.'&action=editline&lineid='.$line->id.'&token='.newToken().'#row-'.$line->id.'">'.img_edit().'</a>';
                         print '</td>';
                         $coldisplay++;
 
@@ -670,16 +670,16 @@ else
                     if ($object->status === PaymentSchedule::STATUS_DRAFT)
                     {
                         // Reset échéancier
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resetpaymentschedule">'.$langs->trans("PaymentScheduleReset").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=resetpaymentschedule&token='.newToken().'">'.$langs->trans("PaymentScheduleReset").'</a></div>'."\n";
                         // Modify
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=editpaymentschedule">'.$langs->trans("PaymentScheduleModify").'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=editpaymentschedule&token='.newToken().'">'.$langs->trans("PaymentScheduleModify").'</a></div>'."\n";
                         // Valid
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validpaymentschedule">'.$langs->trans('PaymentScheduleValid').'</a></div>'."\n";
+                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validpaymentschedule&token='.newToken().'">'.$langs->trans('PaymentScheduleValid').'</a></div>'."\n";
                     }
 
 
                     // Reopen
-                    if ($object->status === PaymentSchedule::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopenpaymentschedule">'.$langs->trans('PaymentScheduleReopen').'</a></div>'."\n";
+                    if ($object->status === PaymentSchedule::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopenpaymentschedule&token='.newToken().'">'.$langs->trans('PaymentScheduleReopen').'</a></div>'."\n";
                 }
                 else
                 {
