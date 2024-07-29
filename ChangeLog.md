@@ -4,6 +4,11 @@
 
 
 
+## Release 1.3
+
+- FIX: Compat v20  
+  Changed Dolibarr compatibility range to 16 min - 20 max - *28/07/2024* - 1.3.0
+
 ## Release 1.2
 - FIX : Champ échéancier vide lors de la saisie d'un réglement - *16/07/2024* - 1.2.3
 - FIX refused prelevement - *10/06/2023* - 1.2.2

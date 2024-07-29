@@ -236,7 +236,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 				$TRestrictMessage = PaymentSchedule::checkFactureCondition($object);
 				if (empty($TRestrictMessage))
 				{
-					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createpaymentschedule">'.$langs->trans('PaymentScheduleCreate').'</a></div>';
+					print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?facid='.$object->id.'&action=createpaymentschedule&token='.newToken().'">'.$langs->trans('PaymentScheduleCreate').'</a></div>';
 				}
 				else
 				{

@@ -280,7 +280,7 @@ foreach ($dirmodels as $reldir)
 								if (in_array($name, $def))
 								{
 									print '<td align="center">'."\n";
-									print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&value='.$name.'">';
+									print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&value='.$name.'&token='.newToken().'">';
 									print img_picto($langs->trans("Enabled"),'switch_on');
 									print '</a>';
 									print '</td>';

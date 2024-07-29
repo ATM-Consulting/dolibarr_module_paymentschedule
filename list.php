@@ -47,7 +47,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
-if (! empty($conf->commande->enabled)) require_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
+if (isModEnabled('commande')) require_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
 dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 
 // Load translation files required by the page
@@ -163,7 +163,7 @@ $arrayfields=array(
     'f.type'=>array('label'=>"Type", 'checked'=>0),
     'f.date'=>array('label'=>"DateInvoice", 'checked'=>1),
     'f.date_lim_reglement'=>array('label'=>"DateDue", 'checked'=>1),
-    'p.ref'=>array('label'=>"ProjectRef", 'checked'=>0, 'enabled'=>(empty($conf->projet->enabled)?0:1)),
+    'p.ref'=>array('label'=>"ProjectRef", 'checked'=>0, 'enabled'=>(!isModEnabled('projet')?0:1)),
     's.nom'=>array('label'=>"ThirdParty", 'checked'=>1),
     's.town'=>array('label'=>"Town", 'checked'=>1),
     's.zip'=>array('label'=>"Zip", 'checked'=>1),
@@ -286,7 +286,7 @@ $sql.= ' f.rowid as id, f.'.$fieldRefFacture.' as ref, f.ref_client, f.type, f.n
 $sql.= ' f.localtax1 as total_localtax1, f.localtax2 as total_localtax2,';
 $sql.= ' f.datef as df, f.date_lim_reglement as datelimite,';
 $sql.= ' f.paye as paye, f.fk_statut,';
-$sql.= ' f.datec as date_creation, f.tms as date_update,';
+$sql.= ' f.datec as date_creation, f.tms as date_modification,';
 $sql.= ' s.rowid as socid, s.nom as name, s.email, s.town, s.zip, s.fk_pays, s.client, s.fournisseur, s.code_client, s.code_fournisseur, s.code_compta as code_compta_client, s.code_compta_fournisseur,';
 $sql.= " typent.code as typent_code,";
 $sql.= " state.code_departement as state_code, state.nom as state_name,";
@@ -592,7 +592,7 @@ if ($resql)
         $moreforfilter.='</div>';
     }
     // If the user can view prospects other than his'
-    if ($conf->categorie->enabled && ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')))
+    if (isModEnabled('categorie') && ($user->hasRight('produit', 'lire') || $user->hasRight('service', 'lire')))
     {
         include_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
         $moreforfilter.='<div class="divsearchfield">';
@@ -601,7 +601,7 @@ if ($resql)
         $moreforfilter.=$form->selectarray('search_product_category', $cate_arbo, $search_product_category, 1, 0, 0, '', 0, 0, 0, 0, 'maxwidth300', 1);
         $moreforfilter.='</div>';
     }
-    if (! empty($conf->categorie->enabled))
+    if (isModEnabled('categorie'))
     {
         require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
         $moreforfilter.='<div class="divsearchfield">';
@@ -1185,7 +1185,7 @@ if ($resql)
             if (! empty($arrayfields['f.tms']['checked']))
             {
                 print '<td align="center" class="nowrap">';
-                print dol_print_date($db->jdate($obj->date_update), 'dayhour', 'tzuser');
+                print dol_print_date($db->jdate($obj->date_modification), 'dayhour', 'tzuser');
                 print '</td>';
                 if (! $i) $totalarray['nbfield']++;
             }
