@@ -226,7 +226,6 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 			{
 				$object->fetch_optionals();
 			}
-
 			// vérifier qu'on a bien l'extrafield isecheancier à true
 			if (!empty($object->array_options['options_isecheancier']) && $user->hasRight('paymentschedule', 'write'))
 			{
