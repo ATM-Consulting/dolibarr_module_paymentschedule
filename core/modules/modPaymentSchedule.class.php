@@ -59,7 +59,7 @@ class modPaymentSchedule extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module PaymentSchedule";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.3.0';
+		$this->version = '1.3.1';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -431,8 +431,7 @@ class modPaymentSchedule extends DolibarrModules
 
 		dol_include_once("/core/class/extrafields.class.php");
 		$e = new ExtraFields($db);
-		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
-
+		$res = $e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
 		return $this->_init($sql, $options);
 	}
 
