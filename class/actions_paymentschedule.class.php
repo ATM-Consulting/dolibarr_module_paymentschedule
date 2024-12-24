@@ -25,9 +25,6 @@
 /**
  * Class ActionsPaymentSchedule
  */
-
-use Stripe\Invoice;
-
 require_once __DIR__.'/../backport/v19/core/class/commonhookactions.class.php';
 class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookActions
 {
