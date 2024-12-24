@@ -397,7 +397,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 				if (preg_match('/^inv(.*)$/', $trackId, $matches)) {
 					$invoiceId = $matches[1];
 				}else{
-					return -1;
+					return 0;
 				}
 
                 if ($invoiceId > 0)
