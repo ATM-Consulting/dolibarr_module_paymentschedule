@@ -396,10 +396,11 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 
 				if (preg_match('/^inv(.*)$/', $trackId, $matches)) {
 					$invoiceId = $matches[1];
+				}else{
+					return -1;
 				}
 
-				$fk_facture = $invoiceId;
-                if ($fk_facture > 0)
+                if ($invoiceId > 0)
                 {
                     global $conf;
 
@@ -414,7 +415,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 
 
                     $facture = new Facture($this->db);
-                    $facture->fetch($fk_facture);
+                    $facture->fetch($invoiceId);
 
                     $filename = dol_sanitizeFileName($facture->ref.'_ps');
                     $filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref.'_ps');
