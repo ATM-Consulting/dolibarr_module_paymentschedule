@@ -388,10 +388,18 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
     {
         if ($parameters['currentcontext'] === 'invoicecard')
         {
-            if (GETPOST('action', 'aZ09') === 'presend' && GETPOST('from', 'alphanohtml') === 'paymentschedule')
+
+            if (GETPOST('action', 'aZ09') === 'presend' || GETPOST('action', 'aZ09') === 'send')
             {
-                $fk_facture = GETPOST('facid', 'int');
-                if ($fk_facture > 0)
+				$trackId = $parameters['trackid'];
+
+				if (preg_match('/^inv(.*)$/', $trackId, $matches)) {
+					$invoiceId = $matches[1];
+				}else{
+					return 0;
+				}
+
+                if ($invoiceId > 0)
                 {
                     global $conf;
 
@@ -406,18 +414,19 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
 
 
                     $facture = new Facture($this->db);
-                    $facture->fetch($fk_facture);
+                    $facture->fetch($invoiceId);
 
                     $filename = dol_sanitizeFileName($facture->ref.'_ps');
                     $filedir = $conf->paymentschedule->dir_output . '/' . dol_sanitizeFileName($facture->ref.'_ps');
+					if(file_exists($filedir)){
+						$listofpaths[] = $filedir.'/'.$filename.'.pdf';
+						$listofnames[] = $filename.'.pdf';
+						$listofmimes[] = mime_content_type($filedir.'/'.$filename.'.pdf');
 
-                    $listofpaths[] = $filedir.'/'.$filename.'.pdf';
-                    $listofnames[] = $filename.'.pdf';
-                    $listofmimes[] = mime_content_type($filedir.'/'.$filename.'.pdf');
-
-                    $_SESSION["listofpaths".$keytoavoidconflict] = implode(';', $listofpaths);
-                    $_SESSION["listofnames".$keytoavoidconflict] = implode(';', $listofnames);
-                    $_SESSION["listofmimes".$keytoavoidconflict] = implode(';', $listofmimes);
+						$_SESSION["listofpaths".$keytoavoidconflict] = implode(';', $listofpaths);
+						$_SESSION["listofnames".$keytoavoidconflict] = implode(';', $listofnames);
+						$_SESSION["listofmimes".$keytoavoidconflict] = implode(';', $listofmimes);
+					}
                 }
             }
         }
