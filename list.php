@@ -53,12 +53,8 @@ dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 // Load translation files required by the page
 $langs->loadLangs(array('bills', 'companies', 'products', 'categories', 'paymentschedule@paymentschedule'));
 
+$search_all = trim(GETPOSTISSET('search_all') ? GETPOST('search_all', 'alphanohtml') : (floatval(DOL_VERSION) < 21 ? GETPOST('sall', 'alphanohtml') : ''));
 
-if(floatval(DOL_VERSION) < 21) {
-	$search_all=trim((GETPOST('search_all', 'alphanohtml')!='')?GETPOST('search_all', 'alphanohtml'):GETPOST('sall', 'alphanohtml'));
-} else {
-	$search_all=trim(GETPOST('search_all', 'alphanohtml'));
-}
 $projectid=(GETPOST('projectid', 'int')?GETPOST('projectid','int'):0);
 
 $id=(GETPOST('id','int')?GETPOST('id','int'):GETPOST('facid','int'));  // For backward compatibility
