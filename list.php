@@ -53,7 +53,12 @@ dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 // Load translation files required by the page
 $langs->loadLangs(array('bills', 'companies', 'products', 'categories', 'paymentschedule@paymentschedule'));
 
-$search_all=trim(GETPOST('search_all', 'alphanohtml'));
+
+if(floatval(DOL_VERSION) < 21) {
+	$search_all=trim((GETPOST('search_all', 'alphanohtml')!='')?GETPOST('search_all', 'alphanohtml'):GETPOST('sall', 'alphanohtml'));
+} else {
+	$search_all=trim(GETPOST('search_all', 'alphanohtml'));
+}
 $projectid=(GETPOST('projectid', 'int')?GETPOST('projectid','int'):0);
 
 $id=(GETPOST('id','int')?GETPOST('id','int'):GETPOST('facid','int'));  // For backward compatibility
@@ -500,7 +505,8 @@ if ($resql)
     $param='&socid='.$socid;
     if (! empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) $param.='&contextpage='.urlencode($contextpage);
     if ($limit > 0 && $limit != $conf->liste_limit) $param.='&limit='.urlencode($limit);
-    if ($search_all)		$param.='&search_all='.urlencode($search_all);
+    if ($search_all && DOL_VERSION >= 21)		$param.='&search_all='.urlencode($search_all);
+	else  										$param.='&sall='.urlencode($sall);
     if ($search_day)         $param.='&search_day='.urlencode($search_day);
     if ($search_month)       $param.='&search_month='.urlencode($search_month);
     if ($search_year)        $param.='&search_year=' .urlencode($search_year);
