@@ -190,7 +190,7 @@ class PaymentSchedule extends SeedObject
      */
     public function fetchByFactureRef($ref, $loadChild = true)
     {
-        $field = (float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref';
+        $field = 'ref';
         $sql = 'SELECT p.rowid FROM '.MAIN_DB_PREFIX.'facture f INNER JOIN '.MAIN_DB_PREFIX.$this->table_element.' p ON (p.fk_facture = f.rowid) WHERE f.'.$field.' = \''.$this->db->escape($ref).'\'';
         $resql = $this->db->query($sql);
         if ($resql)
@@ -643,7 +643,7 @@ class PaymentSchedule extends SeedObject
 			$det = $this->TPaymentScheduleDet[$k];
 			$det->fk_payment_schedule = $this->id;
 
-			$facnumber = ((float) DOL_VERSION < 9.0 ) ? $facture->facnumber : $facture->ref;
+			$facnumber = $facture->ref;
 			// {INDICE} {SOCNAME} - {FACNUMBER} {REFCLIENT}
             if (getDolGlobalString('PAYMENTSCHEDULE_LABEL_PATTERN'))
             {
@@ -920,22 +920,11 @@ class PaymentSchedule extends SeedObject
                         include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/rejetprelevement.class.php';
 						include_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 
-						/** COMPATIBILITY DOL_VERSION 12 et plus */
-						if(versioncompare(versiondolibarrarray(), explode('.', '12.0.0')) >= 0 ){
-							$lipre = new LignePrelevement($this->db);
-						}else{
-							$lipre = new LignePrelevement($this->db, $user);
-						}
-
+						$lipre = new LignePrelevement($this->db);
                         $lipre->fetch($fk_widthdraw_line);
                         if ($lipre->id > 0)
                         {
-							/** COMPATIBILITY DOL_VERSION 11 et plus */
-							if(versioncompare(versiondolibarrarray(), explode('.', '11.0.0')) >= 0 ){
-								$rej = new RejetPrelevement($this->db, $user, 'prelevement'); // Type ('direct-debit' for direct debit or 'bank-transfer' for credit transfer)
-							}else{
-								$rej = new RejetPrelevement($this->db, $user);
-							}
+							$rej = new RejetPrelevement($this->db, $user, 'prelevement'); // Type ('direct-debit' for direct debit or 'bank-transfer' for credit transfer)
                             /** @see RejetPrelevement::motifs 1 = Provision insuffisante; 2 = Prélèvement contesté; ...*/
                             $rej->create($user, $lipre->id, 2, $daterej, $lipre->bon_rowid, 0);
 

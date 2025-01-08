@@ -341,8 +341,7 @@ else
 
             $morehtmlstatus = $object->getLibStatut(6).'<br />';
 
-            $fieldid = 'facnumber';
-            if ((float) DOL_VERSION >= 10.0) $fieldid = 'ref';
+			 $fieldid = 'ref';
             $facture->totalpaye = $facture->getSommePaiement();
 
 			$linkback = '<a href="' . dol_buildpath('/paymentschedule/list.php', 1) . '">' . $langs->trans("BackToList") . '</a>';
