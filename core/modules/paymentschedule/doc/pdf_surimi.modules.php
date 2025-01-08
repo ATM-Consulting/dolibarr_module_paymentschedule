@@ -554,7 +554,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 				$posy=$this->_tableau_tot($pdf, $object, $deja_regle, $bottomlasttab, $outputlangs);
 //
 //				// Affiche zone versements
-//				if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS))
+//				if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty(getDolGlobalString('INVOICE_NO_PAYMENT_DETAILS')))
 //				{
 //					$posy=$this->_tableau_versements($pdf, $object, $posy, $outputlangs, $heightforfooter);
 //				}

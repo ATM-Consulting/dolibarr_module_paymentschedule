@@ -53,7 +53,8 @@ dol_include_once('/paymentschedule/class/paymentschedule.class.php');
 // Load translation files required by the page
 $langs->loadLangs(array('bills', 'companies', 'products', 'categories', 'paymentschedule@paymentschedule'));
 
-$sall=trim((GETPOST('search_all', 'alphanohtml')!='')?GETPOST('search_all', 'alphanohtml'):GETPOST('sall', 'alphanohtml'));
+$search_all = trim(GETPOSTISSET('search_all') ? GETPOST('search_all', 'alphanohtml') :  GETPOST('sall', 'alphanohtml') );
+
 $projectid=(GETPOST('projectid', 'int')?GETPOST('projectid','int'):0);
 
 $id=(GETPOST('id','int')?GETPOST('id','int'):GETPOST('facid','int'));  // For backward compatibility
@@ -119,7 +120,7 @@ $pageprev = $page - 1;
 $pagenext = $page + 1;
 
 // Security check
-$fieldRefFacture = (float) DOL_VERSION < 10.0 ? 'facnumber' : 'ref';
+$fieldRefFacture = 'ref';
 $fieldid = (! empty($ref)?$fieldRefFacture:'rowid');
 if (! empty($user->societe_id)) $socid=$user->societe_id;
 $result = restrictedArea($user, 'facture', $id,'','','fk_soc',$fieldid);
@@ -130,11 +131,6 @@ $diroutputmassaction=$conf->paymentschedule->dir_output . '/temp/massgeneration/
 // COMPATIBILITY VERSION < 14
 $invoiceTotalHtField = 'total_ht';
 $invoiceTotalVatField = 'total_tva';
-if(version_compare(DOL_VERSION, '14.0.0', '<')){
-	$invoiceTotalHtField = 'total';
-	$invoiceTotalVatField = 'tva';
-}
-
 $now=dol_now();
 
 // Initialize technical object to manage hooks of page. Note that conf->hooks_modules contains array of hook context
@@ -281,7 +277,7 @@ $thirdpartystatic=new Societe($db);
 $scheduleStatic=new PaymentSchedule($db);
 
 $sql = 'SELECT';
-if ($sall || $search_product_category > 0) $sql = 'SELECT DISTINCT';
+if ($search_all || $search_product_category > 0) $sql = 'SELECT DISTINCT';
 $sql.= ' f.rowid as id, f.'.$fieldRefFacture.' as ref, f.ref_client, f.type, f.note_private, f.note_public, f.increment, f.fk_mode_reglement, f.'.$invoiceTotalHtField.' as total_ht, f.'.$invoiceTotalVatField.' as total_vat, f.total_ttc,';
 $sql.= ' f.localtax1 as total_localtax1, f.localtax2 as total_localtax2,';
 $sql.= ' f.datef as df, f.date_lim_reglement as datelimite,';
@@ -295,7 +291,7 @@ $sql.= " p.rowid as project_id, p.ref as project_ref, p.title as project_label";
 $sql.= " , ps.status as ps_status, ps.date_start, ps.periodicity_value, ps.periodicity_unit, ps.nb_term";
 // We need dynamount_payed to be able to sort on status (value is surely wrong because we can count several lines several times due to other left join or link with contacts. But what we need is just 0 or > 0)
 // TODO Better solution to be able to sort on already payed or remain to pay is to store amount_payed in a denormalized field.
-if (! $sall) $sql.= ', SUM(pf.amount) as dynamount_payed';
+if (! $search_all) $sql.= ', SUM(pf.amount) as dynamount_payed';
 if ($search_categ_cus) $sql .= ", cc.fk_categorie, cc.fk_soc";
 // Add fields from extrafields
 foreach ($extrafields->attribute_label as $key => $val) $sql.=($extrafields->attribute_type[$key] != 'separate' ? ", ef.".$key.' as options_'.$key : '');
@@ -312,8 +308,8 @@ if (! empty($search_categ_cus)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_s
 $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facture as f ON (f.fk_soc = s.rowid AND f.entity IN ('.getEntity('facture').'))';
 $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule as ps ON (f.rowid = ps.fk_facture)';
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paymentschedule_extrafields as ef on (ps.rowid = ef.fk_object)";
-if (! $sall) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON pf.fk_facture = f.rowid';
-if ($sall || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as pd ON f.rowid=pd.fk_facture';
+if (! $search_all) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON pf.fk_facture = f.rowid';
+if ($search_all || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as pd ON f.rowid=pd.fk_facture';
 if ($search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'categorie_product as cp ON cp.fk_product=pd.fk_product';
 $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."projet as p ON p.rowid = f.fk_projet";
 // We'll need this table joined to the select in order to filter by sale
@@ -428,7 +424,7 @@ $parameters=array();
 $reshook=$hookmanager->executeHooks('printFieldListWhere',$parameters);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-if (! $sall)
+if (! $search_all)
 {
 
 
@@ -453,7 +449,7 @@ if (! $sall)
 }
 else
 {
-    $sql .= natural_search(array_keys($fieldstosearchall), $sall);
+    $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
 }
 
 $sql.= ' ORDER BY ';
@@ -484,7 +480,7 @@ if ($resql)
 
     $arrayofselected=is_array($toselect)?$toselect:array();
 
-    if ($num == 1 && getDolGlobalString('MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE') && $sall)
+    if ($num == 1 && getDolGlobalString('MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE') && $search_all)
     {
         $obj = $db->fetch_object($resql);
         $id = $obj->id;
@@ -505,7 +501,8 @@ if ($resql)
     $param='&socid='.$socid;
     if (! empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) $param.='&contextpage='.urlencode($contextpage);
     if ($limit > 0 && $limit != $conf->liste_limit) $param.='&limit='.urlencode($limit);
-    if ($sall)				 $param.='&sall='.urlencode($sall);
+    if ($search_all && DOL_VERSION >= 21)		$param.='&search_all='.urlencode($search_all);
+	else  										$param.='&sall='.urlencode($sall);
     if ($search_day)         $param.='&search_day='.urlencode($search_day);
     if ($search_month)       $param.='&search_month='.urlencode($search_month);
     if ($search_year)        $param.='&search_year=' .urlencode($search_year);
@@ -567,10 +564,10 @@ if ($resql)
     $trackid='inv'.$object->id;
     include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
-    if ($sall)
+    if ($search_all)
     {
         foreach($fieldstosearchall as $key => $val) $fieldstosearchall[$key]=$langs->trans($val);
-        print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $sall) . join(', ',$fieldstosearchall).'</div>';
+        print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $search_all) . join(', ',$fieldstosearchall).'</div>';
     }
 
     // If the user can view prospects other than his'

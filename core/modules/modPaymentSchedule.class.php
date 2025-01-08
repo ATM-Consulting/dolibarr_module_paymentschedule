@@ -59,7 +59,7 @@ class modPaymentSchedule extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module PaymentSchedule";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.3.1';
+		$this->version = '1.3.2';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -86,7 +86,7 @@ class modPaymentSchedule extends DolibarrModules
 	 	//							'js' => array('/paymentschedule/js/paymentschedule.js'),          // Set this to relative path of js file if module must load a js on all pages
 		//							'hooks' => array('hookcontext1','hookcontext2')  	// Set here all hooks context managed by module
 		//							'dir' => array('output' => 'othermodulename'),      // To force the default directories names
-		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'! empty($conf->module1->enabled) && ! empty($conf->module2->enabled)', 'picto'=>'yourpicto@paymentschedule')) // Set here all workflow context managed by module
+		//							'workflow' => array('WORKFLOW_MODULE1_YOURACTIONTYPE_MODULE2'=>array('enabled'=>'isModEnabled("module1") && isModEnabled("module2")', 'picto'=>'yourpicto@paymentschedule')) // Set here all workflow context managed by module
 		//                        );
 		$this->module_parts = array(
                     'hooks' => array(
@@ -194,29 +194,29 @@ class modPaymentSchedule extends DolibarrModules
 		// $this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		// $this->rights[$r][1] = 'Permision label';	// Permission label
 		// $this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
-		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
+		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
 		// $r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'paymentschedule_read';	// Permission label
 		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
+		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
 		$r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'paymentschedule_write';	// Permission label
 		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
+		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
 		$r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'paymentschedule_delete';	// Permission label
 		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'delete';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][4] = 'delete';		    // In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
+		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->hasRight("permkey", "level1", "level2"))
 		$r++;
 
 
@@ -236,7 +236,7 @@ class modPaymentSchedule extends DolibarrModules
 		//							'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
 		//							'enabled'=>"isModEnabled('paymentschedule')",	// Define condition to show or hide menu entry. Use "isModEnabled('paymentschedule')" if entry must be visible if module is enabled.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->paymentschedule->level1->level2' if you want your menu with a permission rules
+		//							'perms'=>'1',			                // Use 'perms'=>'$user->hasRight("paymentschedule", "level1", "level2")' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
@@ -251,7 +251,7 @@ class modPaymentSchedule extends DolibarrModules
 		//							'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 		//							'position'=>100,
 		//							'enabled'=>"isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use "isModEnabled('paymentschedule')" if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-		//							'perms'=>'1',			                // Use 'perms'=>'$user->rights->paymentschedule->level1->level2' if you want your menu with a permission rules
+		//							'perms'=>'1',			                // Use 'perms'=>'$user->hasRight("paymentschedule", "level1", "level2")' if you want your menu with a permission rules
 		//							'target'=>'',
 		//							'user'=>2);				                // 0=Menu for internal users, 1=external users, 2=both
 		// $r++;
@@ -266,8 +266,8 @@ class modPaymentSchedule extends DolibarrModules
 			'url'=>'/paymentschedule/list.php',
 			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>"isModEnabled('paymentschedule')",	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>"isModEnabled('paymentschedule')",	// Define condition to show or hide menu entry. Use 'isModEnabled("missionorder")' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);
@@ -282,8 +282,8 @@ class modPaymentSchedule extends DolibarrModules
 			'url'=>'/paymentschedule/list.php',
 			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
-			'enabled'=>"isModEnabled('paymentschedule')",	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'enabled'=>"isModEnabled('paymentschedule')",	// Define condition to show or hide menu entry. Use 'isModEnabled("missionorder")' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->paymentschedule->read',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);
@@ -299,7 +299,7 @@ class modPaymentSchedule extends DolibarrModules
 			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=> "isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -316,7 +316,7 @@ class modPaymentSchedule extends DolibarrModules
 			'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=> "isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=> '$user->rights->paymentschedule->write',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -334,7 +334,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> "isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->hasRight("paymentschedule","write") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","write") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -351,7 +351,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> "isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->hasRight("paymentschedule","read") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","read") && $user->hasRight("prelevement","bons","creer")',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -367,7 +367,7 @@ class modPaymentSchedule extends DolibarrModules
             'langs'=>'paymentschedule@paymentschedule',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
             'position'=>100+$r,
             'enabled'=> "isModEnabled('paymentschedule')",  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-            'perms'=> '$user->hasRight("paymentschedule","read")',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+            'perms'=> '$user->hasRight("paymentschedule","read")',			                // Use 'perms'=>'$user->hasRight("missionorder", "level1", "level2")' if you want your menu with a permission rules
             'target'=>'',
             'user'=>0
         );				                // 0=Menu for internal users, 1=external users, 2=both
@@ -431,8 +431,7 @@ class modPaymentSchedule extends DolibarrModules
 
 		dol_include_once("/core/class/extrafields.class.php");
 		$e = new ExtraFields($db);
-		$e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
-
+		$res = $e->addExtraField('isecheancier', "Echéancier", 'boolean',0,1,'facture',0,0,'','',1,'',1,0,'',0);
 		return $this->_init($sql, $options);
 	}
 
