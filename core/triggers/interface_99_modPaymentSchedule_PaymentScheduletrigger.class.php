@@ -167,7 +167,7 @@ class InterfacePaymentScheduletrigger
             /** @var BonPrelevement $object */
             if (!empty($object->context['factures_prev']))
             {
-                $sql = 'SELECT rowid AS fk_prelevement_lignes FROM '.MAIN_DB_PREFIX.'prelevement_lignes WHERE fk_prelevement_bons = '.$object->id;
+                $sql = 'SELECT rowid AS fk_prelevement_lignes FROM '.$this->db->prefix().'prelevement_lignes WHERE fk_prelevement_bons = '.$object->id;
                 $resql = $this->db->query($sql);
                 if ($resql)
                 {
@@ -560,7 +560,7 @@ class InterfacePaymentScheduletrigger
 
                         //on sélectionner le dernier créé en fonction de l'id du paiement et de l'id de la facture en cours
                         $fk_paiement_facture = null;
-                        $sql = 'SELECT rowid FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture ='.$facid.' ORDER BY rowid DESC LIMIT 1';
+                        $sql = 'SELECT rowid FROM '.$this->db->prefix().'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture ='.$facid.' ORDER BY rowid DESC LIMIT 1';
                         $resql = $this->db->query($sql);
                         if ($resql)
                         {
@@ -612,7 +612,7 @@ class InterfacePaymentScheduletrigger
                     if (empty($fk_paymentscheduledet) || $fk_paymentscheduledet <= 0) continue;
 
 					//dernier paiement associé à la facture
-					$sql = 'SELECT rowid AS fk_paiement_facture FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture = '.$invoice_id.' AND amount = '.$amount;
+					$sql = 'SELECT rowid AS fk_paiement_facture FROM ' . $this->db->prefix() . 'paiement_facture WHERE fk_paiement = '.$object->id.' AND fk_facture = '.$invoice_id.' AND amount = '.$amount;
 					$resql = $this->db->query($sql);
 					if ($resql)
                     {
@@ -642,8 +642,8 @@ class InterfacePaymentScheduletrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
 
-            $sql = 'SELECT ee.fk_source as fk_paiement_facture, ee.fk_target as fk_paymentscheduledet FROM '.MAIN_DB_PREFIX.'element_element ee';
-            $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paiement_facture pf ON (pf.rowid = ee.fk_source)';
+            $sql = 'SELECT ee.fk_source as fk_paiement_facture, ee.fk_target as fk_paymentscheduledet FROM '.$this->db->prefix().'element_element ee';
+            $sql.= ' INNER JOIN '.$this->db->prefix().'paiement_facture pf ON (pf.rowid = ee.fk_source)';
             $sql.= ' WHERE ee.sourcetype = \'paymentdet\'';
             $sql.= ' AND ee.targettype = \'paymentscheduledet\'';
             $sql.= ' AND pf.fk_paiement = '.$object->id;

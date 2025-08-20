@@ -165,7 +165,7 @@ class PaymentSchedule extends SeedObject
 
         if (empty($this->fields[$field])) return false;
 
-        $resql = $this->db->query("SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
+        $resql = $this->db->query("SELECT rowid FROM ".$this->db->prefix().$this->table_element." WHERE ".$field."=".$this->quote($key, $this->fields[$field])." LIMIT 1 ");
         if ($resql)
         {
             if (($obj = $this->db->fetch_object($resql)))
@@ -191,7 +191,7 @@ class PaymentSchedule extends SeedObject
     public function fetchByFactureRef($ref, $loadChild = true)
     {
         $field = 'ref';
-        $sql = 'SELECT p.rowid FROM '.MAIN_DB_PREFIX.'facture f INNER JOIN '.MAIN_DB_PREFIX.$this->table_element.' p ON (p.fk_facture = f.rowid) WHERE f.'.$field.' = \''.$this->db->escape($ref).'\'';
+        $sql = 'SELECT p.rowid FROM '.$this->db->prefix().'facture f INNER JOIN '.$this->db->prefix().$this->table_element.' p ON (p.fk_facture = f.rowid) WHERE f.'.$field.' = \''.$this->db->escape($ref).'\'';
         $resql = $this->db->query($sql);
         if ($resql)
         {
@@ -588,7 +588,7 @@ class PaymentSchedule extends SeedObject
 
 		// On verifie si la facture a des paiements
 		$sql = 'SELECT pf.amount';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'paiement_facture as pf';
+		$sql .= ' FROM ' . $this->db->prefix() . 'paiement_facture as pf';
 		$sql .= ' WHERE pf.fk_facture = ' . $facture->id;
 
 		$result = $this->db->query($sql);
@@ -866,7 +866,7 @@ class PaymentSchedule extends SeedObject
                     $fk_paiement = $paiement->create($user, 1, $thirdparty);    // This include closing invoices and regenerating documents
                     if ($fk_paiement > 0)
                     {
-                        $sql = 'SELECT rowid AS fk_paiement_facture FROM ' . MAIN_DB_PREFIX . 'paiement_facture WHERE fk_paiement = '.$fk_paiement;
+                        $sql = 'SELECT rowid AS fk_paiement_facture FROM ' . $this->db->prefix() . 'paiement_facture WHERE fk_paiement = '.$fk_paiement;
                         $resql = $this->db->query($sql);
                         if ($resql)
                         {
@@ -928,7 +928,7 @@ class PaymentSchedule extends SeedObject
                             /** @see RejetPrelevement::motifs 1 = Provision insuffisante; 2 = Prélèvement contesté; ...*/
                             $rej->create($user, $lipre->id, 2, $daterej, $lipre->bon_rowid, 0);
 
-                            $sql = 'SELECT MAX(rowid) as fk_paiement_facture FROM '.MAIN_DB_PREFIX.'paiement_facture';
+                            $sql = 'SELECT MAX(rowid) as fk_paiement_facture FROM '.$this->db->prefix().'paiement_facture';
                             $resql = $this->db->query($sql);
                             if ($resql)
                             {
@@ -1022,7 +1022,7 @@ class PaymentScheduleDet extends SeedObject
 
     public function fetchBySourceElement($fk_source, $sourcetype)
     {
-        $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element';
+        $sql = 'SELECT fk_target FROM '.$this->db->prefix().'element_element';
         $sql.= ' WHERE fk_source = '.$fk_source;
         $sql.= ' AND sourcetype = \''.$sourcetype.'\'';
         $sql.= ' AND targettype = \''.$this->element.'\'';
@@ -1192,9 +1192,10 @@ class PaymentScheduleDet extends SeedObject
      */
     public static function getAllFromBonPrelevement($object)
     {
+		global $db;
         $TRes = array();
 
-        $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
+        $sql = 'SELECT fk_target FROM '.$db->prefix().'element_element
                 WHERE fk_source = '.$object->id.'
                 AND sourcetype = \''.$object->element.'\'
                 AND targettype = \'paymentscheduledet\'';
@@ -1242,7 +1243,7 @@ class PaymentScheduleDet extends SeedObject
 
         if (!isset($TPaymentCache[$fk_paymentdet]))
         {
-            $sql = 'SELECT fk_paiement FROM '.MAIN_DB_PREFIX.'paiement_facture WHERE rowid = '.$fk_paymentdet;
+            $sql = 'SELECT fk_paiement FROM '.$db->prefix().'paiement_facture WHERE rowid = '.$fk_paymentdet;
             $resql = $db->query($sql);
             if ($resql)
             {
@@ -1296,9 +1297,9 @@ class PaymentScheduleUpdateStatus extends SeedObject
             $today_timestamp = strtotime($today);
 
             $sql = 'SELECT DISTINCT pb.rowid AS fk_prelevement_bons';
-            $sql.= ' FROM '.MAIN_DB_PREFIX.'prelevement_bons pb';
-            $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pb.rowid AND ee.sourcetype = \'widthdraw\')';
-            $sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet pd ON (ee.fk_target = pd.rowid AND ee.targettype = \'paymentscheduledet\')';
+            $sql.= ' FROM '.$this->db->prefix().'prelevement_bons pb';
+            $sql.= ' INNER JOIN '.$this->db->prefix().'element_element ee ON (ee.fk_source = pb.rowid AND ee.sourcetype = \'widthdraw\')';
+            $sql.= ' INNER JOIN '.$this->db->prefix().'paymentscheduledet pd ON (ee.fk_target = pd.rowid AND ee.targettype = \'paymentscheduledet\')';
             $sql.= ' WHERE statut = 1'; // 1 = En attente du passage en crédité
             $sql.= ' AND pd.date_demande <= \''.$this->db->idate($today).'\'';
 
@@ -1354,10 +1355,9 @@ class PaymentScheduleBonPrelevement extends BonPrelevement
             $sql .= ", SUM(pl.amount)";
             $sql .= ", pf.fk_prelevement_lignes";
         }
-        $sql.= " FROM ".MAIN_DB_PREFIX."prelevement_bons as p";
-        $sql.= " , ".MAIN_DB_PREFIX."prelevement_lignes as pl";
-		if ((float) DOL_VERSION >= 17.0) $sql.= " , ".MAIN_DB_PREFIX."prelevement as pf";
-		else $sql.= " , ".MAIN_DB_PREFIX."prelevement_facture as pf";
+        $sql.= " FROM ".$this->db->prefix()."prelevement_bons as p";
+        $sql.= " , ".$this->db->prefix()."prelevement_lignes as pl";
+		$sql.= " , ".$this->db->prefix()."prelevement as pf";
         $sql.= " WHERE pf.fk_prelevement_lignes = pl.rowid";
         $sql.= " AND pl.fk_prelevement_bons = p.rowid";
         $sql.= " AND p.rowid = ".$this->id;

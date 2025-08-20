@@ -18,6 +18,7 @@
 require 'config.php';
 dol_include_once('paymentschedule/class/paymentschedule.class.php');
 
+global $user, $langs, $db, $hookmanager;
 if(!$user->hasRight('paymentschedule', 'read')) accessforbidden();
 
 $langs->load('abricot@abricot');
@@ -86,12 +87,12 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListSelect', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-$sql.= ' FROM '.MAIN_DB_PREFIX.'societe s ';
+$sql.= ' FROM '.$db->prefix().'societe s ';
 
 // TODO faire une jointure pour que ce soit uniquement les factures associées à un contrat de type S+
-$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'facture f ON (f.fk_soc = s.rowid)';
-$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule ps ON (ps.fk_facture = f.rowid AND ps.status = 1)'; // status = 1 : pour validé
-$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentscheduledet psd ON (psd.fk_payment_schedule = ps.rowid AND psd.date_demande >= \''.$db->idate($time_demande).'\')';
+$sql.= ' INNER JOIN '.$db->prefix().'facture f ON (f.fk_soc = s.rowid)';
+$sql.= ' INNER JOIN '.$db->prefix().'paymentschedule ps ON (ps.fk_facture = f.rowid AND ps.status = 1)'; // status = 1 : pour validé
+$sql.= ' INNER JOIN '.$db->prefix().'paymentscheduledet psd ON (psd.fk_payment_schedule = ps.rowid AND psd.date_demande >= \''.$db->idate($time_demande).'\')';
 
 $sql.= ' WHERE 1=1';
 

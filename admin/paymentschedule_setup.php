@@ -199,7 +199,7 @@ print load_fiche_titre($langs->trans("PaymentschedulesPDFModules"),'','');
 $type='paymentschedule';
 $def = array();
 $sql = "SELECT nom";
-$sql.= " FROM ".MAIN_DB_PREFIX."document_model";
+$sql.= " FROM ".$db->prefix()."document_model";
 $sql.= " WHERE type = '".$type."'";
 $sql.= " AND entity = ".$conf->entity;
 $resql=$db->query($sql);

@@ -608,7 +608,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 	function _tableau_versements(&$pdf, $object, $posy, $outputlangs, $heightforfooter)
 	{
         // phpcs:enable
-		global $conf;
+		global $conf, $db;
 
         $sign=1;
         if ($object->type == 2 && getDolGlobalString('INVOICE_POSITIVE_CREDIT_NOTE')) $sign=-1;
@@ -636,7 +636,7 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		$sql = "SELECT re.rowid, re.amount_ht, re.multicurrency_amount_ht, re.amount_tva, re.multicurrency_amount_tva,  re.amount_ttc, re.multicurrency_amount_ttc,";
 		$sql.= " re.description, re.fk_facture_source,";
 		$sql.= " f.type, f.datef";
-		$sql.= " FROM ".MAIN_DB_PREFIX ."societe_remise_except as re, ".MAIN_DB_PREFIX ."facture as f";
+		$sql.= " FROM ".$db->prefix() ."societe_remise_except as re, ".$db->prefix() ."facture as f";
 		$sql.= " WHERE re.fk_facture_source = f.rowid AND re.fk_facture = ".$object->id;
 		$resql=$this->db->query($sql);
 		if ($resql)
@@ -691,8 +691,8 @@ class pdf_surimi extends ModelePDFPaymentschedule
 		// TODO Call getListOfPaymentsgetListOfPayments instead of hard coded sql
 		$sql = "SELECT p.datep as date, p.fk_paiement, p.num_paiement as num, pf.amount as amount, pf.multicurrency_amount,";
 		$sql.= " cp.code";
-		$sql.= " FROM ".MAIN_DB_PREFIX."paiement_facture as pf, ".MAIN_DB_PREFIX."paiement as p";
-		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paiement as cp ON p.fk_paiement = cp.id";
+		$sql.= " FROM ".$db->prefix()."paiement_facture as pf, ".$db->prefix()."paiement as p";
+		$sql.= " LEFT JOIN ".$db->prefix()."c_paiement as cp ON p.fk_paiement = cp.id";
 		$sql.= " WHERE pf.fk_paiement = p.rowid AND pf.fk_facture = ".$object->id;
 		//$sql.= " WHERE pf.fk_paiement = p.rowid AND pf.fk_facture = 1";
 		$sql.= " ORDER BY p.datep";
