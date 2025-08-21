@@ -28,6 +28,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/prelevement.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
+global $langs, $user, $db, $hookmanager;
 // Load translation files required by the page
 $langs->loadLangs(array('paymentschedule@paymentschedule', 'banks', 'categories', 'widthdrawals', 'companies', 'bills'));
 
@@ -60,9 +61,9 @@ if (empty($reshook))
 		if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE') && $date_demande_start)
         {
             $sql = 'SELECT COUNT(*) AS nb
-                    FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
-                    INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
-                    INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
+                    FROM '.$db->prefix().'paymentscheduledet td
+                    INNER JOIN '.$db->prefix().'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
+                    INNER JOIN '.$db->prefix().'facture fact ON (fact.rowid = t.fk_facture)
                     WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                     AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
                     AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
@@ -89,9 +90,9 @@ if (empty($reshook))
 		if (getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE'))
 		{
 			$sql = 'SELECT t.fk_facture, td.rowid
-                FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
-                INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
-                INNER JOIN '.MAIN_DB_PREFIX.'facture fact ON (fact.rowid = t.fk_facture)
+                FROM '.$db->prefix().'paymentscheduledet td
+                INNER JOIN '.$db->prefix().'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
+                INNER JOIN '.$db->prefix().'facture fact ON (fact.rowid = t.fk_facture)
                 WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
                 AND td.status = '.PaymentScheduleDet::STATUS_WAITING.'
                 AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
@@ -124,9 +125,8 @@ if (empty($reshook))
 					{
                         /** @see Facture::demande_prelevement() this method force payment mode with Facture::setPaymentMethods() with fk_c_paiement with code PRE */
                         if ($old_mode_reglement_id != $facture->mode_reglement_id) $facture->setPaymentMethods($old_mode_reglement_id);
-						if((float) DOL_VERSION >= 17.0) $tablePrelvDmnd = 'prelevement_demande';
-						else $tablePrelvDmnd = 'prelevement_facture_demande';
-                        $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd;
+						$tablePrelvDmnd = 'prelevement_demande';
+                        $sql = 'SELECT MAX(rowid) as last_id FROM '.$db->prefix().$tablePrelvDmnd;
                         $resql2 = $db->query($sql);
                         if ($resql2)
                         {

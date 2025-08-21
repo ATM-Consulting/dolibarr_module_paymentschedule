@@ -28,6 +28,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/prelevement.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
 
+global $db, $langs, $user;
+
 // Load translation files required by the page
 $langs->loadLangs(array('paymentschedule@paymentschedule', 'banks', 'categories', 'widthdrawals', 'companies', 'bills'));
 
@@ -53,7 +55,7 @@ if($action === 'revertpaymentschedule') {
 
 	// Suppression Bons de prélévement & Prelevement Facture Demande
 	$sql = '
-		SELECT rowid, ref FROM '.MAIN_DB_PREFIX.'prelevement_bons
+		SELECT rowid, ref FROM '.$db->prefix().'prelevement_bons
 		WHERE datec>=\''.$db->idate($date_demande_start).'\'
 		AND datec<=\''.$db->idate($date_demande_end).'\'
 		';
@@ -69,23 +71,17 @@ if($action === 'revertpaymentschedule') {
 	$nb_delete = 0;
 
 	if($res > 0) {
-		if((float) DOL_VERSION >= 17.0) {
-			$sql = '
-			SELECT rowid FROM '.MAIN_DB_PREFIX.'prelevement_demande
-			WHERE fk_prelevement_bons = '.$obj->rowid;
-		}
-		else {
-			$sql = "
-			SELECT rowid FROM ".MAIN_DB_PREFIX."prelevement_facture_demande
-			WHERE fk_prelevement_bons = ".$obj->rowid;
-		}
+		$sql = '
+		SELECT rowid FROM '.$db->prefix().'prelevement_demande
+		WHERE fk_prelevement_bons = '.$obj->rowid;
+
 		$resql = $db->query($sql);
 		if($resql) {
 			$db->begin();
 			while($obj = $db->fetch_object($resql)) {
 				// Suppression liens element_element Prelevement Facture Demande
 				$sql = '
-				DELETE FROM '.MAIN_DB_PREFIX.'element_element
+				DELETE FROM '.$db->prefix().'element_element
 				WHERE sourcetype = \'prelevement_facture_demande\'
 			  	AND fk_source = '.$obj->rowid.'
 				';
@@ -99,12 +95,8 @@ if($action === 'revertpaymentschedule') {
 				}
 
 				// Suppression Prelevement Facture Demande
-				if((float) DOL_VERSION >= 17.0) {
-					$sql = 'DELETE FROM '.MAIN_DB_PREFIX.'prelevement_demande WHERE rowid = '.$obj->rowid;
-				}
-				else {
-					$sql = "DELETE FROM ".MAIN_DB_PREFIX."prelevement_facture_demande WHERE rowid = ".$obj->rowid;
-				}
+				$sql = 'DELETE FROM '.$db->prefix().'prelevement_demande WHERE rowid = '.$obj->rowid;
+
 				if($db->query($sql)) {
 					$db->commit();
 					$nb_delete++;
@@ -145,16 +137,15 @@ if($action === 'revertpaymentschedule') {
 		array_push($results, array('KO' => 'Aucun bon de prélévement trouvé, supression des lignes sans correspondance :'));
 
 		// Suppression liens element_element Prelevement Facture Demande
-		if((float) DOL_VERSION >= 17.0) $tablePrelvDmnd = 'prelevement_demande';
-		else $tablePrelvDmnd = 'prelevement_facture_demande';
+		$tablePrelvDmnd = 'prelevement_demande';
 
 		$sql = '
-			DELETE FROM '.MAIN_DB_PREFIX.'element_element
+			DELETE FROM '.$db->prefix().'element_element
 			WHERE sourcetype = \'prelevement_facture_demande\'
 			AND fk_source NOT IN
 				(
 				SELECT d.rowid
-				FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd.' as d
+				FROM '.$db->prefix().$tablePrelvDmnd.' as d
 				)
 			';
 
@@ -169,12 +160,12 @@ if($action === 'revertpaymentschedule') {
 		// Suppression Prelevement Facture Demande
 		$sql = '
 			DELETE
-			FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd.'
+			FROM '.$db->prefix().$tablePrelvDmnd.'
 			WHERE fk_prelevement_bons IS NULL
 			OR fk_prelevement_bons NOT IN
 			(
 				SELECT rowid
-				FROM '.MAIN_DB_PREFIX.'prelevement_bons
+				FROM '.$db->prefix().'prelevement_bons
 			)
 		';
 
@@ -189,8 +180,8 @@ if($action === 'revertpaymentschedule') {
 
 	$sql = '
 		SELECT td.rowid as det_rowid, t.rowid as rowid
-		FROM '.MAIN_DB_PREFIX.'paymentscheduledet td
-		INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
+		FROM '.$db->prefix().'paymentscheduledet td
+		INNER JOIN '.$db->prefix().'paymentschedule t ON (t.rowid = td.fk_payment_schedule)
 		WHERE t.status = '.PaymentSchedule::STATUS_VALIDATED.'
 		AND td.status = '.PaymentScheduleDet::STATUS_REQUESTED.'
 		AND td.fk_mode_reglement = ' . getDolGlobalString('PAYMENTSCHEDULE_MODE_REGLEMENT_TO_USE').'
@@ -208,7 +199,7 @@ if($action === 'revertpaymentschedule') {
 		while($obj = $db->fetch_object($resql)) {
 			// Suppression liens element_element paymentscheduledet
 			$sql = '
-				DELETE FROM '.MAIN_DB_PREFIX.'element_element
+				DELETE FROM '.$db->prefix().'element_element
 				WHERE sourcetype = \'widthdraw_line\'
 				AND targettype = \'paymentscheduledet\'
 			  	AND fk_target = '.$obj->det_rowid.'

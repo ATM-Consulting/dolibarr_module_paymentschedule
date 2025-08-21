@@ -184,13 +184,12 @@ $arrayfields=array(
     'f.fk_statut'=>array('label'=>"InvoiceStatus", 'checked'=>1, 'position'=>1000),
 );
 
-if(floatval(DOL_VERSION) >= 17) {
-    $extrafields->attribute_type= $extrafields->attributes['paymentschedule']['type'] ?? array();
-    $extrafields->attribute_size= $extrafields->attributes['paymentschedule']['size'] ?? array();
-    $extrafields->attribute_unique= $extrafields->attributes['paymentschedule']['unique'] ?? array();
-    $extrafields->attribute_required= $extrafields->attributes['paymentschedule']['required'] ?? array();
-    $extrafields->attribute_label= $extrafields->attributes['paymentschedule']['label'] ?? array();
-}
+$extrafields->attribute_type= $extrafields->attributes['paymentschedule']['type'] ?? array();
+$extrafields->attribute_size= $extrafields->attributes['paymentschedule']['size'] ?? array();
+$extrafields->attribute_unique= $extrafields->attributes['paymentschedule']['unique'] ?? array();
+$extrafields->attribute_required= $extrafields->attributes['paymentschedule']['required'] ?? array();
+$extrafields->attribute_label= $extrafields->attributes['paymentschedule']['label'] ?? array();
+
 // Extra fields
 if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label))
 {
@@ -299,25 +298,25 @@ foreach ($extrafields->attribute_label as $key => $val) $sql.=($extrafields->att
 $parameters=array();
 $reshook=$hookmanager->executeHooks('printFieldListSelect',$parameters);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
-$sql.= ' FROM '.MAIN_DB_PREFIX.'societe as s';
-$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_country as country on (country.rowid = s.fk_pays)";
-$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_typent as typent on (typent.id = s.fk_typent)";
-$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_departements as state on (state.rowid = s.fk_departement)";
-if (! empty($search_categ_cus)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_societe as cc ON s.rowid = cc.fk_soc"; // We'll need this table joined to the select in order to filter by categ
+$sql.= ' FROM '.$db->prefix().'societe as s';
+$sql.= " LEFT JOIN ".$db->prefix()."c_country as country on (country.rowid = s.fk_pays)";
+$sql.= " LEFT JOIN ".$db->prefix()."c_typent as typent on (typent.id = s.fk_typent)";
+$sql.= " LEFT JOIN ".$db->prefix()."c_departements as state on (state.rowid = s.fk_departement)";
+if (! empty($search_categ_cus)) $sql.= ' LEFT JOIN '.$db->prefix()."categorie_societe as cc ON s.rowid = cc.fk_soc"; // We'll need this table joined to the select in order to filter by categ
 
-$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facture as f ON (f.fk_soc = s.rowid AND f.entity IN ('.getEntity('facture').'))';
-$sql.= ' INNER JOIN '.MAIN_DB_PREFIX.'paymentschedule as ps ON (f.rowid = ps.fk_facture)';
-if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."paymentschedule_extrafields as ef on (ps.rowid = ef.fk_object)";
-if (! $search_all) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'paiement_facture as pf ON pf.fk_facture = f.rowid';
-if ($search_all || $search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as pd ON f.rowid=pd.fk_facture';
-if ($search_product_category > 0) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'categorie_product as cp ON cp.fk_product=pd.fk_product';
-$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."projet as p ON p.rowid = f.fk_projet";
+$sql.= ' LEFT JOIN '.$db->prefix().'facture as f ON (f.fk_soc = s.rowid AND f.entity IN ('.getEntity('facture').'))';
+$sql.= ' INNER JOIN '.$db->prefix().'paymentschedule as ps ON (f.rowid = ps.fk_facture)';
+if (is_array($extrafields->attribute_label) && count($extrafields->attribute_label)) $sql.= " LEFT JOIN ".$db->prefix()."paymentschedule_extrafields as ef on (ps.rowid = ef.fk_object)";
+if (! $search_all) $sql.= ' LEFT JOIN '.$db->prefix().'paiement_facture as pf ON pf.fk_facture = f.rowid';
+if ($search_all || $search_product_category > 0) $sql.= ' LEFT JOIN '.$db->prefix().'facturedet as pd ON f.rowid=pd.fk_facture';
+if ($search_product_category > 0) $sql.= ' LEFT JOIN '.$db->prefix().'categorie_product as cp ON cp.fk_product=pd.fk_product';
+$sql.= " LEFT JOIN ".$db->prefix()."projet as p ON p.rowid = f.fk_projet";
 // We'll need this table joined to the select in order to filter by sale
-if ($search_sale > 0 || (! $user->hasRight('societe', 'client', 'voir') && ! $socid)) $sql .= ", ".MAIN_DB_PREFIX."societe_commerciaux as sc";
+if ($search_sale > 0 || (! $user->hasRight('societe', 'client', 'voir') && ! $socid)) $sql .= ", ".$db->prefix()."societe_commerciaux as sc";
 if ($search_user > 0)
 {
-    $sql.=", ".MAIN_DB_PREFIX."element_contact as ec";
-    $sql.=", ".MAIN_DB_PREFIX."c_type_contact as tc";
+    $sql.=", ".$db->prefix()."element_contact as ec";
+    $sql.=", ".$db->prefix()."c_type_contact as tc";
 }
 $sql.= ' WHERE 1=1';
 

@@ -82,13 +82,13 @@ function paymentschedule_prepare_head(PaymentSchedule $object)
     $head[$h][1] = $langs->trans("PaymentScheduleCard");
     $head[$h][2] = 'card';
     $h++;
-	
+
 	// Show more tabs from modules
     // Entries must be declared in modules descriptor with line
     // $this->tabs = array('entity:+tabname:Title:@paymentschedule:/paymentschedule/mypage.php?id=__ID__');   to add new tab
     // $this->tabs = array('entity:-tabname:Title:@paymentschedule:/paymentschedule/mypage.php?id=__ID__');   to remove a tab
     complete_head_from_modules($conf, $langs, $object, $head, $h, 'PaymentSchedule');
-	
+
 	return $head;
 }
 
@@ -119,7 +119,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
                 $("#date_start, #periodicity_unit, #periodicity_value, #nb_term").change(function(event) {
                     refreshDateEndPrelevement(event);
                 });
-                
+
                 function refreshDateEndPrelevement(event) {
                     let jsDate = $("#date_start").datepicker("getDate");
                     if (jsDate instanceof Date) {
@@ -133,7 +133,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
                         } else if (periodicity_unit === "'.PaymentSchedule::PERIODICITY_VALUE_YEAR.'") {
                             jsDate.setFullYear(jsDate.getFullYear()+periodicity_value*(nb_term-1));
                         }
-                        
+
                         $("#date_last_prelevement").text(("0" + jsDate.getDate()).slice(-2) + "/" + ("0" + (jsDate.getMonth() + 1)).slice(-2) + "/" + jsDate.getFullYear());
                         let input_periodicity_value = $("#periodicity_value")
                         if (input_periodicity_value.attr("type") == "text") {
@@ -147,7 +147,7 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
                         setTimeout(refreshDateEndPrelevement, 150, event);
                     }
                 }
-                
+
                 refreshDateEndPrelevement();
             </script>
         ';
@@ -185,11 +185,10 @@ function getFormConfirmPaymentSchedule($form, $object, $facture, $action)
 
 function createLinkedBonPrelevement($db, $user, $fk_prelevement_bons)
 {
-	if((float) DOL_VERSION >= 17.0) $tablePrelvDmnd = 'prelevement_demande';
-	else $tablePrelvDmnd = 'prelevement_facture_demande';
+	$tablePrelvDmnd = 'prelevement_demande';
     $sql = 'SELECT pfd.rowid, ee.fk_target
-            FROM '.MAIN_DB_PREFIX.$tablePrelvDmnd.' pfd
-            INNER JOIN '.MAIN_DB_PREFIX.'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
+            FROM '.$db->prefix().$tablePrelvDmnd.' pfd
+            INNER JOIN '.$db->prefix().'element_element ee ON (ee.fk_source = pfd.rowid AND ee.sourcetype = \'prelevement_facture_demande\')
             WHERE pfd.fk_prelevement_bons = '.$fk_prelevement_bons.'
             AND ee.targettype = \'paymentscheduledet\'';
 

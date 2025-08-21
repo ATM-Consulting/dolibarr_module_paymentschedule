@@ -59,7 +59,7 @@ class modPaymentSchedule extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module PaymentSchedule";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.3.2';
+		$this->version = '1.4.0';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -118,7 +118,7 @@ class modPaymentSchedule extends DolibarrModules
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
 		$this->conflictwith = array();	// List of modules id this module is in conflict with
 		$this->phpmin = array(7,0);					// Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(16,0);	// Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = array(17,0);	// Minimum version of Dolibarr required by module
 		$this->langfiles = array("paymentschedule@paymentschedule");
 
 		// Constants

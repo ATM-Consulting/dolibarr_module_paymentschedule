@@ -34,7 +34,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
     public $db;
 
 	/**
-	 * @var array Hook results. Propagated to $hookmanager->resArray for later reuse
+	 * @var array Hook results. Propagated to $this->results for later reuse
 	 */
 	public $results = array();
 
@@ -104,7 +104,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
                 $did = GETPOST('did', 'int');
                 if ($did > 0)
                 {
-                    $sql = 'SELECT fk_target FROM '.MAIN_DB_PREFIX.'element_element
+                    $sql = 'SELECT fk_target FROM '.$this->db->prefix().'element_element
                         WHERE fk_source = '.$did.' AND sourcetype = \'prelevement_facture_demande\'
                         AND targettype = \'paymentscheduledet\'';
 
@@ -349,7 +349,7 @@ class ActionsPaymentSchedule extends paymentschedule\RetroCompatCommonHookAction
             {
                 dol_include_once('paymentschedule/lib/paymentschedule.lib.php');
 
-                $sql = 'SELECT MAX(rowid) as last_id FROM '.MAIN_DB_PREFIX.'prelevement_bons';
+                $sql = 'SELECT MAX(rowid) as last_id FROM '.$this->db->prefix().'prelevement_bons';
                 $resql = $this->db->query($sql);
                 if ($resql)
                 {
