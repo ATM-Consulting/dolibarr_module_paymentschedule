@@ -1,9 +1,10 @@
 # CHANGELOG FOR PAYMENTSCHEDULE MODULE
 
 ## Not Released
+
+## Release 1.3
 - NEW : Compat v22 - *20/08/2025* - 1.4.0
   - DOL v17 minimum 
-
 
 ## Release 1.3
 - FIX : Compat v21 - *10/12/2024* - 1.3.2
