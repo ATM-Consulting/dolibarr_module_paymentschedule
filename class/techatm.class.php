@@ -1,12 +1,12 @@
 <?php
 
+
+namespace paymentschedule;
+
 /**
  * Class TechATM
  * Class utilisée pour des mises à jours technique du module
  */
-
-namespace paymentschedule;
-
 class TechATM
 {
 
@@ -56,19 +56,24 @@ class TechATM
 	const CALL_VERSION = 1.0;
 
 	/**
-	 *  Constructor
+	 * Constructor
 	 *
-	 *  @param DoliDB $db
+	 * @param DoliDB $db Database handler
 	 */
-	function __construct($db)
+	public function __construct($db)
 	{
 		$this->db = $db;
 	}
 
 	/**
-	 * @param DolibarrModules $moduleDescriptor
+	 * Get about page
+	 *
+	 * @param DolibarrModules $moduleDescriptor Module descriptor
+	 * @param bool            $useCache         Use cache or not
+	 * @return string                           HTML content
 	 */
-	function getAboutPage($moduleDescriptor, $useCache = true){
+	public function getAboutPage($moduleDescriptor, $useCache = true)
+	{
 		global $langs;
 
 		$url = self::ATM_TECH_URL.'/modules/modules-page-about.php';
@@ -82,11 +87,11 @@ class TechATM
 		$cacheFileName = dol_sanitizeFileName($moduleDescriptor->name.'_'.$langs->defaultlang).'.html';
 		$cacheFilePath = $cachePath.'/'.$cacheFileName;
 
-		if($useCache && is_readable($cacheFilePath)){
+		if ($useCache && is_readable($cacheFilePath)) {
 			$lastChange = filemtime($cacheFilePath);
-			if($lastChange > time() - 86400){
+			if ($lastChange > time() - 86400) {
 				$content = @file_get_contents($cacheFilePath);
-				if($content !== false){
+				if ($content !== false) {
 					return $content;
 				}
 			}
@@ -94,7 +99,7 @@ class TechATM
 
 		$content = $this->getContents($url);
 
-		if(!$content){
+		if (!$content) {
 			$content = '';
 			// About page goes here
 			$content.= '<div style="float: left;"><img src="../img/Dolibarr_Preferred_Partner_logo.png" /></div>';
@@ -104,14 +109,14 @@ class TechATM
 			$content.= '</center>';
 		}
 
-		if($useCache){
-			if(!is_dir($cachePath)){
+		if ($useCache) {
+			if (!is_dir($cachePath)) {
 				$res = dol_mkdir($cachePath, DOL_DATA_ROOT);
-			}else{
+			} else {
 				$res = true;
 			}
 
-			if($res){
+			if ($res) {
 				$comment = '<!-- Generated from '.$url.' -->'."\r\n";
 
 				file_put_contents(
@@ -127,10 +132,11 @@ class TechATM
 	/**
 	 * Get Module doc URL
 	 *
-	 * @param string $moduleTechMane
-	 * @return string
+	 * @param string $moduleTechMane Module name
+	 * @return string                URL
 	 */
-	public static function getModuleDocUrl($moduleTechMane){
+	public static function getModuleDocUrl($moduleTechMane)
+	{
 		$url = self::ATM_TECH_URL.'/modules/doc-redirect.php';
 		$url.= '?module='.$moduleTechMane;
 		return $url;
@@ -139,10 +145,11 @@ class TechATM
 	/**
 	 * Get Module Demo URL
 	 *
-	 * @param string $moduleTechMane
-	 * @return string
+	 * @param string $moduleTechMane Module name
+	 * @return string                URL
 	 */
-	public static function getModuleDemoUrl($moduleTechMane){
+	public static function getModuleDemoUrl($moduleTechMane)
+	{
 		$url = self::ATM_TECH_URL.'/modules/demo-redirect.php';
 		$url.= '?module='.$moduleTechMane;
 		return $url;
@@ -151,10 +158,11 @@ class TechATM
 	/**
 	 * Get Module Video URL
 	 *
-	 * @param string $moduleTechMane
-	 * @return string
+	 * @param string $moduleTechMane Module name
+	 * @return string                URL
 	 */
-	public static function getModuleVideoUrl($moduleTechMane){
+	public static function getModuleVideoUrl($moduleTechMane)
+	{
 		$url = self::ATM_TECH_URL.'/modules/video-redirect.php';
 		$url.= '?module='.$moduleTechMane;
 		return $url;
@@ -163,10 +171,11 @@ class TechATM
 	/**
 	 * Get last version number URL
 	 *
-	 * @param DolibarrModules $moduleDescriptor
-	 * @return string
+	 * @param DolibarrModules $moduleDescriptor Module descriptor
+	 * @return string                           URL
 	 */
-	public static function getLastModuleVersionUrl($moduleDescriptor){
+	public static function getLastModuleVersionUrl($moduleDescriptor)
+	{
 		$url = self::ATM_TECH_URL.'/modules/modules-last-version.php';
 		$url.= '?module='.$moduleDescriptor->name;
 		$url.= '&number='.$moduleDescriptor->numero;
@@ -178,17 +187,20 @@ class TechATM
 
 
 	/**
-	 * @param $url
-	 * @return false|object
+	 * Get JSON data from URL
+	 *
+	 * @param string $url URL to fetch
+	 * @return mixed      Decoded data or false
 	 */
-	public function getJsonData($url){
+	public function getJsonData($url)
+	{
 		$this->data = false;
 		$res = @file_get_contents($url);
 		$this->http_response_header = $http_response_header;
 		$this->TResponseHeader = self::parseHeaders($http_response_header);
-		if($res !== false){
+		if ($res !== false) {
 			$pos = strpos($res, '{');
-			if($pos > 0){
+			if ($pos > 0) {
 				// cela signifie qu'il y a une erreur ou que la sortie n'est pas propre
 				$res = substr($res, $pos);
 			}
@@ -200,24 +212,31 @@ class TechATM
 	}
 
 	/**
-	 * @param $url
-	 * @return false|string
+	 * Get raw contents from URL
+	 *
+	 * @param string $url URL to fetch
+	 * @return string|false Raw content or false
 	 */
-	public function getContents($url){
+	public function getContents($url)
+	{
 		$this->data = false;
 		$res = @file_get_contents($url);
 		$this->http_response_header = $http_response_header;
 		$this->TResponseHeader = self::parseHeaders($http_response_header);
-		if($res !== false){
+		if ($res !== false) {
 			$this->data = $res;
 		}
 		return $this->data;
 	}
-
-	public static function http_response_code_msg($code = NULL)
+	/**
+	 * Get HTTP response message from code
+	 *
+	 * @param int|null $code HTTP code
+	 * @return string        Message
+	 */
+	public static function httpResponseCodeMsg($code = null)
 	{
-		if ($code !== NULL) {
-
+		if ($code !== null) {
 			switch ($code) {
 				case 100:
 					$text = 'Continue';
@@ -336,28 +355,30 @@ class TechATM
 			}
 
 			return $text;
-
 		} else {
 			return $text = 'Unknown http status code NULL';
 		}
 	}
-
-	public static function parseHeaders( $headers )
+	/**
+	 * Parse HTTP headers
+	 *
+	 * @param array|string $headers Headers
+	 * @return array                Parsed headers
+	 */
+	public static function parseHeaders($headers)
 	{
 		$head = array();
-		if(!is_array($headers)){
+		if (!is_array($headers)) {
 			return $head;
 		}
 
-		foreach( $headers as $k=>$v )
-		{
-			$t = explode( ':', $v, 2 );
-			if( isset( $t[1] ) )
-				$head[ trim($t[0]) ] = trim( $t[1] );
-			else
-			{
+		foreach ($headers as $k=>$v) {
+			$t = explode(':', $v, 2);
+			if ( isset($t[1]) )
+				$head[ trim($t[0]) ] = trim($t[1]);
+			else {
 				$head[] = $v;
-				if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#",$v, $out ) )
+				if ( preg_match("#HTTP/[0-9\.]+\s+([0-9]+)#", $v, $out) )
 					$head['reponse_code'] = intval($out[1]);
 			}
 		}
