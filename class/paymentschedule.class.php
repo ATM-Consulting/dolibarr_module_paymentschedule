@@ -954,7 +954,8 @@ class PaymentScheduleDet extends SeedObject
 		,'tva_tx'	    => 	array('type'=>'double')
 	//      ,'amount_ht'    =>  array('type'=>'double')
 	//      ,'amount_tva'   =>  array('type'=>'double')
-		,'amount_ttc'	=> 	array('type'=>'double')
+		,'amount_ttc'	=> 	array('type'=>'double'),
+		'fk_object' => array('type'=>'integer', 'index'=>1, 'enabled'=>1)
 	);
 
 	public $fk_payment_schedule;
