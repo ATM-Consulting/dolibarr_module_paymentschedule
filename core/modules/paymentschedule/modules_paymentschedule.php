@@ -5,35 +5,42 @@
  * \brief File that contain parent class for projects models
  * and parent class for projects numbering models
  */
-require_once (DOL_DOCUMENT_ROOT . "/core/class/commondocgenerator.class.php");
-
-abstract class ModelePDFPaymentschedule extends CommonDocGenerator {
-	var $error = '';
-
+require_once DOL_DOCUMENT_ROOT . "/core/class/commondocgenerator.class.php";
+/**
+ * Class ModelePDFPaymentschedule
+ *
+ * Parent class for project numbering models
+ */
+abstract class ModelePDFPaymentschedule extends CommonDocGenerator
+{
+	public $error = '';
 	/**
 	 * Return list of active generation modules
 	 *
-	 * @param DoliDB $db handler
-	 * @param string $maxfilenamelength length of value to show
-	 * @return array of templates
+	 * @param DoliDB $db                 Database handler
+	 * @param int    $maxfilenamelength  Length of value to show
+	 * @return array                     List of templates
 	 */
-	static function liste_modeles($db, $maxfilenamelength = 0) {
+	public static function listeModeles($db, $maxfilenamelength = 0)
+	{
 		global $langs;
 
 		$type = 'paymentschedule';
 		$liste = array ();
 
 		include_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-		$liste=getListOfModels($db,$type,$maxfilenamelength);
+		$liste=getListOfModels($db, $type, $maxfilenamelength);
 
 		return $liste;
 	}
-
 	/**
+	 * Calculate the real height of a line (head or foot)
 	 *
-	 * @param string $txt
+	 * @param string $type  Type of line to calculate ('head' or 'foot')
+	 * @return float        The calculated height in PDF units
 	 */
-	public function getRealHeightLine($type = '') {
+	public function getRealHeightLine($type = '')
+	{
 		global $conf;
 
 		// Determine if jump pages is needed
@@ -70,7 +77,7 @@ abstract class ModelePDFPaymentschedule extends CommonDocGenerator {
 				$height = $end_y - $start_y;
 				// print 'aa$height='.$height.'<br>';
 			} else {
-				for($page = $start_page; $page <= $end_page; $page ++) {
+				for ($page = $start_page; $page <= $end_page; $page ++) {
 					$this->pdf->setPage($page);
 					// print '$page='.$page.'<br>';
 					if ($page == $start_page) {
